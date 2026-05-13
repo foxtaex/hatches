@@ -1,4 +1,4 @@
-import type { APIRoute } from "astro";
+﻿import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
 // POST — create column
@@ -22,6 +22,6 @@ export const PATCH: APIRoute = async ({ request }) => {
 // DELETE — delete column
 export const DELETE: APIRoute = async ({ request }) => {
   const { id } = await request.json();
-  await prisma.column.delete({ where: { id } });
+  await prisma.column.deleteMany({ where: { id } });
   return Response.json({ ok: true });
 };

@@ -1,4 +1,4 @@
-import type { APIRoute } from "astro";
+﻿import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
 export const GET: APIRoute = async ({ params }) => {
@@ -18,6 +18,6 @@ export const PATCH: APIRoute = async ({ params, request }) => {
 };
 
 export const DELETE: APIRoute = async ({ params }) => {
-  await prisma.doc.delete({ where: { id: Number(params.id) } });
+  await prisma.doc.deleteMany({ where: { id: Number(params.id) } });
   return Response.json({ ok: true });
 };
