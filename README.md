@@ -102,7 +102,7 @@ prisma/
 ## Self-hosting with Docker
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/hatches.git
+git clone https://github.com/foxtaex/hatches.git
 cd hatches
 
 cp .env.example .env
