@@ -358,7 +358,7 @@ export function AdminPanel() {
     <div className="flex-1 overflow-y-auto p-6">
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
         <div className="flex items-center gap-1 border-b border-zinc-800 pb-0">
-          {tabs.map(({ key, label }) => (
+          {tabs.map(({ key, label, icon }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
