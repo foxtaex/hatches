@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { KanbanBoard } from "../components/kanban/KanbanBoard";
+---
+
+<Layout title="Board — DevTool" active="board">
+  <KanbanBoard client:load />
+</Layout>

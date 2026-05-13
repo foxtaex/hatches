@@ -1,0 +1,88 @@
+---
+import "../styles/global.css";
+
+export interface Props {
+  title?: string;
+  active?: "board" | "docs" | "notes" | "websites" | "integrations" | "admin";
+}
+
+const { title = "DevTool", active } = Astro.props;
+const user = (Astro.locals as any).user;
+
+const nav = [
+  { href: "/board", label: "Board", key: "board" },
+  { href: "/docs", label: "Docs", key: "docs" },
+  { href: "/notes", label: "Notizen", key: "notes" },
+  { href: "/websites", label: "Websites", key: "websites" },
+  { href: "/integrations", label: "Integrationen", key: "integrations" },
+];
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col">
+    <header class="border-b border-zinc-800 bg-zinc-900">
+      <nav class="flex items-center gap-1 px-4 h-12">
+        <span class="font-bold text-zinc-300 mr-4 text-sm tracking-widest uppercase">DevTool</span>
+
+        {nav.map(({ href, label, key }) => (
+          <a
+            href={href}
+            class={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+              active === key
+                ? "bg-zinc-700 text-white"
+                : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
+            }`}
+          >
+            {label}
+          </a>
+        ))}
+
+        {user?.isAdmin && (
+          <a
+            href="/admin"
+            class={`px-3 py-1.5 rounded text-sm font-medium transition-colors ml-1 ${
+              active === "admin"
+                ? "bg-zinc-700 text-white"
+                : "text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800"
+            }`}
+          >
+            Admin
+          </a>
+        )}
+
+        <div class="ml-auto flex items-center gap-3">
+          {user && (
+            <>
+              <span class="text-sm text-zinc-500">
+                {user.displayName || user.username}
+              </span>
+              <button
+                id="logout-btn"
+                class="text-xs text-zinc-600 hover:text-zinc-300 transition-colors"
+              >
+                Abmelden
+              </button>
+            </>
+          )}
+        </div>
+      </nav>
+    </header>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <slot />
+    </main>
+
+    <script>
+      document.getElementById("logout-btn")?.addEventListener("click", async () => {
+        await fetch("/api/auth/logout", { method: "POST" });
+        window.location.href = "/login";
+      });
+    </script>
+  </body>
+</html>

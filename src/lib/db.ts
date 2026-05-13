@@ -1,0 +1,34 @@
+import { PrismaClient } from "@prisma/client";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const provider = (process.env.DATABASE_PROVIDER ?? "sqlite").toLowerCase();
+const url = process.env.DATABASE_URL ?? "file:./dev.db";
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
+
+async function createAdapter() {
+  if (provider === "sqlite") {
+    const { PrismaBetterSqlite3 } = await import("@prisma/adapter-better-sqlite3");
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const dbPath = path.resolve(__dirname, "../../dev.db");
+    return new PrismaBetterSqlite3({ url: `file:${dbPath}` });
+  }
+  if (provider === "postgresql" || provider === "postgres") {
+    const { PrismaPg } = await import("@prisma/adapter-pg");
+    return new PrismaPg({ connectionString: url });
+  }
+  // MySQL and MSSQL use the Prisma binary engine — no adapter needed
+  return null;
+}
+
+function createPrisma(adapter: any) {
+  if (adapter) return new PrismaClient({ adapter });
+  // MySQL / MSSQL: traditional URL-based connection
+  return new PrismaClient({ datasources: { db: { url } } });
+}
+
+// Top-level await — module waits before exports become available
+const adapter = await createAdapter();
+export const prisma: PrismaClient = globalForPrisma.prisma ?? createPrisma(adapter);
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
