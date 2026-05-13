@@ -1,7 +1,21 @@
 ---
-import { countUsers } from "../lib/auth";
-const count = await countUsers();
-if (count > 0) return Astro.redirect("/login");
+import { SetupWizard } from "../components/setup/SetupWizard";
+
+// Determine which step to start on:
+//  "db"    → tables don't exist yet (fresh install)
+//  "admin" → tables exist, no users yet
+// Any other state → redirect away
+let initialStep: "db" | "admin" = "admin";
+
+try {
+  const { countUsers } = await import("../lib/auth");
+  const count = await countUsers();
+  if (count > 0) return Astro.redirect("/login");
+  initialStep = "admin";
+} catch {
+  // DB tables don't exist — show DB config step first
+  initialStep = "db";
+}
 ---
 
 <!doctype html>
@@ -13,40 +27,6 @@ if (count > 0) return Astro.redirect("/login");
     <link rel="stylesheet" href="/src/styles/global.css" />
   </head>
   <body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center">
-    <div class="w-full max-w-sm px-4">
-      <h1 class="text-2xl font-bold text-center mb-2">Hatches einrichten</h1>
-      <p class="text-zinc-500 text-sm text-center mb-8">Erstelle den ersten Admin-Account.</p>
-      <form id="form" class="flex flex-col gap-4">
-        <input id="username" type="text" placeholder="Benutzername" required
-          class="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded px-4 py-2.5 outline-none focus:border-zinc-500" />
-        <input id="email" type="email" placeholder="E-Mail" required
-          class="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded px-4 py-2.5 outline-none focus:border-zinc-500" />
-        <input id="password" type="password" placeholder="Passwort (min. 6 Zeichen)" required minlength="6"
-          class="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded px-4 py-2.5 outline-none focus:border-zinc-500" />
-        <p id="error" class="text-red-400 text-sm hidden"></p>
-        <button type="submit"
-          class="bg-blue-600 hover:bg-blue-500 text-white font-medium rounded py-2.5 transition-colors">
-          Admin-Account erstellen
-        </button>
-      </form>
-    </div>
-    <script>
-      document.getElementById("form")?.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const err = document.getElementById("error")!;
-        const res = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: (document.getElementById("username") as HTMLInputElement).value,
-            email: (document.getElementById("email") as HTMLInputElement).value,
-            password: (document.getElementById("password") as HTMLInputElement).value,
-          }),
-        });
-        const data = await res.json();
-        if (data.ok) { window.location.href = "/board"; }
-        else { err.textContent = data.error; err.classList.remove("hidden"); }
-      });
-    </script>
+    <SetupWizard initialStep={initialStep} client:only="react" />
   </body>
 </html>

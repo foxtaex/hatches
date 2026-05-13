@@ -2,7 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import { getSession, getSessionCookie, countUsers } from "./lib/auth";
 import { can, type Section } from "./lib/permissions";
 
-const PUBLIC_PATHS = ["/login", "/setup", "/api/auth/login", "/api/auth/register"];
+const PUBLIC_PATHS = ["/login", "/setup", "/api/auth/login", "/api/auth/register", "/api/setup/"];
 const SECTION_MAP: Record<string, Section> = {
   "/board": "board",
   "/docs": "docs",
@@ -16,9 +16,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
   const pathname = url.pathname;
 
-  // Setup-Redirect: Noch keine User → /setup
-  if (pathname !== "/setup" && !pathname.startsWith("/api/auth")) {
-    const userCount = await countUsers();
+  // Setup-Redirect: Noch keine User (oder DB noch nicht eingerichtet) → /setup
+  const isSetupPath = pathname === "/setup" || pathname.startsWith("/api/setup/") || pathname.startsWith("/api/auth");
+  if (!isSetupPath) {
+    let userCount = 0;
+    try { userCount = await countUsers(); } catch { /* DB tables don't exist yet */ }
     if (userCount === 0) return context.redirect("/setup");
   }
 
