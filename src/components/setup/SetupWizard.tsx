@@ -19,10 +19,10 @@ export function SetupWizard({ initialStep }: Props) {
   const [step, setStep] = useState<Step>(initialStep);
 
   return (
-    <div className="w-full max-w-sm px-4">
+    <div className="w-full max-w-md px-4">
       {/* Logo hero */}
       <div className="flex flex-col items-center mb-8 gap-4">
-        <HatchesLogo size={52} wordmark wordmarkSize={22} />
+        <HatchesLogo size={60} wordmark wordmarkSize={26} />
         <div className="text-center">
           <p className="text-zinc-500 text-[13px]" style={{ letterSpacing: "-0.01em" }}>
             {step === "db"      && "Schritt 1 von 2 — Datenbankverbindung"}
