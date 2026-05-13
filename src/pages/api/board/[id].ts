@@ -1,5 +1,5 @@
 ﻿import type { APIRoute } from "astro";
-import { prisma } from "../../../../lib/db";
+import { prisma } from "../../../lib/db";
 
 // GET /api/board/[id] — full board with columns + cards
 export const GET: APIRoute = async ({ params }) => {
@@ -37,7 +37,7 @@ export const PATCH: APIRoute = async ({ params, request }) => {
 export const DELETE: APIRoute = async ({ params }) => {
   const id = Number(params.id);
   const count = await prisma.board.count();
-  if (count <= 1) return Response.json({ error: "Letztes Board kann nicht gelöscht werden" }, { status: 400 });
+  if (count <= 1) return Response.json({ error: "Letztes Board kann nicht geloescht werden" }, { status: 400 });
   await prisma.board.delete({ where: { id } });
   return Response.json({ ok: true });
 };

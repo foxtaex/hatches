@@ -1,5 +1,5 @@
 ﻿import type { APIRoute } from "astro";
-import { prisma } from "../../../../lib/db";
+import { prisma } from "../../../lib/db";
 
 // GET /api/board/all-columns — all boards with their columns (no cards), for cross-board move picker
 export const GET: APIRoute = async () => {

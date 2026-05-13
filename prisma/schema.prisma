@@ -2,12 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Provider wird per `npm run db:switch` automatisch gesetzt (sqlite | postgresql | mysql | sqlserver)
 datasource db {
   provider = "sqlite"
 }
 
-// ── Kanban ────────────────────────────────────────────────
 model Board {
   id        Int      @id @default(autoincrement())
   name      String   @default("Main Board")
@@ -38,7 +36,6 @@ model Card {
   updatedAt     DateTime       @updatedAt
 }
 
-// ── Dokumentation ─────────────────────────────────────────
 model Doc {
   id        Int      @id @default(autoincrement())
   title     String
@@ -47,7 +44,6 @@ model Doc {
   updatedAt DateTime @updatedAt
 }
 
-// ── Notizen ───────────────────────────────────────────────
 model Note {
   id        Int      @id @default(autoincrement())
   title     String
@@ -56,7 +52,6 @@ model Note {
   updatedAt DateTime @updatedAt
 }
 
-// ── Websites ──────────────────────────────────────────────
 model Website {
   id          Int      @id @default(autoincrement())
   name        String
@@ -70,7 +65,6 @@ model Website {
   updatedAt   DateTime @updatedAt
 }
 
-// ── Auth ─────────────────────────────────────────────────
 model User {
   id           Int              @id @default(autoincrement())
   username     String           @unique
@@ -94,8 +88,16 @@ model Session {
   createdAt DateTime @default(now())
 }
 
-// ── Teams & Permissions (WBB-Stil) ───────────────────────
 model Team {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  color       String           @default("#6b7280")
+  createdAt   DateTime         @default(now())
+  memberships TeamMembership[]
+}
+
+model Role {
   id          Int              @id @default(autoincrement())
   name        String           @unique
   description String?
@@ -103,50 +105,49 @@ model Team {
   isDefault   Boolean          @default(false)
   priority    Int              @default(0)
   createdAt   DateTime         @default(now())
-  memberships TeamMembership[]
   permissions Permission[]
+  memberships TeamMembership[]
 }
 
 model TeamMembership {
   id       Int      @id @default(autoincrement())
   userId   Int
   teamId   Int
+  roleId   Int
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  role     Role     @relation(fields: [roleId], references: [id])
   joinedAt DateTime @default(now())
 
   @@unique([userId, teamId])
 }
 
-// sections: board | docs | notes | websites | integrations | admin
 model Permission {
   id        Int     @id @default(autoincrement())
-  teamId    Int
-  team      Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  roleId    Int
+  role      Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
   section   String
-  canView   Boolean @default(true)
+  canView   Boolean @default(false)
   canCreate Boolean @default(false)
   canEdit   Boolean @default(false)
   canDelete Boolean @default(false)
 
-  @@unique([teamId, section])
+  @@unique([roleId, section])
 }
 
-// ── Externe Integrationen ────────────────────────────────
-// type: github | gitlab | jira | redmine | mantisbt | confluence | trello
 model Integration {
-  id         Int             @id @default(autoincrement())
-  type       String
-  name       String
-  baseUrl    String?
-  token      String?
-  projectKey String?
+  id          Int             @id @default(autoincrement())
+  type        String
+  name        String
+  baseUrl     String?
+  token       String?
+  projectKey  String?
   extraConfig String?
-  enabled    Boolean         @default(true)
-  lastSyncAt DateTime?
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  issues     ExternalIssue[]
+  enabled     Boolean         @default(true)
+  lastSyncAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  issues      ExternalIssue[]
 }
 
 model ExternalIssue {

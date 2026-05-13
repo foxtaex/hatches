@@ -2,7 +2,7 @@ import { prisma } from "./db";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "node:crypto";
 
-const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 Tage
+const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
 
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
@@ -23,7 +23,18 @@ export async function getSession(sessionId: string | null | undefined) {
   if (!sessionId) return null;
   const session = await prisma.session.findUnique({
     where: { id: sessionId },
-    include: { user: { include: { memberships: { include: { team: { include: { permissions: true } } } } } } },
+    include: {
+      user: {
+        include: {
+          memberships: {
+            include: {
+              team: true,
+              role: { include: { permissions: true } },
+            },
+          },
+        },
+      },
+    },
   });
   if (!session) return null;
   if (session.expiresAt < new Date()) {
@@ -53,50 +64,59 @@ export async function createFirstAdmin(username: string, email: string, password
     data: { username, email, passwordHash, displayName: username, isAdmin: true },
   });
 
-  // Admin-Team erstellen und zuweisen
-  const adminTeam = await prisma.team.upsert({
-    where: { name: "Administrators" },
+  const sections = ["board", "docs", "notes", "websites", "integrations", "admin"];
+
+  // Admin-Rolle: volle Rechte
+  const adminRole = await prisma.role.upsert({
+    where: { name: "Admin" },
     update: {},
     create: {
-      name: "Administrators",
-      description: "Vollzugriff auf alles",
+      name: "Admin",
+      description: "Voller Zugriff auf alles",
       color: "#ef4444",
       priority: 100,
       permissions: {
-        create: ["board", "docs", "notes", "websites", "integrations", "admin"].map((s) => ({
+        create: sections.map((s) => ({
           section: s,
-          canView: true,
-          canCreate: true,
-          canEdit: true,
-          canDelete: true,
+          canView: true, canCreate: true, canEdit: true, canDelete: true,
         })),
       },
     },
   });
 
-  // Members-Team erstellen (Default für neue User)
-  await prisma.team.upsert({
-    where: { name: "Members" },
+  // Member-Rolle: Standard-Rechte (Default fuer neue User)
+  await prisma.role.upsert({
+    where: { name: "Member" },
     update: {},
     create: {
-      name: "Members",
-      description: "Standardmitglieder",
+      name: "Member",
+      description: "Standardmitglied",
       color: "#3b82f6",
       priority: 10,
       isDefault: true,
       permissions: {
         create: [
-          { section: "board", canView: true, canCreate: true, canEdit: true, canDelete: false },
-          { section: "docs", canView: true, canCreate: true, canEdit: true, canDelete: false },
-          { section: "notes", canView: true, canCreate: true, canEdit: true, canDelete: true },
-          { section: "websites", canView: true, canCreate: false, canEdit: false, canDelete: false },
-          { section: "integrations", canView: true, canCreate: false, canEdit: false, canDelete: false },
-          { section: "admin", canView: false, canCreate: false, canEdit: false, canDelete: false },
+          { section: "board",        canView: true,  canCreate: true,  canEdit: true,  canDelete: false },
+          { section: "docs",         canView: true,  canCreate: true,  canEdit: true,  canDelete: false },
+          { section: "notes",        canView: true,  canCreate: true,  canEdit: true,  canDelete: true  },
+          { section: "websites",     canView: true,  canCreate: false, canEdit: false, canDelete: false },
+          { section: "integrations", canView: true,  canCreate: false, canEdit: false, canDelete: false },
+          { section: "admin",        canView: false, canCreate: false, canEdit: false, canDelete: false },
         ],
       },
     },
   });
 
-  await prisma.teamMembership.create({ data: { userId: user.id, teamId: adminTeam.id } });
+  // Admin-Team erstellen und User zuweisen
+  const adminTeam = await prisma.team.upsert({
+    where: { name: "Administrators" },
+    update: {},
+    create: { name: "Administrators", description: "Admin-Gruppe", color: "#ef4444" },
+  });
+
+  await prisma.teamMembership.create({
+    data: { userId: user.id, teamId: adminTeam.id, roleId: adminRole.id },
+  });
+
   return user;
 }

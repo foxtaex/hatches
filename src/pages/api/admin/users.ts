@@ -10,7 +10,14 @@ export const GET: APIRoute = async ({ locals }) => {
   try { requireAdmin(locals); } catch { return Response.json({ error: "Keine Berechtigung" }, { status: 403 }); }
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "asc" },
-    include: { memberships: { include: { team: true } } },
+    include: {
+      memberships: {
+        include: {
+          team: { select: { id: true, name: true, color: true } },
+          role: { select: { id: true, name: true, color: true } },
+        },
+      },
+    },
     omit: { passwordHash: true },
   });
   return Response.json(users);
@@ -18,30 +25,19 @@ export const GET: APIRoute = async ({ locals }) => {
 
 export const POST: APIRoute = async ({ locals, request }) => {
   try { requireAdmin(locals); } catch { return Response.json({ error: "Keine Berechtigung" }, { status: 403 }); }
-  const { username, email, password, displayName, teamIds } = await request.json();
+  const { username, email, password, displayName } = await request.json();
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
-    data: {
-      username, email, passwordHash, displayName: displayName || username,
-      memberships: teamIds?.length
-        ? { create: teamIds.map((tid: number) => ({ teamId: tid })) }
-        : {},
-    },
+    data: { username, email, passwordHash, displayName: displayName || username },
   });
   return Response.json({ id: user.id, username: user.username });
 };
 
 export const PATCH: APIRoute = async ({ locals, request }) => {
   try { requireAdmin(locals); } catch { return Response.json({ error: "Keine Berechtigung" }, { status: 403 }); }
-  const { id, password, teamIds, ...data } = await request.json();
+  const { id, password, ...data } = await request.json();
   if (password) (data as any).passwordHash = await hashPassword(password);
   await prisma.user.update({ where: { id }, data });
-  if (teamIds !== undefined) {
-    await prisma.teamMembership.deleteMany({ where: { userId: id } });
-    for (const tid of teamIds) {
-      await prisma.teamMembership.create({ data: { userId: id, teamId: tid } });
-    }
-  }
   return Response.json({ ok: true });
 };
 
