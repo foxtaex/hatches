@@ -5,6 +5,6 @@ const user = (Astro.locals as any).user;
 if (!user?.isAdmin) return Astro.redirect("/board");
 ---
 
-<Layout title="Admin — DevTool" active="admin">
+<Layout title="Admin — Hatches" active="admin">
   <AdminPanel client:load />
 </Layout>

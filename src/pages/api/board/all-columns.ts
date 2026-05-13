@@ -1,9 +1,21 @@
-﻿import type { APIRoute } from "astro";
+import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
-// GET /api/board/all-columns — all boards with their columns (no cards), for cross-board move picker
-export const GET: APIRoute = async () => {
+async function visibilityWhere(userId: number, isAdmin: boolean) {
+  if (isAdmin) return {};
+  const memberships = await prisma.teamMembership.findMany({
+    where: { userId },
+    select: { teamId: true },
+  });
+  const teamIds = memberships.map((m) => m.teamId);
+  return { OR: [{ teamId: { in: teamIds } }, { teamId: null, ownerId: userId }] };
+}
+
+export const GET: APIRoute = async ({ locals }) => {
+  const user = (locals as any).user;
+  const where = await visibilityWhere(user.id, user.isAdmin);
   const boards = await prisma.board.findMany({
+    where,
     orderBy: { createdAt: "asc" },
     include: {
       columns: { orderBy: { position: "asc" }, select: { id: true, title: true } },

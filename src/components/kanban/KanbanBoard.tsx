@@ -1,18 +1,24 @@
-﻿import {
+import {
   DndContext, DragOverlay, PointerSensor,
   useSensor, useSensors,
   type DragEndEvent, type DragStartEvent,
 } from "@dnd-kit/core";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus, faXmark, faPen, faCheck, faTableColumns,
-  faArrowRightArrowLeft, faTrash,
+  faArrowRightArrowLeft, faTrash, faLock, faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { KanbanColumn } from "./KanbanColumn";
 import type { Board, Card, Column } from "./types";
 
-interface BoardMeta { id: number; name: string; _count: { columns: number } }
+interface TeamOption { id: number; name: string; color: string }
+interface BoardMeta {
+  id: number; name: string;
+  teamId: number | null;
+  team: TeamOption | null;
+  _count: { columns: number };
+}
 interface BoardWithCols { id: number; name: string; columns: { id: number; title: string }[] }
 
 export function KanbanBoard() {
@@ -22,10 +28,12 @@ export function KanbanBoard() {
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const [users, setUsers] = useState<{ id: number; displayName: string | null; username: string }[]>([]);
   const [allBoards, setAllBoards] = useState<BoardWithCols[]>([]);
+  const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
 
   // Sidebar state
   const [addingBoard, setAddingBoard] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
+  const [newBoardTeamId, setNewBoardTeamId] = useState<string>("");
   const [renamingBoardId, setRenamingBoardId] = useState<number | null>(null);
   const [renameBoardValue, setRenameBoardValue] = useState("");
 
@@ -33,9 +41,13 @@ export function KanbanBoard() {
   const [addingCol, setAddingCol] = useState(false);
   const [newColTitle, setNewColTitle] = useState("");
 
+  // Double-submit guards
+  const creatingBoardRef = useRef(false);
+  const addingColRef = useRef(false);
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  useEffect(() => { loadBoards(); loadUsers(); }, []);
+  useEffect(() => { loadBoards(); loadUsers(); loadUserTeams(); }, []);
   useEffect(() => { if (activeBoardId) loadBoard(activeBoardId); }, [activeBoardId]);
   useEffect(() => { loadAllColumns(); }, [boards]);
 
@@ -63,19 +75,28 @@ export function KanbanBoard() {
     } catch { /* non-admin */ }
   }
 
+  async function loadUserTeams() {
+    const res = await fetch("/api/user/teams");
+    if (res.ok) setUserTeams(await res.json());
+  }
+
   // ── Board CRUD ───────────────────────────────────────────
 
   async function createBoard() {
+    if (creatingBoardRef.current) return;
     const name = newBoardName.trim() || "Neues Board";
+    const teamId = newBoardTeamId ? Number(newBoardTeamId) : null;
+    creatingBoardRef.current = true;
+    setNewBoardName(""); setNewBoardTeamId(""); setAddingBoard(false);
     const res = await fetch("/api/board", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, teamId }),
     });
     const b: BoardMeta = await res.json();
     setBoards((prev) => [...prev, b]);
     setActiveBoardId(b.id);
-    setNewBoardName(""); setAddingBoard(false);
+    creatingBoardRef.current = false;
   }
 
   async function renameBoard(id: number, name: string) {
@@ -94,10 +115,7 @@ export function KanbanBoard() {
     if (!res.ok) { const e = await res.json(); alert(e.error); return; }
     const remaining = boards.filter((b) => b.id !== id);
     setBoards(remaining);
-    if (activeBoardId === id) {
-      const next = remaining[0];
-      setActiveBoardId(next?.id ?? null);
-    }
+    if (activeBoardId === id) setActiveBoardId(remaining[0]?.id ?? null);
   }
 
   // ── Drag & Drop ──────────────────────────────────────────
@@ -209,16 +227,16 @@ export function KanbanBoard() {
   }
 
   async function moveCardToBoard(cardId: number, targetColumnId: number) {
-    // Remove card from current board view
     setBoard((prev) => {
       if (!prev) return prev;
       return { ...prev, columns: prev.columns.map((col) => ({ ...col, cards: col.cards.filter((c) => c.id !== cardId) })) };
     });
-    // Move via existing API
     const res = await fetch("/api/board/all-columns");
     const allB: BoardWithCols[] = await res.json();
     const targetBoard = allB.find((b) => b.columns.some((c) => c.id === targetColumnId));
-    const targetColCards = targetBoard ? await fetch(`/api/board/${targetBoard.id}`).then(r => r.json()).then((b: Board) => b.columns.find(c => c.id === targetColumnId)?.cards ?? []) : [];
+    const targetColCards = targetBoard
+      ? await fetch(`/api/board/${targetBoard.id}`).then(r => r.json()).then((b: Board) => b.columns.find(c => c.id === targetColumnId)?.cards ?? [])
+      : [];
     await fetch("/api/board/move", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -240,8 +258,11 @@ export function KanbanBoard() {
   }
 
   async function addColumn() {
+    if (addingColRef.current) return;
     const t = newColTitle.trim();
     if (!t || !board) return;
+    addingColRef.current = true;
+    setNewColTitle(""); setAddingCol(false);
     const res = await fetch("/api/board/columns", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -249,8 +270,19 @@ export function KanbanBoard() {
     });
     const col: Column = await res.json();
     setBoard((prev) => prev ? { ...prev, columns: [...prev.columns, col] } : prev);
-    setNewColTitle(""); setAddingCol(false);
+    addingColRef.current = false;
   }
+
+  // ── Sidebar grouping ─────────────────────────────────────
+
+  const privateBoards = boards.filter((b) => !b.teamId);
+  const teamBoardGroups = userTeams
+    .map((t) => ({ team: t, items: boards.filter((b) => b.teamId === t.id) }))
+    .filter((g) => g.items.length > 0);
+
+  // also catch boards from teams not in userTeams (e.g. admin sees all)
+  const knownTeamIds = new Set(userTeams.map((t) => t.id));
+  const otherTeamBoards = boards.filter((b) => b.teamId && !knownTeamIds.has(b.teamId));
 
   // ── Render ───────────────────────────────────────────────
 
@@ -260,70 +292,81 @@ export function KanbanBoard() {
       <aside className="w-52 flex-shrink-0 border-r border-zinc-800 bg-zinc-900 flex flex-col">
         <div className="px-3 py-3 border-b border-zinc-800 flex items-center justify-between">
           <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Boards</span>
-          <button onClick={() => setAddingBoard(true)} className="text-zinc-600 hover:text-zinc-300 transition-colors" title="Board erstellen">
+          <button
+            onClick={() => { creatingBoardRef.current = false; setAddingBoard(true); }}
+            className="text-zinc-600 hover:text-zinc-300 transition-colors" title="Board erstellen">
             <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
           </button>
         </div>
 
         {addingBoard && (
-          <div className="px-3 py-2 border-b border-zinc-800 flex gap-1">
+          <div className="px-3 py-2 border-b border-zinc-800 flex flex-col gap-1.5">
             <input
               autoFocus
               value={newBoardName}
               onChange={(e) => setNewBoardName(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") createBoard(); if (e.key === "Escape") { setNewBoardName(""); setAddingBoard(false); } }}
+              onKeyDown={(e) => { if (e.key === "Enter") createBoard(); if (e.key === "Escape") { setNewBoardName(""); setNewBoardTeamId(""); setAddingBoard(false); } }}
               placeholder="Board Name..."
-              className="flex-1 bg-zinc-800 text-zinc-200 text-xs rounded px-2 py-1 outline-none border border-zinc-600 min-w-0"
+              className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2 py-1 outline-none border border-zinc-600"
             />
-            <button onClick={createBoard} className="text-green-500 hover:text-green-400">
-              <FontAwesomeIcon icon={faCheck} className="w-3 h-3" />
-            </button>
-            <button onClick={() => { setNewBoardName(""); setAddingBoard(false); }} className="text-zinc-600 hover:text-zinc-400">
-              <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
-            </button>
+            <div className="flex gap-1">
+              <select
+                value={newBoardTeamId}
+                onChange={(e) => setNewBoardTeamId(e.target.value)}
+                className="flex-1 bg-zinc-800 text-zinc-300 text-xs rounded px-1.5 py-1 outline-none border border-zinc-700 min-w-0"
+              >
+                <option value="">🔒 Privat</option>
+                {userTeams.map((t) => (
+                  <option key={t.id} value={t.id}>👥 {t.name}</option>
+                ))}
+              </select>
+              <button onClick={createBoard} className="text-green-500 hover:text-green-400 px-1">
+                <FontAwesomeIcon icon={faCheck} className="w-3 h-3" />
+              </button>
+              <button onClick={() => { setNewBoardName(""); setNewBoardTeamId(""); setAddingBoard(false); }} className="text-zinc-600 hover:text-zinc-400 px-1">
+                <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+              </button>
+            </div>
           </div>
         )}
 
         <nav className="flex-1 overflow-y-auto py-1">
-          {boards.map((b) => (
-            <div
-              key={b.id}
-              onClick={() => setActiveBoardId(b.id)}
-              className={`group flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors ${activeBoardId === b.id ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300"}`}
-            >
-              <FontAwesomeIcon icon={faTableColumns} className="w-3 h-3 flex-shrink-0 opacity-60" />
-              {renamingBoardId === b.id ? (
-                <input
-                  autoFocus
-                  value={renameBoardValue}
-                  onChange={(e) => setRenameBoardValue(e.target.value)}
-                  onBlur={() => renameBoard(b.id, renameBoardValue || b.name)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") renameBoard(b.id, renameBoardValue || b.name);
-                    if (e.key === "Escape") setRenamingBoardId(null);
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex-1 bg-zinc-700 text-zinc-100 text-xs rounded px-1 py-0.5 outline-none border border-zinc-500 min-w-0"
-                />
-              ) : (
-                <span className="flex-1 text-xs truncate">{b.name}</span>
-              )}
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} className="hover:text-zinc-200 transition-colors" title="Umbenennen">
-                  <FontAwesomeIcon icon={faPen} className="w-2.5 h-2.5" />
-                </button>
-                <button onClick={() => deleteBoard(b.id)} className="hover:text-red-400 transition-colors" title="Loeschen">
-                  <FontAwesomeIcon icon={faTrash} className="w-2.5 h-2.5" />
-                </button>
+          {/* Private boards */}
+          {privateBoards.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 px-3 py-1 mt-1">
+                <FontAwesomeIcon icon={faLock} className="w-2.5 h-2.5 text-zinc-700" />
+                <span className="text-[10px] font-semibold text-zinc-700 uppercase tracking-wider">Privat</span>
               </div>
+              {privateBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
+            </div>
+          )}
+
+          {/* Team boards */}
+          {teamBoardGroups.map(({ team, items }) => (
+            <div key={team.id}>
+              <div className="flex items-center gap-1.5 px-3 py-1 mt-1">
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: team.color }} />
+                <span className="text-[10px] font-semibold uppercase tracking-wider truncate" style={{ color: team.color }}>{team.name}</span>
+              </div>
+              {items.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
             </div>
           ))}
+
+          {/* Boards from teams admin can see but aren't in userTeams */}
+          {otherTeamBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
+
+          {boards.length === 0 && (
+            <p className="text-xs text-zinc-700 px-3 py-4 text-center">Noch keine Boards</p>
+          )}
         </nav>
       </aside>
 
       {/* Board Content */}
       {!board ? (
-        <div className="flex-1 flex items-center justify-center text-zinc-600">Laden…</div>
+        <div className="flex-1 flex items-center justify-center text-zinc-600">
+          {boards.length === 0 ? "Board erstellen →" : "Laden…"}
+        </div>
       ) : (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="flex-1 flex gap-4 overflow-x-auto p-6 items-start">
@@ -356,7 +399,7 @@ export function KanbanBoard() {
                     className="bg-zinc-700 text-zinc-100 text-sm rounded px-2 py-1.5 outline-none border border-zinc-500 w-full"
                   />
                   <div className="flex gap-1">
-                    <button onClick={addColumn} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded py-1 font-medium transition-colors">Hinzufuegen</button>
+                    <button onClick={addColumn} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded py-1 font-medium transition-colors">Hinzufügen</button>
                     <button onClick={() => { setNewColTitle(""); setAddingCol(false); }} className="px-2 text-zinc-500 hover:text-zinc-300">
                       <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
                     </button>
@@ -364,11 +407,11 @@ export function KanbanBoard() {
                 </div>
               ) : (
                 <button
-                  onClick={() => setAddingCol(true)}
+                  onClick={() => { addingColRef.current = false; setAddingCol(true); }}
                   className="w-full text-left flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800/50 border border-dashed border-zinc-700 hover:border-zinc-500 rounded-xl px-4 py-3 transition-colors"
                 >
                   <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
-                  Spalte hinzufuegen
+                  Spalte hinzufügen
                 </button>
               )}
             </div>
@@ -383,6 +426,53 @@ export function KanbanBoard() {
           </DragOverlay>
         </DndContext>
       )}
+    </div>
+  );
+}
+
+// ── BoardItem helper ─────────────────────────────────────
+function BoardItem({ b, active, renamingId, renameValue, onSelect, onRename, onRenameChange, onRenameSubmit, onRenameCancel, onDelete }: {
+  b: { id: number; name: string };
+  active: boolean;
+  renamingId: number | null;
+  renameValue: string;
+  onSelect: () => void;
+  onRename: () => void;
+  onRenameChange: (v: string) => void;
+  onRenameSubmit: (id: number, name: string) => void;
+  onRenameCancel: () => void;
+  onDelete: (id: number) => void;
+}) {
+  return (
+    <div
+      onClick={onSelect}
+      className={`group flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors ${active ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300"}`}
+    >
+      <FontAwesomeIcon icon={faTableColumns} className="w-3 h-3 flex-shrink-0 opacity-60" />
+      {renamingId === b.id ? (
+        <input
+          autoFocus
+          value={renameValue}
+          onChange={(e) => onRenameChange(e.target.value)}
+          onBlur={() => onRenameSubmit(b.id, renameValue || b.name)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onRenameSubmit(b.id, renameValue || b.name);
+            if (e.key === "Escape") onRenameCancel();
+          }}
+          onClick={(e) => e.stopPropagation()}
+          className="flex-1 bg-zinc-700 text-zinc-100 text-xs rounded px-1 py-0.5 outline-none border border-zinc-500 min-w-0"
+        />
+      ) : (
+        <span className="flex-1 text-xs truncate">{b.name}</span>
+      )}
+      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+        <button onClick={onRename} className="hover:text-zinc-200 transition-colors" title="Umbenennen">
+          <FontAwesomeIcon icon={faPen} className="w-2.5 h-2.5" />
+        </button>
+        <button onClick={() => onDelete(b.id)} className="hover:text-red-400 transition-colors" title="Löschen">
+          <FontAwesomeIcon icon={faTrash} className="w-2.5 h-2.5" />
+        </button>
+      </div>
     </div>
   );
 }
