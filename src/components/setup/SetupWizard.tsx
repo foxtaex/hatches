@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { HatchesLogo } from "../brand/HatchesLogo";
 
 type Step = "db" | "admin" | "restart";
 type Provider = "sqlite" | "postgresql" | "mysql" | "mssql";
@@ -18,20 +19,24 @@ export function SetupWizard({ initialStep }: Props) {
   const [step, setStep] = useState<Step>(initialStep);
 
   return (
-    <div className="w-full max-w-md px-4">
-      {/* Logo / Title */}
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold">Hatches einrichten</h1>
-        <p className="text-zinc-500 text-sm mt-1">
-          {step === "db"      && "Schritt 1 von 2 — Datenbankverbindung konfigurieren"}
-          {step === "admin"   && "Schritt 2 von 2 — Admin-Account erstellen"}
-          {step === "restart" && "Fast fertig — Server neu starten"}
-        </p>
-        {/* Progress bar */}
-        <div className="flex gap-1.5 justify-center mt-4">
-          <div className={`h-1 w-16 rounded-full transition-colors ${step !== "restart" ? "bg-blue-500" : "bg-zinc-700"}`} />
-          <div className={`h-1 w-16 rounded-full transition-colors ${step === "admin" ? "bg-blue-500" : "bg-zinc-700"}`} />
+    <div className="w-full max-w-sm px-4">
+      {/* Logo hero */}
+      <div className="flex flex-col items-center mb-8 gap-4">
+        <HatchesLogo size={52} wordmark wordmarkSize={22} />
+        <div className="text-center">
+          <p className="text-zinc-500 text-[13px]" style={{ letterSpacing: "-0.01em" }}>
+            {step === "db"      && "Schritt 1 von 2 — Datenbankverbindung"}
+            {step === "admin"   && "Schritt 2 von 2 — Admin-Account erstellen"}
+            {step === "restart" && "Fast fertig — Server neu starten"}
+          </p>
         </div>
+        {/* Progress bar */}
+        {step !== "restart" && (
+          <div className="flex gap-1.5">
+            <div className="h-0.5 w-14 rounded-full" style={{ background: "#3CC79A" }} />
+            <div className="h-0.5 w-14 rounded-full" style={{ background: step === "admin" ? "#3CC79A" : "rgba(255,255,255,0.12)" }} />
+          </div>
+        )}
       </div>
 
       {step === "db"      && <DbStep onDone={(needsRestart) => needsRestart ? setStep("restart") : setStep("admin")} />}
@@ -80,29 +85,48 @@ function DbStep({ onDone }: { onDone: (needsRestart: boolean) => void }) {
     }
   }
 
+  const inputStyle = {
+    background: "#1c1f23",
+    border: "1px solid rgba(255,255,255,0.10)",
+    color: "#f4f4f5",
+    borderRadius: 10,
+    padding: "10px 14px",
+    fontSize: 13,
+    outline: "none",
+    fontFamily: "inherit",
+    width: "100%",
+    boxSizing: "border-box" as const,
+  };
+
   return (
-    <div className="flex flex-col gap-5">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "24px 20px" }}>
       {/* Provider selection */}
-      <div className="grid grid-cols-2 gap-2">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         {PROVIDERS.map((p) => (
           <button
             key={p.id}
             onClick={() => handleProviderChange(p.id)}
-            className={`flex items-center gap-2.5 px-3 py-3 rounded-lg border text-sm font-medium transition-colors text-left ${
-              provider === p.id
-                ? "border-blue-500 bg-blue-500/10 text-blue-300"
-                : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200"
-            }`}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "10px 12px",
+              borderRadius: 10,
+              border: provider === p.id ? "1px solid rgba(60,199,154,0.5)" : "1px solid rgba(255,255,255,0.08)",
+              background: provider === p.id ? "rgba(60,199,154,0.10)" : "rgba(255,255,255,0.03)",
+              color: provider === p.id ? "#5DDBB0" : "rgba(255,255,255,0.45)",
+              fontSize: 13, fontWeight: 500, cursor: "pointer",
+              textAlign: "left", transition: "all 0.15s",
+              fontFamily: "inherit",
+            }}
           >
-            <span className="text-base">{p.icon}</span>
+            <span style={{ fontSize: 15 }}>{p.icon}</span>
             <span>{p.label}</span>
           </button>
         ))}
       </div>
 
       {/* URL input */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <label style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase" }}>
           {provider === "sqlite" ? "Dateipfad" : "Verbindungs-URL"}
         </label>
         <input
@@ -110,18 +134,18 @@ function DbStep({ onDone }: { onDone: (needsRestart: boolean) => void }) {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder={current.placeholder}
-          className="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded px-4 py-2.5 outline-none focus:border-zinc-500 font-mono text-sm"
+          style={{ ...inputStyle, fontFamily: "'JetBrains Mono', 'SF Mono', monospace", fontSize: 12 }}
           spellCheck={false}
         />
         {provider === "sqlite" && (
-          <p className="text-xs text-zinc-600">
-            Relativer Pfad vom Arbeitsverzeichnis — z.B. <code className="text-zinc-500">file:./data/hatches.db</code>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", margin: 0 }}>
+            Relativer Pfad vom Arbeitsverzeichnis
           </p>
         )}
       </div>
 
       {error && (
-        <div className="bg-red-950/50 border border-red-800 rounded px-3 py-2.5 text-red-300 text-sm font-mono whitespace-pre-wrap">
+        <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 8, padding: "10px 12px", color: "#fca5a5", fontSize: 12, fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
           {error}
         </div>
       )}
@@ -129,7 +153,16 @@ function DbStep({ onDone }: { onDone: (needsRestart: boolean) => void }) {
       <button
         onClick={submit}
         disabled={loading || !url.trim()}
-        className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded py-2.5 transition-colors flex items-center justify-center gap-2"
+        style={{
+          background: "linear-gradient(135deg,#3CC79A,#1e8e74)",
+          color: "#fff", fontWeight: 600, fontSize: 14,
+          border: "none", borderRadius: 10, padding: "11px",
+          cursor: loading || !url.trim() ? "not-allowed" : "pointer",
+          opacity: loading || !url.trim() ? 0.5 : 1,
+          transition: "opacity 0.15s",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          letterSpacing: "-0.01em", fontFamily: "inherit",
+        }}
       >
         {loading ? (
           <>
@@ -175,27 +208,29 @@ function AdminStep() {
     }
   }
 
+  const iStyle = {
+    background: "#1c1f23", border: "1px solid rgba(255,255,255,0.10)",
+    color: "#f4f4f5", borderRadius: 10, padding: "10px 14px",
+    fontSize: 13, outline: "none", fontFamily: "inherit", width: "100%",
+    boxSizing: "border-box" as const,
+  };
+
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4">
-      <input
-        type="text" value={username} onChange={(e) => setUsername(e.target.value)}
-        placeholder="Benutzername" required autoFocus
-        className="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded px-4 py-2.5 outline-none focus:border-zinc-500"
-      />
-      <input
-        type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-        placeholder="E-Mail" required
-        className="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded px-4 py-2.5 outline-none focus:border-zinc-500"
-      />
-      <input
-        type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-        placeholder="Passwort (min. 6 Zeichen)" required minLength={6}
-        className="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded px-4 py-2.5 outline-none focus:border-zinc-500"
-      />
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+    <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "24px 20px" }}>
+      <input type="text"     value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Benutzername"            required autoFocus style={iStyle} />
+      <input type="email"    value={email}    onChange={(e) => setEmail(e.target.value)}    placeholder="E-Mail"                  required          style={iStyle} />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Passwort (min. 6 Zeichen)" required minLength={6} style={iStyle} />
+      {error && <p style={{ color: "#f87171", fontSize: 13, margin: 0 }}>{error}</p>}
       <button
         type="submit" disabled={loading}
-        className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded py-2.5 transition-colors flex items-center justify-center gap-2"
+        style={{
+          background: "linear-gradient(135deg,#3CC79A,#1e8e74)", color: "#fff",
+          fontWeight: 600, fontSize: 14, border: "none", borderRadius: 10, padding: 11,
+          cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          letterSpacing: "-0.01em", fontFamily: "inherit", marginTop: 4,
+          transition: "opacity 0.15s",
+        }}
       >
         {loading ? <><Spinner /> Erstelle Account…</> : "Admin-Account erstellen →"}
       </button>
@@ -207,35 +242,35 @@ function AdminStep() {
 
 function RestartStep() {
   return (
-    <div className="flex flex-col gap-5">
-      <div className="bg-amber-950/40 border border-amber-700/50 rounded-lg px-4 py-4 text-amber-200 text-sm">
-        <p className="font-semibold mb-1">Datenbank erfolgreich konfiguriert ✓</p>
-        <p className="text-amber-300/70">
-          Die Konfiguration wurde in <code className="text-amber-300">.env</code> gespeichert.
-          Starte den Server neu, damit die neue Verbindung aktiv wird.
+    <div style={{ display: "flex", flexDirection: "column", gap: 14, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "24px 20px" }}>
+      <div style={{ background: "rgba(60,199,154,0.08)", border: "1px solid rgba(60,199,154,0.25)", borderRadius: 10, padding: "12px 14px" }}>
+        <p style={{ fontWeight: 600, fontSize: 13, color: "#5DDBB0", margin: "0 0 4px" }}>Datenbank konfiguriert ✓</p>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", margin: 0, lineHeight: 1.5 }}>
+          Konfiguration in <code style={{ color: "rgba(255,255,255,0.6)" }}>.env</code> gespeichert.
+          Starte den Server neu um fortzufahren.
         </p>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Server neu starten</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>Server neu starten</p>
 
-        <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-3">
-          <p className="text-xs text-zinc-600 mb-1.5">Node direkt</p>
-          <code className="text-green-400 text-sm font-mono block">
+        <div style={{ background: "#0f1214", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 14px" }}>
+          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.06em" }}>Node direkt</p>
+          <code style={{ color: "#3CC79A", fontSize: 12, fontFamily: "'JetBrains Mono','SF Mono',monospace", display: "block" }}>
             node --env-file=.env dist/server/entry.mjs
           </code>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-3">
-          <p className="text-xs text-zinc-600 mb-1.5">Docker</p>
-          <code className="text-green-400 text-sm font-mono block">
+        <div style={{ background: "#0f1214", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 14px" }}>
+          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.06em" }}>Docker</p>
+          <code style={{ color: "#3CC79A", fontSize: 12, fontFamily: "'JetBrains Mono','SF Mono',monospace", display: "block" }}>
             docker compose restart
           </code>
         </div>
       </div>
 
-      <p className="text-zinc-600 text-xs text-center">
-        Nach dem Neustart öffne <span className="text-zinc-400">/setup</span> erneut um den Admin-Account zu erstellen.
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", textAlign: "center", margin: 0 }}>
+        Nach dem Neustart öffne <span style={{ color: "rgba(255,255,255,0.4)" }}>/setup</span> erneut.
       </p>
     </div>
   );
