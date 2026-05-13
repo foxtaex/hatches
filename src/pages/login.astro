@@ -25,7 +25,7 @@ const redirect = new URL(Astro.request.url).searchParams.get("redirect") ?? "/bo
       }
     </style>
   </head>
-  <body style="background:#080a0c; color:#f4f4f5; min-height:100vh; display:flex; align-items:center; justify-content:center;">
+  <body style="background:#000; color:#f4f4f5; min-height:100vh; display:flex; align-items:center; justify-content:center;">
 
     <div style="width:100%; max-width:380px; padding:0 24px;">
 
@@ -59,7 +59,7 @@ const redirect = new URL(Astro.request.url).searchParams.get("redirect") ?? "/bo
       </div>
 
       <!-- Form card -->
-      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:32px 28px;">
+      <div style="background:rgba(24,24,27,0.8); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:32px 28px; backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
         <form id="form" style="display:flex; flex-direction:column; gap:14px;">
           <input id="username" type="text" placeholder="Benutzername oder E-Mail" required
             style="background:#1c1f23; border:1px solid rgba(255,255,255,0.10); color:#f4f4f5; border-radius:11px; padding:13px 16px; font-size:15px; outline:none; transition:border-color 0.15s; font-family:inherit;"

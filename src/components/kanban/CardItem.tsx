@@ -28,7 +28,11 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: `card-${card.id}` });
 
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 };
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition || "all 0.3s cubic-bezier(0.4,0,0.2,1)",
+    opacity: isDragging ? 0.4 : 1,
+  };
 
   function saveTitle() {
     const trimmed = title.trim();
@@ -43,21 +47,30 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
   }
 
   return (
-    <div ref={setNodeRef} style={style}
-      className="bg-zinc-800 rounded-lg p-3 group border border-zinc-700 hover:border-zinc-500 transition-colors relative">
+    <div ref={setNodeRef} style={{
+      ...style,
+      background: "rgba(40,40,40,0.9)",
+      borderRadius: 12,
+      padding: 14,
+      border: "1px solid rgba(255,255,255,0.12)",
+      cursor: "pointer",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+      position: "relative" as const,
+    }}
+      className="group hover-lift">
       <div className="flex items-start gap-2">
         <div {...attributes} {...listeners}
-          className="mt-1 text-zinc-600 hover:text-zinc-400 cursor-grab active:cursor-grabbing flex-shrink-0">
-          <FontAwesomeIcon icon={faGripVertical} className="w-3 h-3" />
+          style={{ marginTop: 2, color: "rgba(255,255,255,0.25)", cursor: "grab", flexShrink: 0 }}>
+          <FontAwesomeIcon icon={faGripVertical} style={{ fontSize: 12 }} />
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div style={{ flex: 1, minWidth: 0 }}>
           {editing ? (
             <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} onBlur={saveTitle}
               onKeyDown={(e) => { if (e.key === "Enter") saveTitle(); if (e.key === "Escape") { setTitle(card.title); setEditing(false); } }}
-              className="w-full bg-zinc-700 text-zinc-100 text-sm rounded px-2 py-0.5 outline-none border border-zinc-500" />
+              style={{ width: "100%", background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.95)", fontSize: 15, borderRadius: 6, padding: "2px 8px", outline: "none", border: "1px solid rgba(255,255,255,0.2)" }} />
           ) : (
-            <p className="text-sm text-zinc-100 cursor-pointer hover:text-white break-words" onClick={() => setEditing(true)}>
+            <p style={{ fontSize: 15, fontWeight: 500, color: "rgba(255,255,255,0.95)", margin: "0 0 6px 0", wordBreak: "break-word" as const, lineHeight: 1.4, cursor: "pointer" }} onClick={() => setEditing(true)}>
               {card.title}
             </p>
           )}

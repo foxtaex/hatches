@@ -70,10 +70,12 @@ export function HatchesLogo({ size = 28, wordmark = false, wordmarkSize, classNa
           <span
             style={{
               fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: wSize,
-              letterSpacing: "-0.045em",
-              color: "#f5f5f7",
+              letterSpacing: "-0.8px",
+              background: "linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
               lineHeight: 1,
             }}
           >

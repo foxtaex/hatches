@@ -288,10 +288,13 @@ export function KanbanBoard() {
 
   return (
     <div className="flex-1 flex overflow-hidden">
-      {/* Board Sidebar */}
-      <aside className="w-52 flex-shrink-0 border-r border-zinc-800 bg-zinc-900 flex flex-col">
-        <div className="px-3 py-3 border-b border-zinc-800 flex items-center justify-between">
-          <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Boards</span>
+      {/* Board Sidebar — Glassmorphism */}
+      <aside className="flex-shrink-0 flex flex-col" style={{ width: 260, background: "rgba(18,18,18,0.6)", backdropFilter: "blur(30px) saturate(180%)", WebkitBackdropFilter: "blur(30px) saturate(180%)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="flex items-center justify-between" style={{ padding: "20px 20px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <span style={{ fontSize: 17, fontWeight: 600, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 8, letterSpacing: "-0.3px" }}>
+            <FontAwesomeIcon icon={faTableColumns} style={{ color: "rgba(255,255,255,0.5)", fontSize: 15 }} />
+            Boards
+          </span>
           <button
             onClick={() => { creatingBoardRef.current = false; setAddingBoard(true); }}
             className="text-zinc-600 hover:text-zinc-300 transition-colors" title="Board erstellen">
@@ -387,9 +390,9 @@ export function KanbanBoard() {
             ))}
 
             {/* Add column */}
-            <div className="w-72 flex-shrink-0">
+            <div style={{ width: 320, flexShrink: 0 }}>
               {addingCol ? (
-                <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-3 flex flex-col gap-2">
+                <div style={{ background: "rgba(28,28,28,0.7)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: 12 }} className="flex flex-col gap-2">
                   <input
                     autoFocus
                     value={newColTitle}
@@ -408,7 +411,7 @@ export function KanbanBoard() {
               ) : (
                 <button
                   onClick={() => { addingColRef.current = false; setAddingCol(true); }}
-                  className="w-full text-left flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800/50 border border-dashed border-zinc-700 hover:border-zinc-500 rounded-xl px-4 py-3 transition-colors"
+                  style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 14, color: "rgba(255,255,255,0.35)", background: "transparent", border: "1px dashed rgba(255,255,255,0.15)", borderRadius: 16, padding: 16, cursor: "pointer", transition: "border-color 200ms, color 200ms" }}
                 >
                   <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
                   Spalte hinzufügen
@@ -446,7 +449,18 @@ function BoardItem({ b, active, renamingId, renameValue, onSelect, onRename, onR
   return (
     <div
       onClick={onSelect}
-      className={`group flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors ${active ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300"}`}
+      className="group flex items-center gap-2 cursor-pointer"
+      style={{
+        padding: "10px 14px",
+        margin: "0 8px",
+        fontSize: 15,
+        borderRadius: 10,
+        width: "calc(100% - 16px)",
+        transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
+        background: active ? "rgba(255,255,255,0.12)" : "transparent",
+        color: active ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.6)",
+        boxShadow: active ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
+      }}
     >
       <FontAwesomeIcon icon={faTableColumns} className="w-3 h-3 flex-shrink-0 opacity-60" />
       {renamingId === b.id ? (

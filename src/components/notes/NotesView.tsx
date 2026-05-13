@@ -121,9 +121,9 @@ export function NotesView() {
 
   return (
     <div className="flex-1 flex overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-56 flex-shrink-0 border-r border-zinc-800 bg-zinc-900 flex flex-col">
-        <div className="p-3 border-b border-zinc-800">
+      {/* Sidebar — Glassmorphism */}
+      <aside style={{ width: 280, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.08)", background: "rgba(18,18,18,0.6)", backdropFilter: "blur(30px) saturate(180%)", WebkitBackdropFilter: "blur(30px) saturate(180%)", display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           {creating ? (
             <div className="flex flex-col gap-1.5">
               <input
@@ -196,7 +196,7 @@ export function NotesView() {
       {/* Editor */}
       {activeId !== null ? (
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="px-6 py-3 border-b border-zinc-800 bg-zinc-900 flex items-center gap-3">
+          <div className="flex items-center gap-3" style={{ padding: "12px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(24,24,27,0.8)" }}>
             <div className="flex-1">
               {editingTitle ? (
                 <input
@@ -231,7 +231,7 @@ export function NotesView() {
             value={content}
             onChange={handleContentChange}
             placeholder="Notiz schreiben..."
-            className="flex-1 bg-zinc-950 text-zinc-200 text-sm font-mono p-6 outline-none resize-none leading-relaxed"
+            style={{ flex: 1, background: "#000", color: "rgba(212,212,216,0.95)", fontSize: 14, fontFamily: "ui-monospace, monospace", padding: 24, outline: "none", resize: "none" as const, lineHeight: 1.6, border: "none" }}
           />
         </div>
       ) : (
