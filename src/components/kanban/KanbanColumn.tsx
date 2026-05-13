@@ -6,17 +6,22 @@ import { faXmark, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { CardItem } from "./CardItem";
 import type { Card, Column } from "./types";
 
+interface BoardWithCols { id: number; name: string; columns: { id: number; title: string }[] }
+
 interface Props {
   column: Column;
   users: { id: number; displayName: string | null; username: string }[];
+  allBoards: BoardWithCols[];
+  currentBoardId: number;
   onAddCard: (columnId: number, title: string) => void;
   onUpdateCard: (id: number, data: Partial<Card>) => void;
   onDeleteCard: (id: number) => void;
+  onMoveCardToBoard: (cardId: number, targetColumnId: number) => void;
   onRenameColumn: (id: number, title: string) => void;
   onDeleteColumn: (id: number) => void;
 }
 
-export function KanbanColumn({ column, users, onAddCard, onUpdateCard, onDeleteCard, onRenameColumn, onDeleteColumn }: Props) {
+export function KanbanColumn({ column, users, allBoards, onAddCard, onUpdateCard, onDeleteCard, onMoveCardToBoard, onRenameColumn, onDeleteColumn }: Props) {
   const [addingCard, setAddingCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
@@ -60,7 +65,15 @@ export function KanbanColumn({ column, users, onAddCard, onUpdateCard, onDeleteC
       <div ref={setNodeRef} className="flex-1 flex flex-col gap-2 px-3 pb-2 min-h-[4rem]">
         <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
           {column.cards.map((card) => (
-            <CardItem key={card.id} card={card} users={users} onUpdate={onUpdateCard} onDelete={onDeleteCard} />
+            <CardItem
+              key={card.id}
+              card={card}
+              users={users}
+              allBoards={allBoards}
+              onUpdate={onUpdateCard}
+              onDelete={onDeleteCard}
+              onMoveToBoard={onMoveCardToBoard}
+            />
           ))}
         </SortableContext>
       </div>
