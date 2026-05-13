@@ -37,11 +37,5 @@ export const POST: APIRoute = async ({ request }) => {
     data: { username, email, passwordHash, displayName: displayName || username },
   });
 
-  // Default-Teams zuweisen
-  const defaultTeams = await prisma.team.findMany({ where: { isDefault: true } });
-  for (const team of defaultTeams) {
-    await prisma.teamMembership.create({ data: { userId: user.id, teamId: team.id } });
-  }
-
   return Response.json({ ok: true, user: { id: user.id, username: user.username } });
 };

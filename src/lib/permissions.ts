@@ -1,23 +1,23 @@
 export type Section = "board" | "docs" | "notes" | "websites" | "integrations" | "admin";
 export type Action = "view" | "create" | "edit" | "delete";
 
-interface TeamWithPermissions {
-  team: {
+interface MembershipWithRole {
+  role: {
     permissions: { section: string; canView: boolean; canCreate: boolean; canEdit: boolean; canDelete: boolean }[];
   };
 }
 
 interface UserWithMemberships {
   isAdmin: boolean;
-  memberships: TeamWithPermissions[];
+  memberships: MembershipWithRole[];
 }
 
 export function can(user: UserWithMemberships | null, section: Section, action: Action): boolean {
   if (!user) return false;
   if (user.isAdmin) return true;
 
-  return user.memberships.some(({ team }) => {
-    const perm = team.permissions.find((p) => p.section === section);
+  return user.memberships.some(({ role }) => {
+    const perm = role.permissions.find((p) => p.section === section);
     if (!perm) return false;
     if (action === "view") return perm.canView;
     if (action === "create") return perm.canCreate;
