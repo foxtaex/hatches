@@ -1,6 +1,10 @@
 # DevTool
 
-Internes Dev-Team-Tool — eine schlanke Notion-Alternative für Entwickler-Teams.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Astro](https://img.shields.io/badge/Astro-6-orange)](https://astro.build)
+[![Prisma](https://img.shields.io/badge/Prisma-7-2D3748)](https://prisma.io)
+
+Internes Dev-Team-Tool — eine schlanke Notion-Alternative für Entwickler-Teams. Self-hosted, Open Source.
 
 ## Features
 
@@ -95,6 +99,35 @@ prisma/
 ├── migrations/         # SQL-Migrationen
 └── seed.ts             # Seed-Daten (Board + Spalten)
 ```
+
+## Self-Hosting mit Docker
+
+### Schnellstart
+
+```bash
+git clone https://github.com/DEIN-USERNAME/devtool.git
+cd devtool
+
+# .env anlegen — SESSION_SECRET MUSS geändert werden!
+cp .env.example .env
+
+docker compose up -d
+```
+
+Die App ist danach unter `http://localhost:4321` erreichbar.
+Beim ersten Aufruf `/setup` öffnen und den Admin-Account anlegen.
+
+### PostgreSQL statt SQLite
+
+In `docker-compose.yml` den `postgres`-Block auskommentieren und die Umgebungsvariablen im `devtool`-Service anpassen.
+
+### Updates
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+Migrationen laufen automatisch beim Start.
 
 ## Commands
 

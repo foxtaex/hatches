@@ -1,0 +1,35 @@
+services:
+  devtool:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    volumes:
+      # SQLite database persisted on host
+      - devtool-data:/data
+    environment:
+      DATABASE_PROVIDER: sqlite
+      DATABASE_URL: file:/data/devtool.db
+      # IMPORTANT: Change this to a long random string before deploying!
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set in .env}
+      HOST: 0.0.0.0
+      PORT: 4321
+
+  # ── Optional: PostgreSQL instead of SQLite ──────────────────────────────────
+  # Uncomment the postgres service and change the devtool environment above to:
+  #   DATABASE_PROVIDER: postgresql
+  #   DATABASE_URL: postgresql://devtool:devtool@postgres:5432/devtool
+  #
+  # postgres:
+  #   image: postgres:16-alpine
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: devtool
+  #     POSTGRES_PASSWORD: devtool
+  #     POSTGRES_DB: devtool
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  devtool-data:
+  # postgres-data:
