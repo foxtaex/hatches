@@ -137,6 +137,6 @@ Uncomment the `postgres` block in `docker-compose.yml` and update the environmen
 **MIT + Commons Clause** — free for personal use and self-hosting.  
 Commercial use (selling, hosted SaaS, paid services) requires a separate license.
 
-> Commercial licenses available on request — open an issue or reach out directly.
+> Commercial licenses available on request — [open an issue](https://github.com/foxtaex/hatches/issues)
 
 See [LICENSE](LICENSE) for the full terms.

@@ -137,6 +137,6 @@ In `docker-compose.yml` den `postgres`-Block auskommentieren und die Umgebungsva
 **MIT + Commons Clause** — kostenlos für private Nutzung und Self-Hosting.  
 Kommerzielle Nutzung (Verkauf, gehosteter SaaS, bezahlte Dienstleistungen) erfordert eine separate Lizenz.
 
-> Kommerzielle Lizenzen auf Anfrage — Issue öffnen oder direkt Kontakt aufnehmen.
+> Kommerzielle Lizenzen auf Anfrage — [Issue öffnen](https://github.com/foxtaex/hatches/issues)
 
 Vollständige Bedingungen: [LICENSE](LICENSE)
