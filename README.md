@@ -1,4 +1,4 @@
-# DevTool
+# DevTool - Es ist noch ein Prototyp
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Astro](https://img.shields.io/badge/Astro-6-orange)](https://astro.build)
