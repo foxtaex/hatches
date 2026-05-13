@@ -1,4 +1,4 @@
-﻿---
+---
 import "../styles/global.css";
 
 export interface Props {
@@ -6,7 +6,7 @@ export interface Props {
   active?: "board" | "docs" | "notes" | "websites" | "integrations" | "admin";
 }
 
-const { title = "DevTool", active } = Astro.props;
+const { title = "Hatches", active } = Astro.props;
 const user = (Astro.locals as any).user;
 
 const nav = [
@@ -30,7 +30,7 @@ const nav = [
     <header class="border-b border-zinc-800 bg-zinc-900">
       <nav class="flex items-center gap-1 px-4 h-12">
         <span class="font-bold text-zinc-300 mr-4 text-sm tracking-widest uppercase">
-          <i class="fa-solid fa-screwdriver-wrench mr-1.5 text-zinc-500"></i>DevTool
+          <i class="fa-solid fa-screwdriver-wrench mr-1.5 text-zinc-500"></i>Hatches
         </span>
 
         {nav.map(({ href, label, key, icon }) => (

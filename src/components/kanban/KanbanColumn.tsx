@@ -1,6 +1,6 @@
 ﻿import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { CardItem } from "./CardItem";
@@ -26,14 +26,18 @@ export function KanbanColumn({ column, users, allBoards, onAddCard, onUpdateCard
   const [newCardTitle, setNewCardTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [colTitle, setColTitle] = useState(column.title);
+  const submittingRef = useRef(false);
 
   const { setNodeRef, isOver } = useDroppable({ id: `col-${column.id}` });
   const cardIds = column.cards.map((c) => `card-${c.id}`);
 
   function submitCard() {
+    if (submittingRef.current) return;
     const t = newCardTitle.trim();
-    if (t) onAddCard(column.id, t);
+    if (!t) return;
+    submittingRef.current = true;
     setNewCardTitle(""); setAddingCard(false);
+    onAddCard(column.id, t);
   }
 
   function saveTitle() {
@@ -93,7 +97,7 @@ export function KanbanColumn({ column, users, allBoards, onAddCard, onUpdateCard
             </div>
           </div>
         ) : (
-          <button onClick={() => setAddingCard(true)}
+          <button onClick={() => { submittingRef.current = false; setAddingCard(true); }}
             className="w-full text-left flex items-center gap-1.5 text-xs text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded px-2 py-1 transition-colors">
             <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
             Karte hinzufuegen
