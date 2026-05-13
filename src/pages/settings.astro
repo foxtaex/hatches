@@ -1,0 +1,116 @@
+---
+import Layout from "../layouts/Layout.astro";
+const user = (Astro.locals as any).user;
+if (!user) return Astro.redirect("/login");
+---
+
+<Layout title="Einstellungen — Hatches" active="settings">
+  <div class="flex-1 overflow-y-auto p-8">
+    <div class="max-w-lg mx-auto flex flex-col gap-8">
+
+      <div>
+        <h1 class="text-xl font-semibold tracking-tight text-zinc-100" style="letter-spacing:-0.025em;">Einstellungen</h1>
+        <p class="text-sm text-zinc-500 mt-1">Profil und Konto verwalten</p>
+      </div>
+
+      <!-- Profil -->
+      <section class="flex flex-col gap-4">
+        <h2 class="text-[11px] font-semibold uppercase tracking-widest text-zinc-600">Profil</h2>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+
+          <!-- Avatar + username -->
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold flex-shrink-0"
+              style="background:rgba(60,199,154,0.18); color:#3CC79A;">
+              {(user.displayName || user.username).charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-zinc-100">{user.displayName || user.username}</p>
+              <p class="text-xs text-zinc-500">{user.email}</p>
+            </div>
+          </div>
+
+          <div class="h-px bg-zinc-800" />
+
+          <!-- Display name -->
+          <div class="flex flex-col gap-2">
+            <label class="text-xs text-zinc-500 font-medium">Anzeigename</label>
+            <div class="flex gap-2">
+              <input id="displayName" type="text"
+                value={user.displayName ?? ""}
+                placeholder={user.username}
+                class="flex-1 bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#3CC79A]/60 transition-colors" />
+              <button id="saveDisplayName"
+                class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                style="background:rgba(60,199,154,0.15); color:#3CC79A; border:1px solid rgba(60,199,154,0.25);">
+                Speichern
+              </button>
+            </div>
+            <p id="displayNameMsg" class="text-xs hidden"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Passwort -->
+      <section class="flex flex-col gap-4">
+        <h2 class="text-[11px] font-semibold uppercase tracking-widest text-zinc-600">Sicherheit</h2>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <label class="text-xs text-zinc-500 font-medium">Aktuelles Passwort</label>
+            <input id="currentPw" type="password" placeholder="••••••••"
+              class="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#3CC79A]/60 transition-colors" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-xs text-zinc-500 font-medium">Neues Passwort</label>
+            <input id="newPw" type="password" placeholder="min. 6 Zeichen"
+              class="bg-zinc-800 border border-zinc-700 text-zinc-100 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#3CC79A]/60 transition-colors" />
+          </div>
+          <p id="pwMsg" class="text-xs hidden"></p>
+          <button id="changePw"
+            class="self-start px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+            style="background:rgba(60,199,154,0.15); color:#3CC79A; border:1px solid rgba(60,199,154,0.25);">
+            Passwort ändern
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Display name
+  document.getElementById("saveDisplayName")?.addEventListener("click", async () => {
+    const msg = document.getElementById("displayNameMsg")!;
+    const val = (document.getElementById("displayName") as HTMLInputElement).value;
+    const res = await fetch("/api/user/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ displayName: val }),
+    });
+    const data = await res.json();
+    msg.textContent = data.ok ? "Gespeichert ✓" : (data.error ?? "Fehler");
+    msg.className = `text-xs ${data.ok ? "text-green-400" : "text-red-400"}`;
+    msg.classList.remove("hidden");
+  });
+
+  // Password
+  document.getElementById("changePw")?.addEventListener("click", async () => {
+    const msg = document.getElementById("pwMsg")!;
+    const current = (document.getElementById("currentPw") as HTMLInputElement).value;
+    const next    = (document.getElementById("newPw") as HTMLInputElement).value;
+    const res = await fetch("/api/user/password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ current, next }),
+    });
+    const data = await res.json();
+    msg.textContent = data.ok ? "Passwort geändert ✓" : (data.error ?? "Fehler");
+    msg.className = `text-xs ${data.ok ? "text-green-400" : "text-red-400"}`;
+    msg.classList.remove("hidden");
+    if (data.ok) {
+      (document.getElementById("currentPw") as HTMLInputElement).value = "";
+      (document.getElementById("newPw") as HTMLInputElement).value = "";
+    }
+  });
+</script>

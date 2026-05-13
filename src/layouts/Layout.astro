@@ -4,7 +4,7 @@ import { HatchesLogo } from "../components/brand/HatchesLogo";
 
 export interface Props {
   title?: string;
-  active?: "board" | "docs" | "notes" | "websites" | "integrations" | "admin";
+  active?: "board" | "docs" | "notes" | "websites" | "integrations" | "admin" | "settings";
 }
 
 const { title = "Hatches", active } = Astro.props;
@@ -71,21 +71,33 @@ const nav = [
           </a>
         )}
 
-        <!-- Right: user + logout -->
-        <div class="ml-auto flex items-center gap-3">
+        <!-- Right: user + settings + logout -->
+        <div class="ml-auto flex items-center gap-2">
           {user && (
             <>
-              <div class="flex items-center gap-2.5">
+              <a
+                href="/settings"
+                class={`flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-all duration-150 ${
+                  active === "settings" ? "text-white" : "text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06]"
+                }`}
+                style={active === "settings" ? "background:rgba(60,199,154,0.13); color:#5DDBB0;" : ""}
+              >
                 <div
                   class="w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-semibold"
                   style="background:rgba(60,199,154,0.18); color:#3CC79A;"
                 >
                   {(user.displayName || user.username).charAt(0).toUpperCase()}
                 </div>
-                <span class="text-[13px] text-zinc-400 font-medium" style="letter-spacing:-0.01em;">
-                  {user.displayName || user.username}
-                </span>
-              </div>
+                <span style="letter-spacing:-0.01em;">{user.displayName || user.username}</span>
+              </a>
+              <a
+                href="/settings"
+                class="flex items-center justify-center w-7 h-7 rounded-md text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.05] transition-colors"
+                title="Einstellungen"
+                style={active === "settings" ? "color:#3CC79A;" : ""}
+              >
+                <i class="fa-solid fa-gear text-[12px]"></i>
+              </a>
               <button
                 id="logout-btn"
                 class="flex items-center gap-1.5 text-[12px] text-zinc-600 hover:text-zinc-300 transition-colors px-2.5 py-1.5 rounded-md hover:bg-white/[0.05]"

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPlus, faXmark, faUser, faShield, faUsers,
-  faChevronRight, faCheck, faTrash,
+  faPlus, faXmark, faUser, faShield, faUsers, faGear,
+  faChevronRight, faCheck, faTrash, faDatabase, faInfoCircle,
   type IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -473,9 +473,113 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
   );
 }
 
+// ── Einstellungen Tab ────────────────────────────────────
+function SettingsTab() {
+  const [info, setInfo] = useState<{ version: string; node: string; provider: string; url: string; uptime: number } | null>(null);
+  const [dbProvider, setDbProvider] = useState("sqlite");
+  const [dbUrl, setDbUrl] = useState("file:./dev.db");
+  const [dbMsg, setDbMsg] = useState("");
+  const [dbLoading, setDbLoading] = useState(false);
+  const [showDbForm, setShowDbForm] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/app-info").then((r) => r.json()).then((d) => {
+      setInfo(d);
+      setDbProvider(d.provider ?? "sqlite");
+      setDbUrl(d.url ?? "file:./dev.db");
+    });
+  }, []);
+
+  async function saveDb() {
+    setDbLoading(true); setDbMsg("");
+    const res = await fetch("/api/setup/db", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider: dbProvider, url: dbUrl }),
+    });
+    const data = await res.json();
+    setDbMsg(data.ok ? "Gespeichert — Server neu starten um zu übernehmen." : (data.error ?? "Fehler"));
+    setDbLoading(false);
+    if (data.ok) setShowDbForm(false);
+  }
+
+  const uptime = info ? `${Math.floor(info.uptime / 3600)}h ${Math.floor((info.uptime % 3600) / 60)}m` : "—";
+
+  return (
+    <div className="flex flex-col gap-6 max-w-xl">
+
+      {/* App Info */}
+      <section className="flex flex-col gap-3">
+        <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+          <FontAwesomeIcon icon={faInfoCircle} className="w-3 h-3" /> App-Info
+        </h3>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+          {[
+            ["Version", info?.version ?? "—"],
+            ["Node", info?.node ?? "—"],
+            ["Uptime", uptime],
+          ].map(([label, value]) => (
+            <div key={label} className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 last:border-0">
+              <span className="text-sm text-zinc-500">{label}</span>
+              <span className="text-sm text-zinc-300 font-mono">{value}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Database */}
+      <section className="flex flex-col gap-3">
+        <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+          <FontAwesomeIcon icon={faDatabase} className="w-3 h-3" /> Datenbank
+        </h3>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
+            <span className="text-sm text-zinc-500">Provider</span>
+            <span className="text-sm text-zinc-300 font-mono">{info?.provider ?? "—"}</span>
+          </div>
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-sm text-zinc-500">URL</span>
+            <span className="text-sm text-zinc-400 font-mono truncate max-w-[240px]">{info?.url ?? "—"}</span>
+          </div>
+        </div>
+        {!showDbForm ? (
+          <button onClick={() => setShowDbForm(true)}
+            className="self-start flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: "rgba(60,199,154,0.12)", color: "#3CC79A", border: "1px solid rgba(60,199,154,0.2)" }}>
+            <FontAwesomeIcon icon={faGear} className="w-3 h-3" /> Verbindung ändern
+          </button>
+        ) : (
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-2">
+              {(["sqlite","postgresql","mysql","mssql"] as const).map((p) => (
+                <button key={p} onClick={() => setDbProvider(p)}
+                  className="px-3 py-2 rounded-lg text-sm font-medium text-left transition-all"
+                  style={{ border: dbProvider === p ? "1px solid rgba(60,199,154,0.4)" : "1px solid rgba(255,255,255,0.07)", background: dbProvider === p ? "rgba(60,199,154,0.10)" : "rgba(255,255,255,0.03)", color: dbProvider === p ? "#5DDBB0" : "rgba(255,255,255,0.4)" }}>
+                  {p === "sqlite" ? "🗄️ SQLite" : p === "postgresql" ? "🐘 PostgreSQL" : p === "mysql" ? "🐬 MySQL" : "🪟 SQL Server"}
+                </button>
+              ))}
+            </div>
+            <input value={dbUrl} onChange={(e) => setDbUrl(e.target.value)}
+              className="bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm font-mono rounded-lg px-3 py-2 outline-none focus:border-zinc-500"
+              spellCheck={false} />
+            {dbMsg && <p className={`text-xs ${dbMsg.startsWith("Gespeichert") ? "text-green-400" : "text-red-400"}`}>{dbMsg}</p>}
+            <div className="flex gap-2">
+              <button onClick={saveDb} disabled={dbLoading}
+                className="text-sm font-medium px-4 py-1.5 rounded-lg disabled:opacity-50 transition-colors"
+                style={{ background: "linear-gradient(135deg,#3CC79A,#1e8e74)", color: "#fff" }}>
+                {dbLoading ? "Speichert…" : "Speichern"}
+              </button>
+              <button onClick={() => setShowDbForm(false)} className="text-sm text-zinc-500 hover:text-zinc-300 px-3 transition-colors">Abbrechen</button>
+            </div>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
 // ── Hauptkomponente ───────────────────────────────────────
 export function AdminPanel() {
-  const [tab, setTab] = useState<"roles" | "teams" | "users">("roles");
+  const [tab, setTab] = useState<"roles" | "teams" | "users" | "settings">("roles");
   const [roles, setRoles] = useState<Role[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -493,10 +597,11 @@ export function AdminPanel() {
     setUsers(Array.isArray(u) ? u : []);
   }
 
-  const tabs: { key: "roles" | "teams" | "users"; label: string; icon: IconDefinition }[] = [
-    { key: "roles", label: "Rollen", icon: faShield },
-    { key: "teams", label: "Teams", icon: faUsers },
-    { key: "users", label: "Benutzer", icon: faUser },
+  const tabs: { key: "roles" | "teams" | "users" | "settings"; label: string; icon: IconDefinition }[] = [
+    { key: "roles",    label: "Rollen",        icon: faShield },
+    { key: "teams",    label: "Teams",         icon: faUsers },
+    { key: "users",    label: "Benutzer",      icon: faUser },
+    { key: "settings", label: "Einstellungen", icon: faGear },
   ];
 
   return (
@@ -507,7 +612,7 @@ export function AdminPanel() {
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${tab === key ? "border-blue-500 text-blue-400" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${tab === key ? "border-[#3CC79A] text-[#3CC79A]" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
             >
               <FontAwesomeIcon icon={icon} className="w-3.5 h-3.5" />
               {label}
@@ -515,9 +620,10 @@ export function AdminPanel() {
           ))}
         </div>
 
-        {tab === "roles" && <RolesTab roles={roles} onRefresh={load} />}
-        {tab === "teams" && <TeamsTab teams={teams} roles={roles} users={users} onRefresh={load} />}
-        {tab === "users" && <UsersTab users={users} onRefresh={load} />}
+        {tab === "roles"    && <RolesTab roles={roles} onRefresh={load} />}
+        {tab === "teams"    && <TeamsTab teams={teams} roles={roles} users={users} onRefresh={load} />}
+        {tab === "users"    && <UsersTab users={users} onRefresh={load} />}
+        {tab === "settings" && <SettingsTab />}
       </div>
     </div>
   );
