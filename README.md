@@ -1,19 +1,25 @@
-# DevTool - Es ist noch ein Prototyp
+# Hatches
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Astro](https://img.shields.io/badge/Astro-6-orange)](https://astro.build)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748)](https://prisma.io)
 
-Internes Dev-Team-Tool — eine schlanke Notion-Alternative für Entwickler-Teams. Self-hosted, Open Source.
+> 🇩🇪 [Deutsche Version → README.de.md](README.de.md)
+
+A lean, self-hosted team workspace — your own private Notion alternative for developers. Kanban boards, docs, notes, and integrations, all in one place.
+
+> ⚠️ **Security notice:** Please read [SECURITY.md](SECURITY.md) before deploying. This project is vibe-coded and not hardened for public internet exposure. Run it locally, behind a VPN, or via a tunnel only.
+
+---
 
 ## Features
 
-- **Kanban Board** — Drag & Drop, Karten-Zuweisung, Beschreibungen, externe Issue-Badges
-- **Docs** — Markdown-Editor mit Live-Preview (Split-View)
-- **Notizen** — persönliche Schnellnotizen
-- **Websites** — interne URL-Verwaltung
-- **Integrationen** — Issues von GitHub, GitLab, Jira, Redmine, MantisBT, Confluence und Trello importieren
-- **Benutzerverwaltung** — Teams, Rollen und granulare Berechtigungen (Burning-Board-Stil)
+- **Kanban Board** — Multi-board, drag & drop, card assignment, descriptions, external issue badges. Boards can be scoped to a team or kept private.
+- **Docs** — Markdown editor with live split-view preview. Docs can be scoped to a team or kept private.
+- **Notes** — Quick personal notes. Notes can be scoped to a team or kept private.
+- **Websites** — Internal URL & project registry.
+- **Integrations** — Import issues from GitHub, GitLab, Jira, Redmine, MantisBT, Confluence, and Trello.
+- **Teams & Roles** — Discord-style permission system: create teams, assign roles with granular per-section toggles (view / create / edit / delete).
 
 ## Tech Stack
 
@@ -25,116 +31,107 @@ Internes Dev-Team-Tool — eine schlanke Notion-Alternative für Entwickler-Team
 
 ## Setup
 
-### 1. Abhängigkeiten installieren
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Umgebungsvariablen konfigurieren
+### 2. Configure environment variables
 
 ```bash
 cp .env.example .env
-# .env nach Bedarf anpassen (Datenbank, Session-Secret)
+# Set SESSION_SECRET to a long random value
 ```
 
-### 3. Datenbank migrieren
+### 3. Migrate the database
 
 ```bash
-npx prisma migrate dev
+npx prisma db push
 ```
 
-### 4. (Optional) Seed-Daten laden
-
-```bash
-npx prisma db seed
-```
-
-### 5. Dev-Server starten
+### 4. Start the dev server
 
 ```bash
 npm run dev
 # → http://localhost:4321
 ```
 
-Beim ersten Aufruf wird `/setup` angezeigt — dort den ersten Admin-Account anlegen.
+On first visit, `/setup` will appear — create your admin account there.
 
-## Datenbank wechseln
+## Switching databases
 
-`DATABASE_PROVIDER` und `DATABASE_URL` in `.env` anpassen, dann:
+Update `DATABASE_PROVIDER` and `DATABASE_URL` in `.env`, then:
 
 ```bash
-# provider in prisma/schema.prisma ändern (sqlite → postgresql etc.)
+# Change provider in prisma/schema.prisma (sqlite → postgresql etc.)
 npx tsx scripts/db-switch.ts
 ```
 
-| Provider | `DATABASE_PROVIDER` | Beispiel-URL |
+| Provider | `DATABASE_PROVIDER` | Example URL |
 |---|---|---|
 | SQLite | `sqlite` | `file:./dev.db` |
-| PostgreSQL | `postgresql` | `postgresql://user:pass@localhost:5432/devtool` |
-| MySQL | `mysql` | `mysql://user:pass@localhost:3306/devtool` |
-| MSSQL | `mssql` | `sqlserver://localhost:1433;database=devtool;...` |
+| PostgreSQL | `postgresql` | `postgresql://user:pass@localhost:5432/hatches` |
+| MySQL | `mysql` | `mysql://user:pass@localhost:3306/hatches` |
+| MSSQL | `mssql` | `sqlserver://localhost:1433;database=hatches;...` |
 
-## Projektstruktur
+## Project structure
 
 ```
 src/
 ├── components/
-│   ├── admin/          # Team- & Benutzerverwaltung
-│   ├── integrations/   # Integrations-Manager
-│   ├── kanban/         # Kanban Board (KanbanBoard, Column, CardItem)
-│   ├── docs/           # Markdown-Editor
-│   ├── notes/          # Notizen
-│   └── websites/       # Website-Manager
+│   ├── admin/          # Team & user management
+│   ├── integrations/   # Integration manager
+│   ├── kanban/         # Kanban board (KanbanBoard, Column, CardItem)
+│   ├── docs/           # Markdown editor
+│   ├── notes/          # Notes
+│   └── websites/       # Website manager
 ├── lib/
-│   ├── auth.ts         # Session, Passwort-Hashing
-│   ├── db.ts           # Prisma-Client (multi-DB)
-│   ├── permissions.ts  # Team-Berechtigungen
-│   └── integrations/   # Provider (GitHub, GitLab, Jira, …)
-├── middleware.ts        # Auth + Permissions Guard
-└── pages/              # Astro-Routen + API-Endpunkte
+│   ├── auth.ts         # Session, password hashing
+│   ├── db.ts           # Prisma client (multi-DB)
+│   ├── permissions.ts  # Role-based permissions
+│   └── integrations/   # Providers (GitHub, GitLab, Jira, …)
+├── middleware.ts        # Auth + permissions guard
+└── pages/              # Astro routes + API endpoints
 
 prisma/
-├── schema.prisma       # Datenbank-Schema
-├── migrations/         # SQL-Migrationen
-└── seed.ts             # Seed-Daten (Board + Spalten)
+├── schema.prisma       # Database schema
+└── seed.ts             # Seed data
 ```
 
-## Self-Hosting mit Docker
-
-### Schnellstart
+## Self-hosting with Docker
 
 ```bash
-git clone https://github.com/DEIN-USERNAME/devtool.git
-cd devtool
+git clone https://github.com/YOUR-USERNAME/hatches.git
+cd hatches
 
-# .env anlegen — SESSION_SECRET MUSS geändert werden!
 cp .env.example .env
+# Set SESSION_SECRET to a long random string!
 
 docker compose up -d
 ```
 
-Die App ist danach unter `http://localhost:4321` erreichbar.
-Beim ersten Aufruf `/setup` öffnen und den Admin-Account anlegen.
+The app is available at `http://localhost:4321`. Open `/setup` on first visit to create the admin account.
 
-### PostgreSQL statt SQLite
+### PostgreSQL instead of SQLite
 
-In `docker-compose.yml` den `postgres`-Block auskommentieren und die Umgebungsvariablen im `devtool`-Service anpassen.
+Uncomment the `postgres` block in `docker-compose.yml` and update the environment variables in the `hatches` service accordingly (comments in the file explain the steps).
 
-### Updates
+### Data & updates
 
-```bash
-docker compose pull && docker compose up -d
-```
-
-Migrationen laufen automatisch beim Start.
+- **SQLite:** The `.db` file lives in the `hatches-data` Docker volume — persisted across container restarts.
+- **Updates:** `docker compose pull && docker compose up -d` — migrations run automatically on startup.
 
 ## Commands
 
-| Befehl | Beschreibung |
+| Command | Description |
 |---|---|
-| `npm run dev` | Dev-Server starten |
-| `npm run build` | Produktions-Build |
-| `npm run preview` | Build lokal testen |
-| `npx prisma studio` | Datenbank-Browser öffnen |
-| `npx prisma migrate dev` | Neue Migration anwenden |
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview the build locally |
+| `npx prisma studio` | Open database browser |
+| `npx prisma db push` | Apply schema changes |
+
+## License
+
+[MIT](LICENSE)
