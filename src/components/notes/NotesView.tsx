@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faXmark, faNoteSticky } from "@fortawesome/free-solid-svg-icons";
 
 interface Note {
   id: number;
@@ -94,7 +96,7 @@ export function NotesView() {
             onClick={createNote}
             className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded px-3 py-1.5 text-left transition-colors"
           >
-            + Neue Notiz
+            <FontAwesomeIcon icon={faPlus} className="w-3 h-3 mr-1" /> Neue Notiz
           </button>
         </div>
         <nav className="flex-1 overflow-y-auto py-1">
@@ -113,7 +115,7 @@ export function NotesView() {
                 onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }}
                 className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-500 text-xs transition-opacity ml-1"
               >
-                ×
+                <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
               </button>
             </div>
           ))}
@@ -157,7 +159,7 @@ export function NotesView() {
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center text-zinc-700">
-          Keine Notiz geöffnet
+          Keine Notiz geoeffnet
         </div>
       )}
     </div>

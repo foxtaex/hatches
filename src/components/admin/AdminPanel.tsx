@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faXmark, faUser, faShield, faUsers, faLock } from "@fortawesome/free-solid-svg-icons";
 
 type Section = "board" | "docs" | "notes" | "websites" | "integrations" | "admin";
 const SECTIONS: Section[] = ["board", "docs", "notes", "websites", "integrations", "admin"];
@@ -163,7 +165,7 @@ function TeamManager({ teams, onRefresh }: { teams: Team[]; onRefresh: () => voi
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-zinc-200">Teams</h3>
         <button onClick={() => setCreating(!creating)} className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded px-3 py-1.5">
-          + Neues Team
+          <FontAwesomeIcon icon={faPlus} className="w-3 h-3 mr-1" /> Neues Team
         </button>
       </div>
 
@@ -206,7 +208,7 @@ function TeamManager({ teams, onRefresh }: { teams: Team[]; onRefresh: () => voi
               {team.description && <p className="text-xs text-zinc-500">{team.description}</p>}
             </div>
             <span className="text-xs text-zinc-600">{team._count.memberships} Mitglieder</span>
-            <button onClick={() => deleteTeam(team.id)} className="text-zinc-700 hover:text-red-500 text-sm ml-2">×</button>
+            <button onClick={() => deleteTeam(team.id)} className="text-zinc-700 hover:text-red-500 ml-2" title="Team loeschen"><FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" /></button>
           </div>
         ))}
       </div>
@@ -262,7 +264,7 @@ function UserManager({ users, teams, onRefresh }: { users: User[]; teams: Team[]
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-zinc-200">Benutzer</h3>
         <button onClick={() => setCreating(!creating)} className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded px-3 py-1.5">
-          + Neuer Benutzer
+          <FontAwesomeIcon icon={faPlus} className="w-3 h-3 mr-1" /> Neuer Benutzer
         </button>
       </div>
 
@@ -347,9 +349,9 @@ export function AdminPanel() {
   }
 
   const tabs = [
-    { key: "teams", label: "Teams" },
-    { key: "users", label: "Benutzer" },
-    { key: "perms", label: "Berechtigungen" },
+    { key: "teams", label: "Teams", icon: faUsers },
+    { key: "users", label: "Benutzer", icon: faUser },
+    { key: "perms", label: "Berechtigungen", icon: faLock },
   ] as const;
 
   return (
@@ -362,7 +364,7 @@ export function AdminPanel() {
               onClick={() => setTab(key)}
               className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${tab === key ? "border-blue-500 text-blue-400" : "border-transparent text-zinc-500 hover:text-zinc-300"}`}
             >
-              {label}
+              <><FontAwesomeIcon icon={icon} className="w-3.5 h-3.5 mr-1.5" />{label}</>
             </button>
           ))}
         </div>

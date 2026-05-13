@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faPen, faTrash, faLink, faCodeBranch } from "@fortawesome/free-solid-svg-icons";
 
 interface Website {
   id: number;
@@ -168,7 +170,7 @@ export function WebsiteManager() {
               onClick={() => setCreating(true)}
               className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded px-4 py-1.5 transition-colors"
             >
-              + Website hinzufügen
+              <FontAwesomeIcon icon={faPlus} className="w-3 h-3 mr-1" /> Website hinzufuegen
             </button>
           )}
         </div>
@@ -214,18 +216,8 @@ export function WebsiteManager() {
                     )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => setEditingId(site.id)}
-                      className="text-zinc-600 hover:text-zinc-300 text-sm transition-colors"
-                    >
-                      Bearbeiten
-                    </button>
-                    <button
-                      onClick={() => deleteWebsite(site.id)}
-                      className="text-zinc-700 hover:text-red-500 text-sm transition-colors"
-                    >
-                      Löschen
-                    </button>
+                    <button onClick={() => setEditingId(site.id)} className="text-zinc-600 hover:text-zinc-300 transition-colors" title="Bearbeiten"><FontAwesomeIcon icon={faPen} className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => deleteWebsite(site.id)} className="text-zinc-700 hover:text-red-500 transition-colors" title="Loeschen"><FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
 

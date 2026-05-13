@@ -19,6 +19,11 @@ export default defineConfig({
         "@uiw/react-markdown-preview",
         "@uiw/react-codemirror",
         "@uiw/codemirror-extensions-basic-setup",
+        "@fortawesome/react-fontawesome",
+        "@fortawesome/fontawesome-svg-core",
+        "@fortawesome/free-solid-svg-icons",
+        "@fortawesome/free-regular-svg-icons",
+        "@fortawesome/free-brands-svg-icons",
       ],
     },
     optimizeDeps: {
