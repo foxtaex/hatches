@@ -1,11 +1,12 @@
 ﻿import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faXmark, faUser, faShield, faUsers, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faXmark, faUser, faShield, faUsers, faLock, faEye, faPen, faTrash, type IconDefinition } from "@fortawesome/free-solid-svg-icons";
 
 type Section = "board" | "docs" | "notes" | "websites" | "integrations" | "admin";
 const SECTIONS: Section[] = ["board", "docs", "notes", "websites", "integrations", "admin"];
 const ACTIONS = ["canView", "canCreate", "canEdit", "canDelete"] as const;
-const ACTION_LABELS = { canView: "Lesen", canCreate: "Erstellen", canEdit: "Bearbeiten", canDelete: "Löschen" };
+const ACTION_LABELS = { canView: "Lesen", canCreate: "Erstellen", canEdit: "Bearbeiten", canDelete: "Loeschen" };
+const ACTION_ICONS: Record<string, IconDefinition> = { canView: faEye, canCreate: faPlus, canEdit: faPen, canDelete: faTrash };
 
 interface Permission {
   section: string;
@@ -97,7 +98,7 @@ function PermMatrix({ teams, onSave }: { teams: Team[]; onSave: () => void }) {
               {SECTIONS.flatMap((s) =>
                 ACTIONS.map((a) => (
                   <th key={`${s}-${a}`} className="py-1 px-1 text-center text-zinc-600 font-normal text-xs">
-                    {ACTION_LABELS[a].slice(0, 3)}
+                    <FontAwesomeIcon icon={ACTION_ICONS[a]} className="w-3 h-3" title={ACTION_LABELS[a]} />
                   </th>
                 ))
               )}
