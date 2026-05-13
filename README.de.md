@@ -1,6 +1,6 @@
 # Hatches
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT + Commons Clause](https://img.shields.io/badge/License-MIT%20+%20Commons%20Clause-blue.svg)](LICENSE)
 [![Astro](https://img.shields.io/badge/Astro-6-orange)](https://astro.build)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748)](https://prisma.io)
 
@@ -134,4 +134,9 @@ In `docker-compose.yml` den `postgres`-Block auskommentieren und die Umgebungsva
 
 ## Lizenz
 
-[MIT](LICENSE)
+**MIT + Commons Clause** — kostenlos für private Nutzung und Self-Hosting.  
+Kommerzielle Nutzung (Verkauf, gehosteter SaaS, bezahlte Dienstleistungen) erfordert eine separate Lizenz.
+
+> Kommerzielle Lizenzen auf Anfrage — Issue öffnen oder direkt Kontakt aufnehmen.
+
+Vollständige Bedingungen: [LICENSE](LICENSE)
