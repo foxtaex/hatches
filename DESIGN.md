@@ -1,11 +1,75 @@
 # Hatches — Design & Feature Specification
 
-> **Vision:** Notion-Alternative mit Apple-Design-Ästhetik — clean, minimalistisch, self-hosted & kostenlos. Entwickelt von **CoreForAi** für bessere interne Zusammenarbeit — konkret und fertig für die Zukunft.
+> **Vision:** Ein **Vibecoding Collaboration Interface** — wo Menschen und AI zusammen arbeiten, ohne dass der Mensch baby-sitten muss. Ein Tool für Paare: Nicht-Coder + Vibe-Coder, oder Mensch + AI. Die AI übernimmt, der Mensch steuert und genehmigt.
 
 **Background:**
 - Hatches stammt aus dem CoreForAi-Ökosystem
 - Ursprünglich nicht als eigenständiges Produkt gedacht — wurde es aber für bessere interne Arbeit
-- **Ziel:** Ein konkretes, fertiges Tool — kein Halbfertiges, keine Kompromisse
+- **Kernidee:** Ein Interface für Vibecoding — wo Mensch + AI oder Nicht-Coder + Vibe-Coder zusammen arbeiten
+- **Ziel:** Die AI soll arbeiten, der Mensch soll nur noch steuern und genehmigen — kein baby-sitten
+- **Alleinstellungsmerkmal:** Nicht nur ein Notion-Clone, sondern ein **Vibecoding Collaboration Tool**
+
+---
+
+## USPs (Alleinstellungsmerkmale)
+
+1. **AI-powered Workspace** — nicht nur AI-Chat, sondern AI die wirklich arbeitet
+2. **Human-in-the-loop, nicht Human-as-babysitter** — Mensch genehmigt, AI arbeitet
+3. **Vibecoding-Collaboration** — Nicht-Coder + Vibe-Coder oder Mensch + AI
+4. **Self-hosted & kostenlos** — keine Abhängigkeit von Drittanbietern
+5. **Apple-Design** — clean, minimalistisch, macht Spaß zu benutzen
+
+---
+
+## Vibecoding Collaboration (Core Differentiator)
+
+### Das Problem
+- **Vibecoder** erstellt schnell viel Code, aber niemand kann folgen
+- **Nicht-Coder** haben Ideen, aber keine Möglichkeit selbst umzusetzen
+- **AI Agents** baby-sitten den Menschen statt selbst zu arbeiten
+
+### Die Lösung: Hatches
+
+**Zwei-Modus Interface:**
+1. **Creator Mode** (Vibe-Coder / AI) — erstellt, baut, coded
+2. **Vision Mode** (Non-Coder / Product Owner) — steuert, genehmigt, gibt Feedback
+
+Der Vision-Modus-Benutzer muss nie selbst coden — nur sagen was er will, AI und Vibe-Coder erledigen den Rest.
+
+### Use Cases
+
+**Mensch + AI:**
+- Product Owner sagt: "Ich will eine Login-Seite mit OAuth"
+- AI erstellt sie automatisch, Vision Mode-Benutzer genehmigt oder lässt ändern
+- Kein Code schreiben müssen
+
+**Nicht-Coder + Vibe-Coder:**
+- Nicht-Coder beschreibt Vision in normalen Worten
+- Vibe-Coder sieht die Anforderungen und setzt um
+- Kollaboration ohne Code-Dominanz
+
+**AI + AI:**
+- Zwei AI Agents mit unterschiedlichen Rollen (Frontend-Coder, Backend-Architekt)
+- Diskutieren via Hatches, einigen sich auf beste Lösung
+- Mensch greift nur ein wenn nötig
+
+### Interface-Features
+
+**Task Board (Vibecoding Style)**
+- Aufgaben die AI/Agenten selbstständig bearbeiten können
+- Status: To Do → In Progress → Needs Approval → Done
+- Mensch wird nur bei "Needs Approval" involviert
+
+**Prompt-to-Feature Pipeline**
+1. Natürliche Spracheingabe ("was wäre wenn wir...", "ich will...")
+2. AI zerlegt in Tasks
+3. Tasks werden automatisch verteilt (an Agent oder Mensch)
+4. Ergebnis wird präsentiert, Mensch genehmigt
+
+**Conversation Log**
+- Jede Änderung wird protokolliert
+- Warum wurde etwas so gebaut? AI erklärt es
+- History für späteres Verständnis
 
 ---
 
@@ -36,7 +100,7 @@
 
 ## Features & Module
 
-> **Ziel:** Notion-Klon — aber mit Apple-Design, self-hosted, kostenlos.
+> **Ziel:** Vibecoding Collaboration Tool — mit Apple-Design, self-hosted, kostenlos.
 
 Jedes Feature ist ein **eigenständiger, modularer Baustein**:
 - Component-Ordner: `src/components/<feature>/`
@@ -239,8 +303,6 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein**:
 ---
 
 ## AI Features (CoreForAi Integration)
-
-> **Ziel:** Hatches wird nicht nur ein Workspace — sondern ein **AI-powered Workspace**.
 
 ### AI Provider (Beliebig)
 Jeder API-Key verwendbar:
