@@ -32,7 +32,7 @@ interface Permission { section: string; canView: boolean; canCreate: boolean; ca
 interface Role { id: number; name: string; description: string | null; color: string; isDefault: boolean; priority: number; permissions: Permission[]; _count: { memberships: number }; }
 interface TeamMember { user: { id: number; username: string; displayName: string | null }; role: { id: number; name: string; color: string }; }
 interface Team { id: number; name: string; description: string | null; color: string; memberships: TeamMember[]; }
-interface User { id: number; username: string; email: string; displayName: string | null; isAdmin: boolean; isActive: boolean; memberships: { team: { id: number; name: string; color: string }; role: { id: number; name: string; color: string } }[]; }
+interface User { id: number; username: string; email: string; displayName: string | null; isAdmin: boolean; isOga: boolean; isActive: boolean; memberships: { team: { id: number; name: string; color: string }; role: { id: number; name: string; color: string } }[]; }
 
 // ── Toggle Switch ────────────────────────────────────────
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
@@ -378,7 +378,7 @@ function TeamsTab({ teams, roles, users, onRefresh }: { teams: Team[]; roles: Ro
 }
 
 // ── Benutzer Tab ─────────────────────────────────────────
-function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promise<void> }) {
+function UsersTab({ users, currentUser, onRefresh }: { users: User[]; currentUser: { id: number; isOga: boolean } | null; onRefresh: () => Promise<void> }) {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ username: "", email: "", password: "", displayName: "" });
   const [resetPwUserId, setResetPwUserId] = useState<number | null>(null);
@@ -433,6 +433,15 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
     });
   }
 
+  async function toggleOga(user: User) {
+    await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: user.id, isOga: !user.isOga }),
+    });
+    await onRefresh();
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -474,6 +483,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-zinc-200">{user.displayName || user.username}</span>
                   <span className="text-xs text-zinc-500">@{user.username}</span>
+                  {user.isOga && <span className="text-xs bg-yellow-900/40 text-yellow-400 border border-yellow-800/40 rounded-full px-2 py-0.5">Oga ★</span>}
                   {user.isAdmin && <span className="text-xs bg-red-900/40 text-red-400 border border-red-800/40 rounded-full px-2 py-0.5">Admin</span>}
                 </div>
                 <div className="flex gap-1.5 mt-1.5 flex-wrap">
@@ -504,6 +514,19 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
               >
                 <FontAwesomeIcon icon={faRightFromBracket} className="w-3 h-3" />
               </button>
+              {/* Oga toggle: visible to Oga on others, or bootstrap when no Oga exists yet */}
+              {(currentUser?.isOga
+                ? currentUser.id !== user.id
+                : !users.some((u) => u.isOga) && currentUser?.id === user.id
+              ) && (
+                <button
+                  onClick={() => toggleOga(user)}
+                  title={user.isOga ? "Oga-Status entziehen" : users.some((u) => u.isOga) ? "Oga-Status vergeben" : "Oga werden"}
+                  className={`transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800 text-xs font-bold ${user.isOga ? "text-yellow-500 hover:text-yellow-300" : "text-zinc-700 hover:text-yellow-500"}`}
+                >
+                  ★
+                </button>
+              )}
               <button onClick={() => deleteUser(user.id)} className="text-zinc-700 hover:text-red-400 transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800">
                 <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
               </button>
@@ -636,6 +659,9 @@ function SettingsTab() {
   const [dbMsg, setDbMsg] = useState("");
   const [dbLoading, setDbLoading] = useState(false);
   const [showDbForm, setShowDbForm] = useState(false);
+  const [workspaceName, setWorkspaceName] = useState("Hatches");
+  const [wsMsg, setWsMsg] = useState("");
+  const [wsLoading, setWsLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/app-info").then((r) => r.json()).then((d) => {
@@ -643,7 +669,21 @@ function SettingsTab() {
       setDbProvider(d.provider ?? "sqlite");
       setDbUrl(d.url ?? "file:./dev.db");
     });
+    fetch("/api/admin/workspace").then((r) => r.json()).then((d) => {
+      setWorkspaceName(d.name ?? "Hatches");
+    });
   }, []);
+
+  async function saveWorkspaceName() {
+    setWsLoading(true); setWsMsg("");
+    const res = await fetch("/api/admin/workspace", {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: workspaceName }),
+    });
+    const data = await res.json();
+    setWsMsg(data.ok ? "✓ Gespeichert" : (data.error ?? "Fehler"));
+    setWsLoading(false);
+  }
 
   async function saveDb() {
     setDbLoading(true); setDbMsg("");
@@ -661,6 +701,36 @@ function SettingsTab() {
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
+
+      {/* Workspace */}
+      <section className="flex flex-col gap-3">
+        <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+          <FontAwesomeIcon icon={faGear} className="w-3 h-3" /> Workspace
+        </h3>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Workspace-Name</label>
+            <input
+              value={workspaceName}
+              onChange={(e) => setWorkspaceName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") saveWorkspaceName(); }}
+              placeholder="z.B. Mein Unternehmen"
+              className="bg-zinc-800 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm outline-none transition-colors focus:border-zinc-500"
+            />
+            <p className="text-xs text-zinc-600">Wird im Navigation-Header angezeigt</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={saveWorkspaceName}
+              disabled={wsLoading || !workspaceName.trim()}
+              className="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              style={{ background: "rgba(60,199,154,0.12)", color: "#3CC79A", border: "1px solid rgba(60,199,154,0.2)" }}>
+              {wsLoading ? "…" : "Speichern"}
+            </button>
+            {wsMsg && <p className={`text-xs ${wsMsg.startsWith("✓") ? "text-green-400" : "text-red-400"}`}>{wsMsg}</p>}
+          </div>
+        </div>
+      </section>
 
       {/* App Info */}
       <section className="flex flex-col gap-3">
@@ -1320,8 +1390,18 @@ export function AdminPanel() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<{ id: number; isOga: boolean } | null>(null);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    fetch("/api/admin/users").then((r) => r.json()).then((list: User[]) => {
+      // currentUser is already loaded via load() but we need isOga — get from profile
+      fetch("/api/user/profile").then((r) => r.json()).then((p: { id: number }) => {
+        const me = Array.isArray(list) ? list.find((u) => u.id === p.id) : null;
+        if (me) setCurrentUser({ id: me.id, isOga: me.isOga });
+      });
+    });
+  }, []);
 
   async function load() {
     const [r, t, u] = await Promise.all([
@@ -1331,7 +1411,15 @@ export function AdminPanel() {
     ]);
     setRoles(Array.isArray(r) ? r : []);
     setTeams(Array.isArray(t) ? t : []);
-    setUsers(Array.isArray(u) ? u : []);
+    if (Array.isArray(u)) {
+      setUsers(u);
+      // Update currentUser.isOga if it changed
+      setCurrentUser((prev) => {
+        if (!prev) return prev;
+        const me = u.find((x: User) => x.id === prev.id);
+        return me ? { id: me.id, isOga: me.isOga } : prev;
+      });
+    }
   }
 
   const tabs: { key: TabKey; label: string; icon: IconDefinition; group?: string }[] = [
@@ -1376,7 +1464,7 @@ export function AdminPanel() {
         <div className={tab === "websites" || tab === "integrations" ? "h-full" : "max-w-4xl"}>
           {tab === "roles"        && <RolesTab roles={roles} onRefresh={load} />}
           {tab === "teams"        && <TeamsTab teams={teams} roles={roles} users={users} onRefresh={load} />}
-          {tab === "users"        && <UsersTab users={users} onRefresh={load} />}
+          {tab === "users"        && <UsersTab users={users} currentUser={currentUser} onRefresh={load} />}
           {tab === "global-perms" && <GlobalPermissionsTab users={users} />}
           {tab === "org-groups"   && <OrgGroupsTab users={users} />}
           {tab === "websites"     && <WebsiteManager />}

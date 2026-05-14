@@ -21,6 +21,8 @@ interface Props {
   wordmark?: boolean;
   /** Font size for wordmark (default: size * 0.64) */
   wordmarkSize?: number;
+  /** Custom label for wordmark (default: "hatches") */
+  label?: string;
   /** Variant: "A" (vivid/mint), "B" (subtle/dark), "C" (outline/neon) */
   variant?: "A" | "B" | "C";
   className?: string;
@@ -167,14 +169,16 @@ function MarkC({ size = 280, uid = "" }: { size?: number; uid?: string }) {
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-// Wordmark — "hatches" + glowing mint dot
+// Wordmark — label + glowing mint dot
 // ──────────────────────────────────────────────────────────────────────────
 function WordmarkText({
   size = 64,
   dotSize = null,
+  label = "hatches",
 }: {
   size?: number;
   dotSize?: number | null;
+  label?: string;
 }) {
   const ds = dotSize ?? Math.round(size * 0.16);
   return (
@@ -190,7 +194,7 @@ function WordmarkText({
           lineHeight: 1,
         }}
       >
-        hatches
+        {label}
       </span>
       <span
         style={{
@@ -217,6 +221,7 @@ export function HatchesLogo({
   size = 28,
   wordmark = false,
   wordmarkSize,
+  label = "hatches",
   variant = "A",
   className = "",
 }: Props) {
@@ -236,7 +241,7 @@ export function HatchesLogo({
       <Mark size={size} uid={uid} />
 
       {/* ── Wordmark ── */}
-      {wordmark && <WordmarkText size={wSize} dotSize={dotSize} />}
+      {wordmark && <WordmarkText size={wSize} dotSize={dotSize} label={label} />}
     </div>
   );
 }

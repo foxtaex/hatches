@@ -13,6 +13,12 @@ interface Note {
   updatedAt: string;
 }
 
+function extractTags(content: string): string[] {
+  const matches = content.match(/#([a-zA-Z0-9_\-äöüÄÖÜß]+)/g);
+  if (!matches) return [];
+  return [...new Set(matches.map((t) => t.slice(1).toLowerCase()))];
+}
+
 export function NotesView() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -21,6 +27,7 @@ export function NotesView() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
   // Create form state
   const [creating, setCreating] = useState(false);
@@ -113,14 +120,31 @@ export function NotesView() {
     }
   }
 
-  // Filtered notes based on search query
+  // All unique tags across all notes
+  const allTags = useMemo(() => {
+    const tagMap = new Map<string, number>();
+    notes.forEach((n) => {
+      extractTags(n.content).forEach((t) => {
+        tagMap.set(t, (tagMap.get(t) ?? 0) + 1);
+      });
+    });
+    return [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
+  }, [notes]);
+
+  // Filtered notes based on search query and active tag
   const filteredNotes = useMemo(() => {
-    if (!searchQuery.trim()) return notes;
-    const q = searchQuery.toLowerCase();
-    return notes.filter((n) =>
-      n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
-    );
-  }, [notes, searchQuery]);
+    let result = notes;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((n) =>
+        n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
+      );
+    }
+    if (activeTag) {
+      result = result.filter((n) => extractTags(n.content).includes(activeTag));
+    }
+    return result;
+  }, [notes, searchQuery, activeTag]);
 
   // Grouping (uses filtered set)
   const privateNotes = filteredNotes.filter((n) => !n.teamId);
@@ -192,6 +216,25 @@ export function NotesView() {
               </button>
             )}
           </div>
+
+          {/* Tag filters */}
+          {allTags.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {allTags.slice(0, 12).map(([tag, count]) => (
+                <button
+                  key={tag}
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                  className={`text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors ${
+                    activeTag === tag
+                      ? "bg-[rgba(60,199,154,0.2)] text-[#3CC79A] border border-[rgba(60,199,154,0.4)]"
+                      : "bg-zinc-900 text-zinc-600 border border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
+                  }`}
+                >
+                  #{tag} <span className="opacity-60">{count}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <nav className="flex-1 overflow-y-auto py-1">
@@ -222,9 +265,16 @@ export function NotesView() {
           {otherNotes.map((note) => <NoteItem key={note.id} note={note} active={activeId === note.id} onOpen={() => openNote(note)} onDelete={deleteNote} />)}
 
           {filteredNotes.length === 0 && (
-            <p className="text-xs text-zinc-700 px-3 py-4 text-center">
-              {searchQuery ? "Keine Treffer" : "Keine Notizen"}
-            </p>
+            <div className="px-3 py-4 text-center">
+              <p className="text-xs text-zinc-700">
+                {searchQuery || activeTag ? "Keine Treffer" : "Keine Notizen"}
+              </p>
+              {activeTag && (
+                <button onClick={() => setActiveTag(null)} className="text-[10px] text-zinc-600 hover:text-zinc-400 mt-1 underline">
+                  Filter entfernen
+                </button>
+              )}
+            </div>
           )}
         </nav>
       </aside>
@@ -285,18 +335,30 @@ export function NotesView() {
 }
 
 function NoteItem({ note, active, onOpen, onDelete }: { note: Note; active: boolean; onOpen: () => void; onDelete: (id: number) => void }) {
+  const tags = useMemo(() => extractTags(note.content).slice(0, 4), [note.content]);
   return (
     <div
-      className={`flex items-center group px-3 py-2 cursor-pointer transition-colors ${active ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300"}`}
+      className={`flex flex-col px-3 py-2 cursor-pointer transition-colors group ${active ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300"}`}
       onClick={onOpen}
     >
-      <span className="flex-1 text-sm truncate">{note.title}</span>
-      <button
-        onClick={(e) => { e.stopPropagation(); onDelete(note.id); }}
-        className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-500 transition-opacity ml-1"
-      >
-        <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
-      </button>
+      <div className="flex items-center">
+        <span className="flex-1 text-sm truncate">{note.title}</span>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(note.id); }}
+          className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-500 transition-opacity ml-1 flex-shrink-0"
+        >
+          <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+        </button>
+      </div>
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-0.5 mt-1">
+          {tags.map((tag) => (
+            <span key={tag} className="text-[9px] px-1.5 py-0 rounded-full bg-zinc-900 text-zinc-600 border border-zinc-800">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

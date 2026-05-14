@@ -61,7 +61,7 @@ export async function countUsers() {
 export async function createFirstAdmin(username: string, email: string, password: string) {
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
-    data: { username, email, passwordHash, displayName: username, isAdmin: true },
+    data: { username, email, passwordHash, displayName: username, isAdmin: true, isOga: true },
   });
 
   const sections = ["board", "docs", "notes", "websites", "integrations", "admin"];

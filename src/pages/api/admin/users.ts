@@ -35,7 +35,22 @@ export const POST: APIRoute = async ({ locals, request }) => {
 
 export const PATCH: APIRoute = async ({ locals, request }) => {
   try { requireAdmin(locals); } catch { return Response.json({ error: "Keine Berechtigung" }, { status: 403 }); }
-  const { id, password, invalidateSessions, ...data } = await request.json();
+  const currentUser = (locals as any).user;
+  const { id, password, invalidateSessions, isOga, ...data } = await request.json();
+
+  // Only Oga can grant/revoke the Oga role
+  // Bootstrap: if no Oga exists yet, any admin can claim the role for themselves
+  if (isOga !== undefined) {
+    if (!currentUser.isOga) {
+      const ogaCount = await prisma.user.count({ where: { isOga: true } });
+      const isBootstrap = ogaCount === 0 && isOga === true && id === currentUser.id;
+      if (!isBootstrap) {
+        return Response.json({ error: "Nur Oga kann den Oga-Status vergeben" }, { status: 403 });
+      }
+    }
+    (data as any).isOga = isOga;
+  }
+
   if (password) (data as any).passwordHash = await hashPassword(password);
   if (Object.keys(data).length > 0 || password) {
     await prisma.user.update({ where: { id }, data });

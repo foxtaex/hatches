@@ -124,6 +124,7 @@ model User {
   displayName         String?
   bio                 String?
   isAdmin             Boolean            @default(false)
+  isOga               Boolean            @default(false)
   isActive            Boolean            @default(true)
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
@@ -329,4 +330,12 @@ model ExternalIssue {
   card          Card?       @relation(fields: [cardId], references: [id])
 
   @@unique([integrationId, externalId])
+}
+
+// ── Workspace Config (singleton, id=1) ────────────────────
+
+model WorkspaceConfig {
+  id        Int     @id @default(1)
+  name      String  @default("Hatches")
+  updatedAt DateTime @updatedAt
 }

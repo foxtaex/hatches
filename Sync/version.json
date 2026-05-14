@@ -328,7 +328,7 @@
   "0.5.19.14.27-dev.17d": {
     "display": "5.14.27-dev.17d",
     "stage": "dev",
-    "status": "current",
+    "status": "archived",
     "date": "2026-05-14",
     "description": "iCal Export — Planner-Termine als RFC-5545-konformes .ics herunterladen",
     "changes": [
@@ -337,9 +337,55 @@
       "Feat: RFC-5545 Line Folding (75-Zeichen-Limit), korrekte Escaping-Funktion für ICS-Sonderzeichen",
       "Feat: Export-Button im Planner-Header (neben 'Neuer Termin') — direkter Download als hatches-planner.ics"
     ]
+  },
+  "0.5.20.14.27-dev.18d": {
+    "display": "5.14.27-dev.18d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-14",
+    "description": "Workspace Config + Bio — Workspace-Name in Admin konfigurierbar, Bio-Feld in Profil-Einstellungen",
+    "changes": [
+      "Feat: WorkspaceConfig-Modell (Singleton id=1) — Workspace-Name in DB speichern",
+      "Feat: GET/PATCH /api/admin/workspace — Workspace-Name lesen und setzen (Admin-only)",
+      "Feat: Admin → Einstellungen → Workspace — Workspace-Name inline bearbeiten",
+      "Feat: HatchesLogo — label-Prop für dynamischen Wordmark-Text (default: 'hatches')",
+      "Feat: Layout — lädt Workspace-Name aus DB und zeigt ihn im Nav-Logo",
+      "Feat: User.bio — Kurzbeschreibung im Benutzerprofil (max. 280 Zeichen)",
+      "Feat: Settings → Bio-Textarea — wird zusammen mit Anzeigename gespeichert",
+      "Feat: PATCH /api/user/profile — unterstützt jetzt displayName und bio separat oder zusammen",
+      "Feat: Profil-Header zeigt Bio wenn vorhanden"
+    ]
+  },
+  "0.5.21.14.27-dev.19d": {
+    "display": "5.14.27-dev.19d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-14",
+    "description": "Oga-System — Super-Admin-Tier mit Vergabe-Mechanismus",
+    "changes": [
+      "Feat: User.isOga — Boolean-Flag für Super-Admin-Tier (Oga)",
+      "Feat: Erster Admin (createFirstAdmin) bekommt automatisch isOga=true",
+      "Feat: PATCH /api/admin/users — isOga kann nur von Oga selbst vergeben/entzogen werden (mit Bootstrap-Mechanismus wenn noch kein Oga existiert)",
+      "Feat: Admin → Benutzer — Oga-Badge (★) bei Oga-Benutzern",
+      "Feat: Admin → Benutzer — ★-Button zum Vergeben/Entziehen (nur Oga sieht es, oder Bootstrap-Fall)"
+    ]
+  },
+  "0.5.22.14.27-dev.20d": {
+    "display": "5.14.27-dev.20d",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-05-14",
+    "description": "Notes Tags — #Hashtag-Extraktion, Tag-Filter-Chips, Tag-Badges in der Sidebar",
+    "changes": [
+      "Feat: extractTags() — extrahiert #hashtags aus Notiz-Inhalt (client-side, kein DB-Change)",
+      "Feat: Alle Tags aus allen Notizen — sortiert nach Häufigkeit, oben rechts in Sidebar",
+      "Feat: Tag-Filter-Chips — Klick auf #tag filtert Notizliste (toggle, klar mit erneutem Klick)",
+      "Feat: NoteItem — zeigt bis zu 4 Tags als kleine Chips unter dem Titel",
+      "Feat: 'Keine Treffer' → 'Filter entfernen'-Link wenn Tag-Filter aktiv ist"
+    ]
   }
 },
 
-"current": "0.5.19.14.27-dev.17d",
-"current_display": "5.14.27-dev.17d"
+"current": "0.5.22.14.27-dev.20d",
+"current_display": "5.14.27-dev.20d"
 }

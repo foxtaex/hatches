@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import { HatchesLogo } from "../components/brand/HatchesLogo";
+import { prisma } from "../lib/db";
 
 export interface Props {
   title?: string;
@@ -9,6 +11,12 @@ export interface Props {
 
 const { title = "Hatches", active } = Astro.props;
 const user = (Astro.locals as any).user;
+
+let workspaceName = "Hatches";
+try {
+  const ws = await prisma.workspaceConfig.findUnique({ where: { id: 1 } });
+  if (ws?.name) workspaceName = ws.name;
+} catch { /* DB not ready yet — use default */ }
 
 const nav = [
   { href: "/board",     label: "Board",     key: "board",     icon: "fa-solid fa-table-columns" },
@@ -43,7 +51,7 @@ const nav = [
 
         <!-- Logo lockup -->
         <a href="/board" class="flex items-center flex-shrink-0" style="text-decoration:none; margin-right:48px;">
-          <HatchesLogo size={28} wordmark={true} wordmarkSize={20} client:load />
+          <HatchesLogo size={28} wordmark={true} wordmarkSize={20} label={workspaceName.toLowerCase()} client:load />
         </a>
 
         <!-- Nav links -->
