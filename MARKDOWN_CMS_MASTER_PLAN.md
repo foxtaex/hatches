@@ -8,7 +8,24 @@
 
 ## Vision
 
-**Hatches Markdown** = Obsidian (Local-First, Markdown, Graph) + Notion (Blocks, DB, Views) + Astro-editor (Frontmatter, MDX, Schema) + mehr
+**Hatches Markdown** = Obsidian (Local-First, Markdown, Graph) + Notion (Blocks, DB, Views) + Astro-editor (Frontmatter, MDX, Schema) + Planner + Kanban
+
+Ein unified Workspace:
+
+```
+┌─────────────────────────────────────────────┐
+│                  HATCHES                      │
+│                                             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
+│  │  Docs    │  │  Kanban  │  │ Planner  │ │
+│  │ Markdown │  │  Board   │  │ Calendar │ │
+│  └──────────┘  └──────────┘  └──────────┘ │
+│         │             │             │       │
+│         └─────────────┼─────────────┘       │
+│                       │                      │
+│              Block Editor ( unify)          │
+└─────────────────────────────────────────────┘
+```
 
 Ein CMS das:
 - Markdown liebt (nicht bekämpft)
@@ -21,7 +38,51 @@ Ein CMS das:
 
 ---
 
-## 1. Core Editor (Block Editor)
+## 2. Modules (Alle unified mit Block Editor)
+
+```
+Hatches Markdown:
+├── Docs        → Markdown Pages, Block Editor, Frontmatter
+├── Kanban      → Cards = Doc Blocks, Columns = Status
+├── Planner     → Calendar Events = Docs mit Date Frontmatter
+├── Notes       → Quick Notes (Mini Docs)
+├── Websites    → URL Registry (Doc mit URL Field)
+└── Database    → Notion-style DB als Block
+```
+
+### Docs = Markdown Pages
+- Block Editor (TipTap)
+- Frontmatter (title, date, tags, author)
+- Live Preview (Split/Edit/Preview)
+- [[Wiki Links]] + Backlinks
+- MDX Components
+
+### Kanban = Card Board
+- **Card** = Doc mit Markdown Content
+- **Column** = Status (To Do, In Progress, Done)
+- **Drag & Drop** = Card zwischen Columns
+- **Card Detail** = Block Editor View
+- **Assignees** = Team Members
+- **Due Date** = Calendar Integration
+- **Card = Block:** Jede Card ist ein Doc, Block Editor für Content
+
+### Planner = Calendar + Timeline
+- **Event** = Doc mit Date Frontmatter
+- **Views:** Month, Week, Day, Timeline
+- **Drag & Drop** = Reschedule events
+- **Recurring** = Daily, Weekly, Monthly
+- **Reminders** = AI notifications
+- **Integration** = iCal export/import
+
+### Database = Notion-style
+- **Table** = Spreadsheet
+- **Board** = Kanban mit DB
+- **Gallery** = Card Grid
+- **Calendar** = DB mit Date Field
+- **Relations** = Cross-DB Links
+- **Formulas** = Calculated Fields
+
+## 1. Block Editor (Unified Core)
 
 ### 1.1 Block Types
 ```
