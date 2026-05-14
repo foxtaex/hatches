@@ -3,8 +3,8 @@
     "name": "hatches",
     "description": "Self-hosted team workspace",
     "versioning": {
-      "scheme": "[Release]-[Status(dev|alpha|beta|pre)].[Patch/Update].[Bugfix]",
-      "explained": "Release = Major.Minor.Patch, Status = dev/alpha/beta/pre + count, z.B. 1.0.0-dev.1 oder 1.3.0-alpha.2"
+      "scheme": "[Release].[Patch][Status][Count]",
+      "explained": "Status comes inline after patch: dev1, a2, b3, pre1 etc. Example: 1.3.0dev1 = dev build, 1.3.0a2 = alpha 2"
     }
   },
 
@@ -32,7 +32,7 @@
       ]
     },
 
-    "1.1.0-dev.1": {
+    "1.1.0dev1": {
       "status": "dev",
       "description": "Stability + UX improvements",
       "features": [
@@ -45,7 +45,7 @@
       "tech": []
     },
 
-    "1.2.0-dev.1": {
+    "1.2.0dev1": {
       "status": "dev",
       "description": "Import/Export + Data portability",
       "features": [
@@ -57,7 +57,7 @@
       "tech": []
     },
 
-    "1.3.0-dev.1": {
+    "1.3.0dev1": {
       "status": "dev",
       "description": "Sync + E2E Encryption",
       "features": [
@@ -76,7 +76,7 @@
       ]
     },
 
-    "1.4.0-dev.1": {
+    "1.4.0dev1": {
       "status": "dev",
       "description": "Headless client + CLI",
       "features": [
@@ -90,7 +90,7 @@
       ]
     },
 
-    "1.5.0-dev.1": {
+    "1.5.0dev1": {
       "status": "dev",
       "description": "External editor support",
       "features": [
@@ -102,7 +102,7 @@
       "tech": []
     },
 
-    "2.0.0-dev.1": {
+    "2.0.0dev1": {
       "status": "dev",
       "description": "Agent API + Streaming Platform",
       "features": [
