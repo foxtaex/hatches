@@ -1,21 +1,7 @@
-# Hatches
+# <img src="public/logo/mark-b.svg" width="160" alt="Hatches Logo — Mark B (Subtle)" />
+<br/><br/> Hatches
 
 <div align="center">
-
-<img src="public/logo/mark-b.svg" width="160" alt="Hatches Logo — Mark B (Subtle)" />
-<br/><br/>
-
-```
-  ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
-  ┃                                                 ┃
-  ┃   ╔═══╗   ╔═══╗       ╔═══════════════════╗     ┃
-  ┃   ║   ║   ║   ║       ║     hatches      ●   ║     ┃
-  ┃   ║ H ║   ║ H ║       ╚═══════════════════╝     ┃
-  ┃   ║   ║   ║   ║                                 ┃
-  ┃   ╚═══╝   ╚═══╝                                 ┃
-  ┃   Mint #3CC79A  ·  white H  ·  perspective       ┃
-  ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-```
 
 A lean, self-hosted team workspace
 <br/>
