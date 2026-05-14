@@ -219,29 +219,42 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein**:
 
 ### 6. Team Spaces & Permissions
 **Pfad:** `src/components/team/`
-**Dateien:** `TeamSpace.tsx`, `MemberList.tsx`, `Permissions.tsx`, `GlobalRoles.tsx`
+**Dateien:** `TeamSpace.tsx`, `MemberList.tsx`, `Permissions.tsx`, `GlobalRoles.tsx`, `OrgGroups.tsx`
 
-**Drei-Ebenen Rechtesystem:**
+**Vier-Ebenen Rechtesystem:**
 
 **1. Globale Rechte (einmalig vergeben, team-unabhängig)**
 - Unabhängig von Rolle oder Team — einmal vergeben, gelten überall
-- Beispiele: "Kann Team erstellen", "Kann andere User verwalten", "Kann API-Keys sehen"
+- Beispiele: "Kann Team erstellen", "Kann API-Keys sehen", "Kann andere User verwalten"
 - Gesetzt von Oga Team-Admins, nicht von Team-Rollen
 
-**2. Team-Rollen (Team-spezifisch)**
-- Permission Levels: Full Access, Can Edit, Can Comment, Can View
-- Team-Member können verschiedene Rollen in verschiedenen Teams haben
-- Rollen-definiert: Welche Pages/Databases können gesehen/bearbeitet werden
-
-**3. Oga Team — Super Admin**
+**2. Oga Team — Super Admin**
 - Steht über allem — hat Zugriff auf alle Teams und globalen Einstellungen
 - Einzige Rolle die Globale Rechte vergeben kann
 - "Oga" = Admin des gesamten Systems
 - Mindestens ein Oga muss existieren (der Gründer/Gründerin)
 
+**3. Org-Gruppen (Bereichs-Gruppen)**
+- Organisatorische Gruppen für Bereiche: z.B. "Frontend", "Backend", "Design", "Marketing"
+- User können mehreren Org-Gruppen angehören
+- Org-Gruppen haben festgeschriebene Rechte für bestimmte Bereiche
+- **Festgeschriebene Rechte (Locked):** Können nicht frei vergeben werden, nur Oga kann ändern
+- **Normale Rechte:** Können frei vom Team-Lead vergeben werden
+- Beispiel: "Frontend-Gruppe" hat festgeschriebene Rechte auf /frontend-* Routes, kann intern aber frei vergeben wer was darf
+
+**4. Team-Rollen (Team-spezifisch)**
+- Permission Levels: Full Access, Can Edit, Can Comment, Can View
+- Team-Member können verschiedene Rollen in verschiedenen Teams haben
+- Rollen-definiert: Welche Pages/Databases können gesehen/bearbeitet werden
+
+**Permission-Typen:**
+- **Normale Rechte:** Frei vergebbar vom Team-Lead/Org-Gruppen-Lead
+- **Festgeschriebene Rechte (Locked):** Nur von Oga änderbar, können nicht "nach unten" weitergegeben werden
+
 **Admin Controls:**
 - Oga Team-Einstellungen
 - Globale Rechte vergeben/entziehen
+- Org-Gruppen erstellen/bearbeiten (locked + normale Rechte)
 - Teams erstellen/löschen
 - User-Management (globale Sperre, Passwort-Reset)
 
@@ -251,8 +264,12 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein**:
 - `GET/POST /api/team/[id]/members` — Members
 - `DELETE /api/team/[id]/members/[userId]` — Member entfernen
 - `GET/PATCH /api/global/permissions/[userId]` — Globale Rechte (Oga-only)
-- `GET /api/global/roles` — Alle globalen Rollen
-- `POST /api/global/roles` — Globale Rolle erstellen
+- `GET/POST /api/global/roles` — Globale Rollen
+- `GET/POST /api/org/groups` — Org-Gruppen
+- `GET/PATCH/DELETE /api/org/groups/[id]` — Org-Gruppe CRUD
+- `POST /api/org/groups/[id]/members` — User zu Org-Gruppe hinzufügen
+- `DELETE /api/org/groups/[id]/members/[userId]` — User entfernen
+- `GET /api/org/groups/[id]/rights` — Rechte der Org-Gruppe (locked + normal)
 
 ---
 
@@ -442,6 +459,8 @@ Trigger + Action für wiederkehrende Workflows:
 - `User` — id, email, name, avatarUrl, passwordHash, settings (JSON)
 - `Team` — id, name, icon, members[]
 - `TeamMember` — userId, teamId, role
+- `OrgGroup` — id, name, description, lockedRights[], normalRights[]
+- `OrgGroupMember` — userId, orgGroupId, joinedAt
 - `GlobalPermission` — userId, permission (string), grantedBy, grantedAt (team-unabhängig)
 - `GlobalRole` — id, name, permissions[] (集合 globaler Rechte)
 - `Session` — id, userId, token, expiresAt
