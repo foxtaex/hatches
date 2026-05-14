@@ -490,19 +490,10 @@ Trigger + Action für wiederkehrende Workflows:
 
 ## Hatches 2.0 — Future Plans
 
-> **GitHatch** — Separate project, independent from Hatches.
+**AI Events:**
+- AI plant automatisch Meetings basierend auf Verfügbarkeit
+- Erstellt Erinnerungen und benachrichtigt das Team
+- AI Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
+- Automatische Timezone-Anpassung
 
-**GitHatch:** Git Repository Management Interface
-- Will be developed as standalone project that integrates with Hatches
-- GitHub/GitLab/Gitea Repos verwalten
-- PR Reviews, Issues, Actions Dashboard
-- CI/CD Pipelines überwachen
-- Code Search und Navigation
-
-**For Hatches 2.0:**
-- Integration mit GitHatch (AI kann Repos durchsuchen, Issues erstellen)
-- Better AI Collaboration Features
-- AI Events — AI plant automatisch Meetings basierend auf Verfügbarkeit, erstellt Erinnerungen, Benachrichtigt das Team
-- AI-powered Event Intelligence — "Finde einen Slot für alle Team-Members diese Woche"
-- Enhanced Vibecoding Interface
-- Performance Optimizations
+**Note:** See **GitHatch** project for Git Repository Management Interface (independent from Hatches, not part of this repo).

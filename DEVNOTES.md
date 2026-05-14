@@ -99,28 +99,13 @@ not human babysitting AI. Creator Mode (Vibe-Coder/AI) vs Vision Mode (Non-Coder
 
 - **HarryPropper:** Code is good but "very hardcoded" — magic strings, no config system
 - **Syntarex:** Needs clear USP vs Notion/Obsidian
-- **Action:** Finish first, then refactor. Don't optimize prematurely.
-- **Action:** USPs need to be defined and highlighted
-- **Action:** i18n / Config system for hardcoded strings
-
----
 
 ## Hatches 2.0 — Future Plans
 
-> **GitHatch** — Separate from Hatches, will be independent project.
-
-**GitHatch:** Git Repository Management Interface
-- Planned for Hatches 2.0
-- Independent of Hatches (standalone tool that integrates with Hatches)
-- GitHub/GitLab/Gitea repos verwalten
-- PR Reviews, Issues, Actions Dashboard
-- CI/CD pipelines überwachen
-- Code Search und Navigation
-
-**AI Events (Hatches 2.0):**
+**AI Events:**
 - AI plant automatisch Meetings basierend auf Verfügbarkeit
 - Erstellt Erinnerungen und benachrichtigt das Team
-- AI-powered Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
+- AI Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
 - Automatische Timezone-Anpassung
 
-> Note: GitHatch is a separate project from Hatches and will be developed independently.
+**GitHatch:** Separate Git Repository Management Interface (independent project, not in this repo).
