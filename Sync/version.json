@@ -155,7 +155,7 @@
     "0.5.8.14.27-dev.6d": {
       "display": "5.14.27-dev.6d",
       "stage": "dev",
-      "status": "current",
+      "status": "archived",
       "date": "2026-05-14",
       "description": "Trello+Notion Kanban Cards — Detail Modal, Labels, Priority, Due Date, Checklist, Cover",
       "changes": [
@@ -171,9 +171,24 @@
         "Refactor: KanbanBoard.tsx — openCardId State + CardDetailModal eingebunden",
         "Fix: /api/board/cards PATCH — explizites Field-Mapping, dueDate ISO→Date Konvertierung"
       ]
-    }
-  },
+    },
+    "0.5.9.14.27-dev.7d": {
+    "display": "5.14.27-dev.7d",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-05-14",
+    "description": "Rollen-System überarbeitet — Websites/Integrationen raus, Planner/Templates rein",
+    "changes": [
+      "Fix: 'websites' und 'integrations' aus Permission-Sections entfernt (sind jetzt Admin-only)",
+      "Feat: 'planner' und 'templates' als neue Permission-Sections hinzugefügt",
+      "Feat: GET /api/admin/roles normalisiert Permissions — jede Rolle hat immer alle aktuellen Sections",
+      "Feat: Section-Icons (Emoji) im RolesTab UI",
+      "Fix: middleware.ts SECTION_MAP — /websites + /integrations gegen /planner + /templates getauscht",
+      "Refactor: SECTIONS an 4 Stellen synchron aktualisiert (permissions.ts, roles.ts, AdminPanel.tsx, middleware.ts)"
+    ]
+  }
+},
 
-  "current": "0.5.8.14.27-dev.6d",
-  "current_display": "5.14.27-dev.6d"
+"current": "0.5.9.14.27-dev.7d",
+"current_display": "5.14.27-dev.7d"
 }
