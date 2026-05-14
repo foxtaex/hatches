@@ -108,8 +108,8 @@ not human babysitting AI. Creator Mode (Vibe-Coder/AI) vs Vision Mode (Non-Coder
 - AI Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
 - Automatische Timezone-Anpassung
 
-**GitHatch:** Separate Git Repository Management Interface — independent project, not in this repo.
+**GitHatch:** Self-hosted Git Repository Management Interface (like GitLab) — independent project, not in this repo.
 
-**Purpose:** Internal Git backup and standalone git repo. Not a GitHub/GitLab replacement — pulls from those services and pushes back. Users can also use GitHatch directly as their own git repo.
+**Features:** Like GitLab — repo management, issues, merge requests, CI/CD pipelines, webhooks, SSH keys. Can sync with GitHub/GitLab (pull/push) or work standalone.
 
-**License:** Partially open source — not fully local-hostable (control retained). Users can self-host, but full feature set may require hosted version.
+**License:** Partially open source — self-hosted possible, full feature set requires server infrastructure.
