@@ -4,7 +4,7 @@ import { HatchesLogo } from "../components/brand/HatchesLogo";
 
 export interface Props {
   title?: string;
-  active?: "board" | "docs" | "notes" | "websites" | "integrations" | "admin" | "settings";
+  active?: "board" | "docs" | "notes" | "websites" | "integrations" | "planner" | "admin" | "settings";
 }
 
 const { title = "Hatches", active } = Astro.props;
@@ -12,6 +12,7 @@ const user = (Astro.locals as any).user;
 
 const nav = [
   { href: "/board",        label: "Board",         key: "board",        icon: "fa-solid fa-table-columns" },
+  { href: "/planner",      label: "Planner",       key: "planner",      icon: "fa-solid fa-calendar-days" },
   { href: "/docs",         label: "Docs",          key: "docs",         icon: "fa-solid fa-file-lines" },
   { href: "/notes",        label: "Notizen",       key: "notes",        icon: "fa-solid fa-note-sticky" },
   { href: "/websites",     label: "Websites",      key: "websites",     icon: "fa-solid fa-globe" },
