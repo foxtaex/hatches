@@ -1,4 +1,4 @@
-import { SimpleMDE } from "./SimpleMDE";
+import { MarkdownEditor } from "./MarkdownEditor";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faXmark, faLock, faCheck, faFileImport, faFileExport, faEye, faPenToSquare, faCode } from "@fortawesome/free-solid-svg-icons";
@@ -327,7 +327,7 @@ export function DocsEditor() {
             </div>
           </div>
           <div className="flex-1 overflow-hidden">
-            <SimpleMDE
+            <MarkdownEditor
               value={content}
               onChange={handleContentChange}
               placeholder="Schreibe Markdown..."

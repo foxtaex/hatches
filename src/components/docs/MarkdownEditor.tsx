@@ -32,7 +32,7 @@ const TOOLBAR: ToolbarButton[] = [
   { icon: faTable, label: "Table", action: "table", prefix: "", suffix: "" },
 ];
 
-interface SimpleMDEProps {
+interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -40,7 +40,7 @@ interface SimpleMDEProps {
 
 type ViewMode = "edit" | "preview" | "split";
 
-export function SimpleMDE({ value, onChange, placeholder = "Schreibe Markdown..." }: SimpleMDEProps) {
+export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdown..." }: MarkdownEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("split");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
