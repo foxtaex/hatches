@@ -283,6 +283,84 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 
 ---
 
+## AI Features (CoreForAi Integration)
+
+> **Ziel:** Hatches wird nicht nur ein Workspace — sondern ein **AI-powered Workspace**. Der AI Agent sitzt oben drauf und übernimmt die Aufgabenverteilung, Template-Erstellung und Routine-Arbeit.
+
+### CoreForAi Harness
+
+**Der AI Agent (Harness):** Ein konfigurierbarer AI-Assistent, der:
+- Aufgaben aus Konversationen erkennt und automatisch Boards/Karten zuweist
+- Dokumente zusammenfasst und Key-Points extrahiert
+- Templates basierend auf Context vorschlägt
+- Erinnerungen und Deadlines verwaltet
+- Team-Mitglieder automatisch zuweist basierend auf Skills/Verfügbarkeit
+
+**Harness bearbeiten:**
+- Prompt-Templates pro Team anpassen
+- Behavior rules setzen (z.B. "Wenn Issue erstellt wird, automatisch zu Board hinzufügen")
+- Integration-Commands definieren (z.B. `/ai assign to @user`)
+- AI-Trigger konfigurieren (z.B. täglicher Standup-Bericht)
+
+### Template-Erstellung (AI-assisted)
+
+**Features:**
+- **AI-generierte Templates:** Basierend auf Projekt-Typ (Software, Marketing, HR) schlägt AI passende Strukturen vor
+- **Dynamische Templates:** AI lernt from wiederholten Patterns und erstellt neue Templates
+- **Vorlagen:** Meetings, Projekte, Bug-Tracking, OKRs, Sprint-Planning
+- **Template Library:** Durchsuchbare Bibliothek mit KI-vorschlägen
+
+**API:**
+- `GET /api/templates` — Alle Templates
+- `POST /api/templates` — Template erstellen
+- `POST /api/templates/generate` — AI-generiert Template basierend auf Beschreibung
+- `PATCH /api/templates/[id]` — Template aktualisieren
+- `DELETE /api/templates/[id]` — Template löschen
+
+### AI Agent Integration
+
+**Agent-Type:** OpenAI GPT / Claude / Gemini (konfigurierbar)
+
+**Fähigkeiten:**
+- **Natural Language Interface:** "Erstelle ein Board für das neue Feature X"
+- **Task Assignment:** "Weise @lisa die Aufgabe 'Design review' zu"
+- **Smart Summaries:** Tägliche/weekly Zusammenfassungen für Team
+- **Code Review:** AI analysiert Code und erstellt Tickets für gefundene Issues
+- **Meeting Notes:** AI transkribiert und erstellt Action-Items
+- **Auto-Tagging:** Doc/Notes werden automatisch mit Tags versehen
+
+**Slash Commands:**
+- `/ai task <beschreibung>` — Erstellt Aufgabe im Board
+- `/ai summarize` — Fasst aktuelle Seite/Dokument zusammen
+- `/ai assign <person> <aufgabe>` — Weist direkt zu
+- `/ai template <projekt-typ>` — Generiert passendes Template
+- `/ai remind <was> <wann>` — Erstellt Erinnerung
+
+**API:**
+- `POST /api/ai/chat` — Chat mit AI Agent
+- `POST /api/ai/command` — Slash Command ausführen
+- `POST /api/ai/generate` — Content generieren (Summaries, Templates)
+- `GET /api/ai/context` — Kontext für Agent (Pages, Boards, Members)
+- `PATCH /api/ai/harness` — Harness-Konfiguration updaten
+- `GET /api/ai/harness` — Aktuelle Harness-Einstellungen
+
+### Automation Rules
+
+**Trigger + Action:**
+- Trigger: Issue erstellt (GitHub) → Action: Karte im Board erstellen
+- Trigger: Deadline erreicht → Action: Team benachrichtigen
+- Trigger: Neue Page erstellt → Action: AI-Template vorschlagen
+- Trigger: Voice-Nachricht → Action: Transkribieren + Action-Items erstellen
+
+**API:**
+- `GET /api/automation/rules` — Alle Regeln
+- `POST /api/automation/rules` — Regel erstellen
+- `PATCH /api/automation/rules/[id]` — Regel aktualisieren
+- `DELETE /api/automation/rules/[id]` — Regel löschen
+- `POST /api/automation/rules/[id]/trigger` — Regel testen
+
+---
+
 ## UI-Komponenten (Design System)
 
 Apple-inspiriertes Design mit:
