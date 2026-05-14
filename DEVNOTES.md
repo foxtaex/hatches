@@ -108,10 +108,10 @@ No more app-hopping. Everything in one place, but still clean and simple.
 - AI Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
 - Automatische Timezone-Anpassung
 
-**GitHatch:** Self-hosted Git Repository Management Interface (like GitLab) — independent project, not in this repo.
+**GitHatch:** EU-made Git Repository Management Interface (like GitLab) — independent project, not in this repo.
 
 **Tech Stack:** Rust + Axum (if still relevant at time of development)
 
-**Features:** Like GitLab — repo management, issues, merge requests, CI/CD pipelines, webhooks, SSH keys. Can sync with GitHub/GitLab (pull/push) or work standalone.
+**Features:** Like GitLab — repo management, issues, merge requests, CI/CD pipelines, webhooks, SSH keys. Made in Germany, EU-compliant (GDPR, data privacy). Open APIs — no lock-in, other tools can integrate. Can sync with GitHub/GitLab (pull/push) or work standalone.
 
 **License:** Partially open source — self-hosted possible, full feature set requires server infrastructure.
