@@ -1,23 +1,12 @@
 # Hatches
 
 <div align="center">
-  
-```
-  ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
-  ┃                                                 ┃
-  ┃   ╔═══╗   ╔═══╗       ╔═══════════════════╗     ┃
-  ┃   ║   ║   ║   ║       ║     hatches      ●   ║     ┃
-  ┃   ║ H ║   ║ H ║       ╚═══════════════════╝     ┃
-  ┃   ║   ║   ║   ║                                 ┃
-  ┃   ╚═══╝   ╚═══╝                                 ┃
-  ┃   Mint #3CC79A  ·  white H  ·  perspective       ┃
-  ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
-```
-
-**A lean, self-hosted team workspace**
-<br/>
-<em>Your own private Notion alternative for developers</em>
-<br/><br/>
+  <img src="/logo/mark-a.png" width="160" alt="Hatches Logo — Mark A (Vivid)" />
+  <br/><br/>
+  <strong>A lean, self-hosted team workspace</strong>
+  <br/>
+  <em>Your own private Notion alternative for developers</em>
+  <br/><br/>
 
 [![License: MIT + Commons Clause](https://img.shields.io/badge/License-MIT%20+%20Commons%20Clause-blue.svg)](LICENSE)
 <img src="https://img.shields.io/badge/Astro-6-ff6b35?logo=astro" alt="Astro 6"/>
