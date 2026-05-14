@@ -217,9 +217,27 @@
       "Fix: Board wechselt automatisch zum richtigen Board via ?boardId=X URL-Param",
       "Fix: Karten-Suchtreffer navigieren zum Board des richtigen Boards (?boardId=X)"
     ]
+  },
+  "0.5.12.14.27-dev.10d": {
+    "display": "5.14.27-dev.10d",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-05-14",
+    "description": "Board-Filter — Filter-Bar über den Spalten (Assignee, Priority, Label, Fällig, Text)",
+    "changes": [
+      "Feat: Filter-Bar über den Board-Spalten (client-side, kein API-Call)",
+      "Feat: Text-Suche innerhalb des Boards (Titel + Beschreibung)",
+      "Feat: Filter nach Assignee (Dropdown mit allen Board-Usern)",
+      "Feat: Filter nach Priorität (Urgent/Hoch/Mittel/Niedrig als Chips)",
+      "Feat: Filter nach Label (dynamisch aus vorhandenen Karten-Labels)",
+      "Feat: Filter nach Fälligkeitsdatum (Überfällig, Heute, Diese Woche)",
+      "Feat: Aktive Filter als Chips mit einzelnem X-Button",
+      "Feat: Anzeige 'N Karten ausgeblendet' wenn Filter aktiv",
+      "Feat: 'Alle Filter entfernen' im Dropdown"
+    ]
   }
 },
 
-"current": "0.5.11.14.27-dev.9d",
-"current_display": "5.14.27-dev.9d"
+"current": "0.5.12.14.27-dev.10d",
+"current_display": "5.14.27-dev.10d"
 }
