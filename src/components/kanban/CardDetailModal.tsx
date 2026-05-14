@@ -20,6 +20,7 @@ interface Props {
   card: Card;
   users: User[];
   columnName: string;
+  currentUserId: number | null;
   onClose: () => void;
   onUpdate: (id: number, data: Partial<Card>) => void;
   onDelete: (id: number) => void;
@@ -32,7 +33,7 @@ const COVER_COLORS = [
   "#3CC79A", "#6366f1", "#f97316", "#ef4444", "#8b5cf6",
 ];
 
-export function CardDetailModal({ card, users, columnName, onClose, onUpdate, onDelete, onArchive }: Props) {
+export function CardDetailModal({ card, users, columnName, currentUserId, onClose, onUpdate, onDelete, onArchive }: Props) {
   const [title, setTitle] = useState(card.title);
   const [desc, setDesc] = useState(card.description ?? "");
   const [editingTitle, setEditingTitle] = useState(false);
