@@ -40,14 +40,14 @@ src/pages/api/<feature>/
 See **`DESIGN.md`** for complete design specification, color tokens, typography,
 and feature descriptions (all 9 feature modules documented).
 
-**Vision:** Vibecoding Collaboration Interface — Human + AI working together,
-not human babysitting AI. Creator Mode (Vibe-Coder/AI) vs Vision Mode (Non-Coder).
+**Vision:** All-in-one: Notion + Obsidian + Trello + AI Agent Manager + own GitRepo.
+No more app-hopping. Everything in one place, but still clean and simple.
 
 **USPs:**
-1. AI-powered Workspace — not just AI chat, AI that actually works
-2. Human-in-the-loop, not Human-as-babysitter
-3. Vibecoding-Collaboration — Non-Coder + Vibe-Coder or Human + AI
-4. Self-hosted & free
+1. All-in-One — Notion + Obsidian + Trello + AI Agent Manager + GitRepo, no app-hopping
+2. AI-powered — not just chat, AI that actually works (Harness Agent)
+3. Vibecoding-Collaboration — Human + AI, Human approves, AI works
+4. Self-hosted & free — no dependency, no subscription
 5. Apple-Design — clean, minimal, delightful to use
 
 ### Permission System (Four-Tier)

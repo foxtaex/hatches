@@ -1,23 +1,32 @@
 # Hatches — Design & Feature Specification
 
-> **Vision:** Ein **Vibecoding Collaboration Interface** — wo Menschen und AI zusammen arbeiten, ohne dass der Mensch baby-sitten muss. Ein Tool für Paare: Nicht-Coder + Vibe-Coder, oder Mensch + AI. Die AI übernimmt, der Mensch steuert und genehmigt.
+> **Vision:** Alles in einem: **Notion + Obsidian + Trello + AI Agent Manager + eigenes GitRepo**. Kein hin und her zwischen apps. Ein Tool, das alles kann — und trotzdem clean und einfach bleibt.
 
 **Background:**
 - Hatches stammt aus dem CoreForAi-Ökosystem
 - Ursprünglich nicht als eigenständiges Produkt gedacht — wurde es aber für bessere interne Arbeit
-- **Kernidee:** Ein Interface für Vibecoding — wo Mensch + AI oder Nicht-Coder + Vibe-Coder zusammen arbeiten
-- **Ziel:** Die AI soll arbeiten, der Mensch soll nur noch steuern und genehmigen — kein baby-sitten
-- **Alleinstellungsmerkmal:** Nicht nur ein Notion-Clone, sondern ein **Vibecoding Collaboration Tool**
+- **Kernidee:** Alles in einem Workspace — Notion + Obsidian + Trello + AI + GitRepo
+- **Ziel:** Kein App-Hopping mehr. Alles an einem Ort, trotzdem clean und einfach.
 
 ---
 
 ## USPs (Alleinstellungsmerkmale)
 
-1. **AI-powered Workspace** — nicht nur AI-Chat, sondern AI die wirklich arbeitet
-2. **Human-in-the-loop, nicht Human-as-babysitter** — Mensch genehmigt, AI arbeitet
-3. **Vibecoding-Collaboration** — Nicht-Coder + Vibe-Coder oder Mensch + AI
-4. **Self-hosted & kostenlos** — keine Abhängigkeit von Drittanbietern
+1. **Alles in Einem** — Notion + Obsidian + Trello + AI Agent Manager + eigenes GitRepo, kein App-Hopping
+2. **AI-powered** — nicht nur Chat, AI die wirklich *arbeitet* (Harness Agent weist Aufgaben zu, erstellt, automatisiert)
+3. **Vibecoding-Collaboration** — Human + AI, Human genehmigt, AI arbeitet
+4. **Self-hosted & kostenlos** — keine Abhängigkeit, keine Abo-Kosten
 5. **Apple-Design** — clean, minimalistisch, macht Spaß zu benutzen
+
+**Was Hatches kann:**
+
+| Feature | Notion | Obsidian | Trello | Hatches |
+|---------|--------|----------|--------|---------|
+| Block-Editor | ✅ | ❌ | ❌ | ✅ |
+| Lokale Markdown-Dateien | ❌ | ✅ | ❌ | ✅ |
+| Kanban Board | ✅ | ❌ | ✅ | ✅ |
+| AI Agent Manager | ❌ | ❌ | ❌ | ✅ |
+| Eigenes GitRepo (GitHatch) | ❌ | ❌ | ❌ | ✅ |
 
 ---
 
