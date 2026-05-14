@@ -357,12 +357,21 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Provider:** Beliebig — jeder API-Key verwendbar.
 
 **Unterstützte Provider:**
-- **OpenAI** — GPT-4, GPT-4o, GPT-4o-mini, o1, o1-mini, o3, o3-mini
-- **Anthropic** — Claude 3.5 Sonnet, Claude 3 Opus, Claude 3.7 Sonnet, Claude 4 Sonnet
-- **Google** — Gemini 2.0 Flash, Gemini 2.5 Pro, Gemini 2.5 Flash
+- **OpenAI** — GPT-4, GPT-4o, GPT-4o-mini, o1, o3
+- **Anthropic** — Claude 3.5/3.7/4 Sonnet, Claude 3 Opus
+- **Google** — Gemini 2.0/2.5 Flash, Gemini 2.5 Pro
 - **DeepSeek** — V3, R1
+- **MiniMax** — MiniMax-M2, MiniMax-M2.7 (Text + Vision + Audio)
 - **Local / Ollama** — Jeder lokale Model (llama3, mistral, etc.)
 - **Custom Endpoint** — Beliebige OpenAI-kompatible API
+
+**MiniMax Features (CoreForAi Integration):**
+- **MiniMax-M2.7** — Latest flagship model (Text, Vision, Audio)
+- **MiniMax-M2** — Fast, efficient all-rounder
+- **Music Generation** — AI-generierte Hintergrundmusik für Podcasts/Meetings
+- **Voice Synthesis** — Meeting-Notes als Audio-Datei (MP3/WAV)
+- **Image Generation** — Cover-Images für Pages automatisch generieren
+- **MiniMax API Key** — Direkt in Hatches hinterlegen, keineextra Konfiguration nötig
 
 **Konfiguration:**
 - API-Key pro Provider hinterlegen
