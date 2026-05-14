@@ -1,18 +1,59 @@
 # Hatches — Design & Feature Specification
 
+> **Vision:** Notion-Alternative mit Apple-Design-Ästhetik — clean, minimalistisch, self-hosted & kostenlos.
+
+## Design Philosophy
+
+### Apple-Inspired Minimalism
+- **Clean surfaces** — Weiß/helles Grau statt dunklem Zinc
+- **SF Pro** als Primärfont (system-ui fallback chain)
+- **Großzügiger Whitespace** —，空气感，breathing room
+- **Subtle shadows** für Tiefe statt harter Borders
+- **Smooth animations** — 300ms ease-out, spring-feel bei Interaktionen
+- **Gradients** dezent eingesetzt (z.B. акценты, highlights)
+- **Transparenz** mit backdrop-blur für overlays
+
+### Notion-Referenz
+- **Block-basiertes Layout** — alles ist ein Block
+- **Sidebar + Content Area** — основной Layout
+- **Inline Editing** — Doppelklick zum Bearbeiten
+- **Slash Commands** — `/` für schnelle Actions
+- **Database Views** — Table, Board, Gallery, Calendar, Timeline
+- **Nestable Seiten** — Hierarchie mit Drag & Drop
+
+### Dark Mode (Toggle)
+- **Licht nach dark** — erstelle hellen Modus, dann dark als Alternative
+- **Dark: #1c1c1e** surfaces, **#2c2c2e** borders, **#f5f5f7** text
+- **Accent: #007AFF** (Apple Blue) für primary actions
+- **Kein reines Schwarz** — Apple verwendet "fab التجميل" dark grays
+
+### Content Style
+- **German UI** (z.B. "Anmelden", "Speichern", "Notizen")
+- **Clean labels** — kein Marketing-Sprech
+- **Emoji erlaubt** für personality ( Unlike current design system)
+- **Großzügige Typografie** — mehr line-height, größere Schriften
+
+---
+
 ## Design System
 
 **Quelle:** `design-system/` (im Repo enthalten)
 
-### Visual DNA
-- **Dark-first:** zinc-950 body, zinc-900 surfaces, zinc-800 borders
-- **Low contrast:** zinc-400 inactive, zinc-100 active text
-- **Minimal accents:** blue-600 primary, green/red for states
-- **Dense layout:** tight spacing, 48px nav height
-- **System fonts only:** no custom webfonts
-- **FontAwesome 6.7.2 icons** exclusively
-- **No gradients, textures, or shadows** — flat, solid colors only
-- **Fast transitions:** 200ms color changes, no spring physics
+### Visual DNA (Apple-Inspired)
+- **Light-first:** #ffffff surfaces, #f5f5f7 body, #e5e5e5 borders
+- **High contrast:** #000 active text, #86868b secondary text
+- **Accent:** #007AFF (Apple Blue) for primary actions
+- **Generous spacing:** 16px–24px padding, relaxed line-height (1.6)
+- **SF Pro / system fonts:** clean Apple-like typography
+- **Subtle shadows:** rgba(0,0,0,0.08) for depth, no harsh borders
+- **Smooth transitions:** 300ms ease-out, spring feel
+- **Gradients:** subtle (e.g. frosted glass overlays)
+- **Transparencies:** backdrop-blur for modals, overlays
+
+### Dark Mode
+- **#1c1c1e** surface, **#2c2c2e** borders, **#f5f5f7** text
+- **Accent:** #0A84FF (Apple Blue dark variant)
+- **Frosted glass:** backdrop-blur with rgba(255,255,255,0.08) panels
 
 ### Content Style
 - **German UI** throughout (e.g., "Anmelden", "Speichern", "Notizen")
@@ -34,75 +75,105 @@ See `design-system/colors_and_type.css` für vollständige Token-Definition.
 
 ## Features & Module
 
+> **Ziel:** Notion-Klon — aber mit Apple-Design, self-hosted, kostenlos.
+
 Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 - Eigener Component-Ordner (`src/components/<feature>/`)
 - Eigener API-Gruppe (`src/pages/api/<feature>/`)
 - Eigenen Typen (`types.ts`)
 
-### 1. Kanban Board
+### 1. Pages / Docs (Block Editor)
+**Pfad:** `src/components/editor/`
+**Dateien:** `BlockEditor.tsx`, `BlockToolbar.tsx`, `SlashCommand.tsx`
+
+**Features:**
+- **Block-basiertes Layout** — jeder Absatz/Headline/List ist ein Block
+- **Slash Commands** — `/h1`, `/h2`, `/bullet`, `/numbered`, `/todo`, `/quote`, `/code`, `/divider`
+- **Inline Editing** — Doppelklick oder Enter zum Bearbeiten
+- **Drag & Drop** Blöcke neu anordnen (dnd-kit)
+- **Nestable Blöcke** — Aufgabenlisten mit Sub-Items
+- **Rich Text** — Bold, Italic, Code, Links inline
+- **Embeds** — Code-Blöcke mit Syntax-Highlighting, Bilder, Dateien
+- **Auto-Save** (debounced 600ms)
+- **Version History** — ältere Versionen wiederherstellen
+- **Export** als Markdown, PDF, HTML
+
+**API:**
+- `GET /api/pages` — Alle Seiten
+- `POST /api/pages` — Seite erstellen
+- `GET /api/pages/[id]` — Einzelne Seite mit Blöcken
+- `PATCH /api/pages/[id]` — Metadaten (Titel, Icon, Cover)
+- `DELETE /api/pages/[id]` — Seite löschen
+- `GET /api/pages/[id]/blocks` — Blöcke der Seite
+- `POST /api/pages/[id]/blocks` — Block hinzufügen
+- `PATCH /api/pages/[id]/blocks/[blockId]` — Block aktualisieren
+- `DELETE /api/pages/[id]/blocks/[blockId]` — Block löschen
+- `POST /api/pages/[id]/blocks/reorder` — Blöcke neu anordnen
+- `POST /api/pages/[id]/blocks/[blockId]/children` — Kind-Block
+- `GET /api/pages/[id]/versions` — Version History
+
+---
+
+### 2. Database Views (Tables & More)
+**Pfad:** `src/components/database/`
+**Dateien:** `DatabaseView.tsx`, `TableView.tsx`, `BoardView.tsx`, `GalleryView.tsx`, `CalendarView.tsx`, `TimelineView.tsx`
+
+**Features:**
+- **Multiple Views** pro Database — Table, Board (Kanban), Gallery, Calendar, Timeline
+- **Custom Properties** — Text, Number, Select, Multi-Select, Date, Person, Files, URL, Checkbox, Formula
+- **Filter & Sort** — nach Property filtern, multiple Sort-Kriterien
+- **Group By** — Zeilen nach Property gruppieren
+- **Inline Editing** — Zellen direkt bearbeiten
+- **Relation** — Links zwischen Databases (Linked Databases)
+- **Formula** — berechnete Felder (ähnlich Notion)
+- **Aggregation** — Count, Sum, Average über Groups
+
+**API:**
+- `GET /api/databases` — Alle Databases
+- `POST /api/databases` — Database erstellen
+- `GET /api/databases/[id]` — Database mit Properties
+- `PATCH /api/databases/[id]` — Database umbenennen/Properties
+- `DELETE /api/databases/[id]` — Database löschen
+- `GET /api/databases/[id]/items` — Items mit Views
+- `POST /api/databases/[id]/items` — Item erstellen
+- `PATCH /api/databases/[id]/items/[itemId]` — Item aktualisieren
+- `DELETE /api/databases/[id]/items/[itemId]` — Item löschen
+- `POST /api/databases/[id]/views` — View erstellen
+- `PATCH /api/databases/[id]/views/[viewId]` — View updaten
+
+---
+
+### 3. Kanban Board
 **Pfad:** `src/components/kanban/`
 **Dateien:** `KanbanBoard.tsx`, `KanbanColumn.tsx`, `CardItem.tsx`, `ArchivePanel.tsx`, `types.ts`
 
 **Features:**
-- Multi-Board Support (privat + Team-boards)
-- Drag & Drop (dnd-kit) — Karten zwischen Spalten und Boards verschieben
-- Card-Management: erstellen, bearbeiten, löschen, zuweisen
-- Spalten: umbenennen, hinzufügen, löschen
-- Archiv-System: Karten archivieren, wiederherstellen, endgültig löschen
-- External Issue Badges (GitHub, GitLab, Jira, etc.)
-- Filter/Suche in Board-Ansicht
+- **View Mode:** Kanban/Board für Databases (siehe Database Views)
+- **Card-Management:** erstellen, bearbeiten, archivieren
+- **External Issue Badges:** GitHub, GitLab, Jira Integration
+- **Assignees:** User zuweisen, Due Dates
+- **Filter/Suche:** im Board
 
-**API:**
-- `GET /api/board` — Alle Boards auflisten
-- `POST /api/board` — Board erstellen
-- `GET /api/board/[id]` — Einzelnes Board mit Spalten & Karten
-- `PATCH /api/board/[id]` — Board umbenennen
-- `DELETE /api/board/[id]` — Board löschen
-- `POST /api/board/columns` — Spalte erstellen
-- `PATCH /api/board/columns` — Spalte umbenennen
-- `DELETE /api/board/columns` — Spalte löschen
+**API:** (Teil von Database API)
 - `POST /api/board/cards` — Karte erstellen
 - `PATCH /api/board/cards` — Karte aktualisieren
 - `DELETE /api/board/cards` — Karte löschen
-- `POST /api/board/move` — Karte verschieben
 - `GET /api/board/archive` — Archivierte Karten
 - `POST /api/board/archive` — Karte archivieren
 - `DELETE /api/board/archive` — Karte wiederherstellen
 
 ---
 
-### 2. Docs (Markdown)
-**Pfad:** `src/components/docs/`
-**Dateien:** `DocsEditor.tsx`
-
-**Features:**
-- Markdown-Editor mit Live-Split-View (Preview)
-- Dokumente erstellen, bearbeiten, löschen
-- Team-Scope (privat oder Team-basiert)
-- Auto-Save (debounced 600ms)
-- **Import:** .md/.markdown/.txt Dateien hochladen
-- **Export:** Dokumente als .md Datei herunterladen
-
-**API:**
-- `GET /api/docs` — Alle Docs auflisten
-- `POST /api/docs` — Doc erstellen
-- `GET /api/docs/[id]` — Einzelnes Doc
-- `PATCH /api/docs/[id]` — Doc aktualisieren
-- `DELETE /api/docs/[id]` — Doc löschen
-- `POST /api/docs/import` — Markdown-Datei importieren (FormData)
-- `GET /api/docs/[id]/export` — Doc als .md downloaden
-
----
-
-### 3. Notes (Quick Notes)
+### 4. Quick Notes
 **Pfad:** `src/components/notes/`
-**Dateien:** `NotesView.tsx`
+**Dateien:** `NotesView.tsx`, `NoteEditor.tsx`
 
 **Features:**
-- Schnelle persönliche Notizen
-- Team-Scope (privat oder Team-basiert)
-- Erstellen, bearbeiten, löschen
-- Titel + Content (Markdown-light)
+- **Schnelle Notizen** — einzelne Seite ohne Block-Struktur
+- **Markdown-Support** — headings, lists, code, links
+- **Tagging** — Notizen mit Tags versehen
+- **Full-Text Search** — durchsuchen
+- **Sidebar-Liste** — alle Notizen mit Preview
 
 **API:**
 - `GET /api/notes` — Alle Notizen
@@ -113,118 +184,139 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 
 ---
 
-### 4. Websites (URL Registry)
-**Pfad:** `src/components/websites/`
-**Dateien:** `WebsiteManager.tsx`
+### 5. Sidebar & Navigation
+**Pfad:** `src/components/sidebar/`
+**Dateien:** `Sidebar.tsx`, `SidebarItem.tsx`, `QuickFinder.tsx`
 
 **Features:**
-- Interne URL-Registrierung
-- Repo-URL, Deploy-Befehl, Build-Befehl
-- Status-Anzeige (idle, deployed, error)
-- Beschreibungstext
+- **Favorites** — Pin oft genutzte Seiten
+- **Trash** — Gelöschte Seiten (30 Tage)
+- **Search** — QuickFinder (Cmd+K) für Seiten/Databases
+- **Nested Pages** — Drag & Drop Hierarchie
+- **Toggle Sections** —-collapse/expand Page groups
+- **Workspace Switcher** — zwischen Teams/Pages
+- **Dark/Light Mode Toggle** — persisten
 
 **API:**
-- `GET /api/websites` — Alle Websites
-- `POST /api/websites` — Website hinzufügen
-- `GET /api/websites/[id]` — Einzelne Website
-- `PATCH /api/websites/[id]` — Website aktualisieren
-- `DELETE /api/websites/[id]` — Website löschen
+- `GET /api/navigation` — Seitenstruktur
+- `PATCH /api/navigation/reorder` — Reihenfolge updaten
+- `POST /api/navigation/favorites` — Favorit hinzufügen
+- `DELETE /api/navigation/favorites/[id]` — Favorit entfernen
 
 ---
 
-### 5. Integrations
-**Pfad:** `src/components/integrations/`
-**Dateien:** `IntegrationManager.tsx`
-**Lib:** `src/lib/integrations/` (Provider-Implementierungen)
+### 6. Team Spaces
+**Pfad:** `src/components/team/`
+**Dateien:** `TeamSpace.tsx`, `MemberList.tsx`, `Permissions.tsx`
 
 **Features:**
-- Issues importieren von: GitHub, GitLab, Jira, Redmine, MantisBT, Confluence, Trello
-- Integration hinzufügen/bearbeiten/löschen
-- Sync von Issues → Cards im Kanban
-- External Issue Badge-Anzeige auf Cards
+- **Workspace per Team** — eigene Pages, Databases, Members
+- **Member Management** — einladen, rollen zuweisen, entfernen
+- **Permission Levels:** Full Access, Can Edit, Can Comment, Can View
+- **Admin Controls** — Team-Einstellungen
+
+**API:**
+- `GET /api/team` — Teams auflisten
+- `POST /api/team` — Team erstellen
+- `GET /api/team/[id]` — Team Details
+- `PATCH /api/team/[id]` — Team aktualisieren
+- `DELETE /api/team/[id]` — Team löschen
+- `GET /api/team/[id]/members` — Members
+- `POST /api/team/[id]/members` — Member einladen
+- `DELETE /api/team/[id]/members/[userId]` — Member entfernen
+
+---
+
+### 7. Integrations
+**Pfad:** `src/components/integrations/`
+**Dateien:** `IntegrationManager.tsx`, `SyncPanel.tsx`
+**Lib:** `src/lib/integrations/`
+
+**Features:**
+- **GitHub:** Issues → Cards, PR Reviews, Actions Status
+- **GitLab:** Issues, MRs, Pipelines
+- **Jira:** Issues sync, Custom Fields
+- **Slack:** Notifications, Slash Commands
+- **Figma:** File embeds (als Link-Vorschau)
+- **URL Previews:** Link-Vorschau für alle URLs
+- **Webhooks:** eigene Webhooks für Automation
 
 **API:**
 - `GET /api/integrations` — Alle Integrationen
 - `POST /api/integrations` — Integration erstellen
-- `GET /api/integrations/[id]` — Einzelne Integration
-- `PATCH /api/integrations/[id]` — Integration aktualisieren
-- `DELETE /api/integrations/[id]` — Integration löschen
-- `GET /api/integrations/[id]/issues` — Issues abrufen
-- `POST /api/integrations/[id]/sync` — Sync triggern
-
-**Provider:** `src/lib/integrations/github.ts`, `jira.ts`, `gitlab.ts`, `redmine.ts`, `mantisbt.ts`, `confluence.ts`, `types.ts`
+- `GET /api/integrations/[id]` — Einzelne
+- `PATCH /api/integrations/[id]` — Aktualisieren
+- `DELETE /api/integrations/[id]` — Löschen
+- `POST /api/integrations/[id]/sync` — Sync trigger
 
 ---
 
-### 6. Teams & Roles (Admin)
-**Pfad:** `src/components/admin/`
-**Dateien:** `AdminPanel.tsx`
+### 8. Auth & User Settings
+**Pfad:** `src/components/auth/`
+**Dateien:** `Login.tsx`, `Setup.tsx`, `UserSettings.tsx`
 
 **Features:**
-- Teams erstellen, umbenennen, löschen
-- Team-Mitglieder hinzufügen/entfernen
-- Rollen definieren mit granularen Permissions
-- Permission-Toggles: view / create / edit / delete pro Section
-- User Management: erstellen, deaktivieren, Rechte ändern
-- Discord-Style Permission-System
-
-**API:**
-- `GET /api/admin/users` — Alle User
-- `POST /api/admin/users` — User erstellen
-- `GET /api/admin/teams` — Alle Teams
-- `POST /api/admin/teams` — Team erstellen
-- `PATCH /api/admin/teams/[id]` — Team aktualisieren
-- `DELETE /api/admin/teams/[id]` — Team löschen
-- `GET /api/admin/roles` — Alle Rollen
-- `POST /api/admin/roles` — Rolle erstellen
-- `GET /api/admin/members` — Team-Memberships
-- `POST /api/admin/members` — Member hinzufügen
-- `PATCH /api/admin/members/[id]` — Membership aktualisieren
-- `DELETE /api/admin/members/[id]` — Member entfernen
-
----
-
-### 7. Auth (Sessions)
-**Pfad:** `src/lib/auth.ts`
-
-**Features:**
-- Username/Email + Passwort Login
-- Session-basiert (cookie)
-- bcrypt Passwort-Hashing
-- Setup-Wizard für ersten Admin
-- Rate-Limiting (geplant)
+- **Email/Passwort** Login (bcrypt)
+- **Session-basiert** (Cookie)
+- **Profile:** Name, Avatar, Email, Passwort ändern
+- **Appearance:** Theme (Light/Dark/System), Font Size
+- **Notifications:** Email-Notifications für Erwähnungen, Due Dates
+- **Export:** Alle eigenen Daten exportieren (GDPR)
 
 **API:**
 - `POST /api/auth/login` — Login
 - `POST /api/auth/logout` — Logout
-- `POST /api/auth/register` — Registrierung (nur im Setup-Modus)
+- `POST /api/auth/register` — Registrierung (nur im Setup)
+- `PATCH /api/auth/profile` — Profile updaten
+- `GET /api/auth/export` — Daten exportieren
 
 ---
 
 ## UI-Komponenten (Design System)
 
-Siehe `design-system/ui_kits/hatches/` für vollständige React-Komponenten:
+Apple-inspiriertes Design mit:
+- **Clean surfaces** — #ffffff, #f5f5f7
+- **SF Pro / system fonts** — Apple-like typography
+- **Subtle shadows** für depth
+- **Smooth 300ms transitions** mit spring feel
+- **Frosted glass** — backdrop-blur für overlays
+- **Transparenz** — rgba overlays
+
+Siehe `design-system/ui_kits/hatches/` für React-Komponenten:
 - `Navigation.jsx` — Sidebar-Navigation
-- `KanbanBoard.jsx` — Kanban Board Komponente
-- `DocsEditor.jsx` — Markdown Editor
-- `UserAccount.jsx` — User Account Panel
+- `KanbanBoard.jsx` — Kanban Board
+- `DocsEditor.jsx` — Block Editor
+- `UserAccount.jsx` — User Panel
 - `AdminSettings.jsx` — Admin Settings
-
----
-
-## Workflow & Versionierung
-
-1. **dev-Branch:** Alle Features werden auf `dev` entwickelt
-2. **Version bump:** Bei jedem Update `package.json` Version incrementieren
-3. **main:** Nur via PR vom `dev` — keine direkten Commits auf main
-4. **Modular:** Jedes Feature = eigener Component-Ordner + API-Gruppe
 
 ---
 
 ## Database Schema (Prisma)
 
-Siehe `prisma/schema.prisma` — alle Modelle:
-- `User`, `Session`, `Team`, `TeamMembership`, `Role`, `Permission`
-- `Board`, `Column`, `Card`, `Archive`
-- `Doc`, `Note`, `Website`
-- `Integration`, `ExternalIssue`
+**Core Models:**
+- `User` — id, email, name, avatarUrl, passwordHash, settings (JSON)
+- `Team` — id, name, icon, members[]
+- `TeamMember` — userId, teamId, role
+- `Session` — id, userId, token, expiresAt
+
+**Content Models:**
+- `Page` — id, title, icon, cover, parentId, teamId, createdById, isDeleted, deletedAt
+- `Block` — id, pageId, type, content (JSON), order, parentId, createdById
+
+**Database Models:**
+- `Database` — id, pageId, name, properties (JSON)
+- `DatabaseItem` — id, databaseId, values (JSON), createdById
+- `DatabaseView` — id, databaseId, type, config (JSON)
+
+**Other:**
+- `Note` — id, title, content, tags[], userId, teamId
+- `Integration` — id, type, config (JSON), teamId
+
+---
+
+## Workflow & Versionierung
+
+1. **dev-Branch:** Alle Features auf `dev` entwickeln
+2. **Version bump:** Bei jedem Update `package.json` erhöhen
+3. **main:** Nur via PR von `dev` — keine direkten Commits
+4. **Modular:** Jedes Feature = eigener Component-Ordner + API-Gruppe
