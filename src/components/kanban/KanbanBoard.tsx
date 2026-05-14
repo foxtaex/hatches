@@ -89,6 +89,7 @@ export function KanbanBoard() {
   const [users, setUsers] = useState<{ id: number; displayName: string | null; username: string }[]>([]);
   const [allBoards, setAllBoards] = useState<BoardWithCols[]>([]);
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
+  const [currentUser, setCurrentUser] = useState<{ id: number; username: string; displayName: string | null } | null>(null);
 
   // Sidebar state
   const [addingBoard, setAddingBoard] = useState(false);
@@ -113,7 +114,7 @@ export function KanbanBoard() {
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  useEffect(() => { loadBoards(); loadUsers(); loadUserTeams(); }, []);
+  useEffect(() => { loadBoards(); loadUsers(); loadUserTeams(); loadCurrentUser(); }, []);
   useEffect(() => { if (activeBoardId) loadBoard(activeBoardId); }, [activeBoardId]);
   useEffect(() => { loadAllColumns(); }, [boards]);
 
@@ -139,6 +140,11 @@ export function KanbanBoard() {
       const res = await fetch("/api/admin/users");
       if (res.ok) setUsers(await res.json());
     } catch { /* non-admin */ }
+  }
+
+  async function loadCurrentUser() {
+    const res = await fetch("/api/user/profile");
+    if (res.ok) setCurrentUser(await res.json());
   }
 
   async function loadUserTeams() {
@@ -538,6 +544,7 @@ export function KanbanBoard() {
             card={found.card}
             users={users}
             columnName={found.columnName}
+            currentUserId={currentUser?.id ?? null}
             onClose={() => setOpenCardId(null)}
             onUpdate={updateCard}
             onDelete={(id) => { deleteCard(id); setOpenCardId(null); }}
