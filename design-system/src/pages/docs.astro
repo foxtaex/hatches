@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { DocsEditor } from "../components/docs/DocsEditor";
+---
+
+<Layout title="Docs — Hatches" active="docs">
+  <DocsEditor client:only="react" />
+</Layout>

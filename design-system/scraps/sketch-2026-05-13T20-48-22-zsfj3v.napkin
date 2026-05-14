@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "created": "2026-05-13T20:48:22.220Z",
+  "modified": "2026-05-13T20:50:58.074Z",
+  "objects": [
+    {
+      "id": "cofxglud0",
+      "type": "ellipse",
+      "x": 153.76923076923083,
+      "y": 593.4705118032603,
+      "width": 180.76923076923077,
+      "height": 181.73076923076928,
+      "data": {
+        "fill": null,
+        "stroke": "#000000",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "0g192bj4y",
+      "type": "text",
+      "x": 363.3846153846155,
+      "y": 625.2012810340295,
+      "data": {
+        "content": "Anzeigename",
+        "fontSize": 16,
+        "color": "#000000",
+        "bold": false
+      },
+      "width": 96,
+      "height": 21
+    },
+    {
+      "id": "8y9tq3ak2",
+      "type": "text",
+      "x": 359.53846153846166,
+      "y": 654.0474348801833,
+      "data": {
+        "content": "@username",
+        "fontSize": 16,
+        "color": "#000000",
+        "bold": false
+      },
+      "width": 96,
+      "height": 21
+    },
+    {
+      "id": "bl6sss7zv",
+      "type": "rect",
+      "x": 354.7307692307693,
+      "y": 701.162819495568,
+      "width": 109.61538461538464,
+      "height": 31.73076923076917,
+      "data": {
+        "fill": null,
+        "stroke": "#000000",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "bx1dyuqtk",
+      "type": "text",
+      "x": 367.2307692307693,
+      "y": 708.8551271878757,
+      "data": {
+        "content": "Team",
+        "fontSize": 16,
+        "color": "#000000",
+        "bold": false
+      },
+      "width": 37,
+      "height": 21
+    },
+    {
+      "id": "k0lyaop2f",
+      "type": "rect",
+      "x": 472.0384615384616,
+      "y": 701.162819495568,
+      "width": 109.61538461538464,
+      "height": 31.73076923076917,
+      "data": {
+        "fill": null,
+        "stroke": "#000000",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "u5i6r5ve0",
+      "type": "text",
+      "x": 484.5384615384616,
+      "y": 708.8551271878757,
+      "data": {
+        "content": "Team",
+        "fontSize": 16,
+        "color": "#000000",
+        "bold": false
+      },
+      "width": 37,
+      "height": 21
+    },
+    {
+      "id": "8hlsaq7j8",
+      "type": "rect",
+      "x": 588.3846153846156,
+      "y": 701.162819495568,
+      "width": 109.61538461538464,
+      "height": 31.73076923076917,
+      "data": {
+        "fill": null,
+        "stroke": "#000000",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "lm6j34t3g",
+      "type": "text",
+      "x": 600.8846153846156,
+      "y": 708.8551271878757,
+      "data": {
+        "content": "Team",
+        "fontSize": 16,
+        "color": "#000000",
+        "bold": false
+      },
+      "width": 37,
+      "height": 21
+    },
+    {
+      "id": "6b770c3m7",
+      "type": "rect",
+      "x": 355.6923076923079,
+      "y": 742.5089733417218,
+      "width": 109.61538461538464,
+      "height": 31.73076923076917,
+      "data": {
+        "fill": null,
+        "stroke": "#000000",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "8utr743ry",
+      "type": "text",
+      "x": 368.1923076923079,
+      "y": 750.2012810340295,
+      "data": {
+        "content": "Role",
+        "fontSize": 16,
+        "color": "#000000",
+        "bold": false
+      },
+      "width": 37,
+      "height": 21
+    }
+  ]
+}

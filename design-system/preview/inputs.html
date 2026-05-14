@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Inputs</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: rgb(9 9 11);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 400px;
+    }
+    .input {
+      background: rgb(39 39 42);
+      border: 1px solid rgb(63 63 70);
+      color: rgb(244 244 245);
+      border-radius: 4px;
+      padding: 10px 16px;
+      font-size: 14px;
+      outline: none;
+      font-family: system-ui, -apple-system, sans-serif;
+      transition: border-color 200ms;
+    }
+    .input:focus {
+      border-color: rgb(113 113 122);
+    }
+    .input::placeholder {
+      color: rgb(113 113 122);
+    }
+    .textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+      background-position: right 8px center;
+      background-repeat: no-repeat;
+      background-size: 20px;
+      padding-right: 36px;
+    }
+  </style>
+</head>
+<body>
+  <div class="stack">
+    <input type="text" class="input" placeholder="Benutzername oder E-Mail">
+    <input type="password" class="input" placeholder="Passwort">
+    <input type="email" class="input" placeholder="E-Mail-Adresse">
+    <select class="input select">
+      <option>Team auswählen</option>
+      <option>Entwicklung</option>
+      <option>Design</option>
+      <option>Produkt</option>
+    </select>
+    <textarea class="input textarea" placeholder="Beschreibung eingeben..."></textarea>
+  </div>
+</body>
+</html>

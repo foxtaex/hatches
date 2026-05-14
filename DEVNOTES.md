@@ -17,7 +17,7 @@ src/components/<feature>/
 src/pages/api/<feature>/
   ├── index.ts                # GET (list) + POST (create)
   ├── [id].ts                 # GET + PATCH + DELETE for single item
-  └── <sub-action>.ts         # Additional actions (e.g. /archive, /export)
+  └── <sub-action>.ts          # Additional actions (e.g. /archive, /export)
 ```
 
 **Rules:**
@@ -35,10 +35,20 @@ src/pages/api/<feature>/
 - **dnd-kit** for drag & drop
 - **@uiw/react-md-editor** for markdown editing
 
+### Design System
+
+See **`DESIGN.md`** for complete design specification, color tokens, typography,
+and feature descriptions (all 7 modules fully documented).
+
+The `design-system/` folder contains:
+- `colors_and_type.css` — CSS custom properties
+- `preview/*.html` — Visual component cards
+- `ui_kits/hatches/` — React UI kit components
+
 ### Workflow
 
 1. Development happens on `dev` branch
-2. Version bump on every significant change (`npm run bump` → updates package.json version + commits)
+2. Version bump on every significant change
 3. `main` only via PR from `dev`
 4. Semantic versioning: `major.minor.patch`
 
@@ -51,3 +61,5 @@ src/pages/api/<feature>/
 | 0.0.7 | 11b94b3 | fix: import faBoxArchive in KanbanBoard |
 | 0.0.8 | 20a9030 | docs: add logo SVG and embed in README |
 | 0.0.9 | 57b3f93 | docs: add 3 logo variants (A Vivid, B Subtle, C Outline) |
+| 0.1.0 | 010c32d | docs: add DEVNOTES.md with modular architecture guidelines |
+| 0.1.1 | - | feat: full design system + 7 feature modules documented in DESIGN.md |
