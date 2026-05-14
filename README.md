@@ -32,9 +32,8 @@ It combines:
 - 📋 **Kanban boards** — Multi-board workflow with drag & drop
 - 📝 **Docs** — Markdown editor with live preview
 - 📒 **Notes** — Fast personal and team notes
-- 🌐 **Websites** — Internal URL & project registry
 - 👥 **Teams & Roles** — Discord-style permission system
-- 🔗 **Integrations** — GitHub, GitLab, Jira, and more
+- 🔗 **Integrations** — Internal URL & project registry - GitHub, GitLab, Jira, and more
 
 into one modern workspace you fully control. No subscriptions, no vendor lock-in.
 
