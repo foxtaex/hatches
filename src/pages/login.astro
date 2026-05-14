@@ -1,10 +1,12 @@
 ---
 import { getSession, getSessionCookie, countUsers } from "../lib/auth";
+import versionData from "../../Sync/version.json";
 const count = await countUsers();
 if (count === 0) return Astro.redirect("/setup");
 const session = await getSession(getSessionCookie(Astro.request.headers.get("cookie")));
 if (session) return Astro.redirect("/board");
 const redirect = new URL(Astro.request.url).searchParams.get("redirect") ?? "/board";
+const version: string = versionData.current_display;
 ---
 
 <!doctype html>
@@ -78,7 +80,7 @@ const redirect = new URL(Astro.request.url).searchParams.get("redirect") ?? "/bo
       </div>
 
       <p style="text-align:center; font-size:11px; color:rgba(255,255,255,0.2); margin-top:24px; letter-spacing:0.02em;">
-        HATCHES · SELF-HOSTED
+        HATCHES · SELF-HOSTED · v{version}
       </p>
     </div>
 
