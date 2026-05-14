@@ -6,11 +6,11 @@ export const GET: APIRoute = async ({ locals }) => {
   if (!(locals as any).user?.isAdmin)
     return new Response(JSON.stringify({ error: "Keine Berechtigung" }), { status: 403 });
 
-  // Read package.json for version
-  let version = "0.0.1";
+  // Read display version from Sync/version.json (e.g. "5.14.27-dev.3d")
+  let version = "—";
   try {
-    const pkg = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "package.json"), "utf-8"));
-    version = pkg.version ?? version;
+    const vJson = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "Sync/version.json"), "utf-8"));
+    version = vJson.current_display ?? version;
   } catch {}
 
   const provider = process.env.DATABASE_PROVIDER ?? "sqlite";
