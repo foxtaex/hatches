@@ -196,7 +196,6 @@ Hatches is **vibe-coded and not audited** for security vulnerabilities. It is no
 ## 🤝 Contributors
 
 - [@Foxtaex](https://github.com/foxtaex) — Founder & Lead Development
-- [@Erik-Letort](https://github.com/Erik-Letort) — Development
 - [@CoreForAi](https://github.com/CoreForAi) — Design & Development
 
 ## 🤝 Thanks
