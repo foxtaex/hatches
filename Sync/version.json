@@ -3,132 +3,105 @@
     "name": "hatches",
     "description": "Self-hosted team workspace",
     "versioning": {
-      "scheme": "[Release].[Patch]-[Status].[Count][Stage]",
-      "explained": "Format: 0.1.2-dev.1a = Release.Patch-Status.CountStage. Statuses: alpha, beta, dev, pre (a-z). Examples: 0.1.2-dev.1a, 0.1.2-dev.2b, 0.1.3-alpha.1, 0.2.0-beta.1, 1.0.0.1"
+      "scheme": "[Release].[Patch]-[Stage].[Count][Tag]",
+      "explained": "Format: 1.0.0-dev.1a = Major.Minor.Patch-Stage.CountStageTag. Stage order: pre (pre-release) → b (beta) → a (alpha) → dev (development) → (stable release). Examples: 0.0.0-pre.1, 0.0.1-b.1a, 0.1.0-a.1a, 1.0.0-dev.1a",
+      "stages_order": ["pre", "b", "a", "dev"],
+      "stages_meaning": {
+        "pre": "Pre-release — earliest testing, unstable",
+        "b": "Beta — feature set defined, bug fixing",
+        "a": "Alpha — feature complete, hardening",
+        "dev": "Dev — release candidate, stable-bound"
+      }
     }
   },
 
   "releases": {
-    "0.1.2-dev.1a": {
-      "status": "current",
-      "description": "Current development build",
-      "features": [
-        "Kanban Board (multi-board, drag & drop, cards, assignment)",
-        "Docs (Markdown editor with view mode toggle: preview/edit/both)",
-        "Notes (Quick personal notes)",
-        "Websites (Internal URL & project registry)",
-        "Teams & Roles (Permission system per section)",
-        "Integrations (GitHub, GitLab, Jira, Redmine, MantisBT, Confluence, Trello)",
-        "Auth (Session-based, password hashing)",
-        "Setup Wizard (/setup on first visit)"
-      ],
-      "tech": [
-        "Astro 6 (SSR) + React Islands",
-        "TypeScript",
-        "Tailwind CSS v4",
-        "Prisma 7 (SQLite default, PostgreSQL, MySQL, MSSQL)",
-        "dnd-kit (Drag & Drop)",
-        "@uiw/react-md-editor (Markdown)"
-      ]
+    "0.0.0-pre.1": {
+      "status": "past",
+      "description": "Initial pre-release"
     },
 
-    "0.2.0-dev.1a": {
-      "status": "next",
-      "description": "Stability + UX improvements",
-      "features": [
-        "Dark/Light theme toggle",
-        "Markdown improvements (code syntax highlighting, tables)",
-        "Search across Docs + Notes",
-        "Keyboard shortcuts",
-        "Performance optimizations"
-      ],
-      "tech": []
+    "0.0.1-b.1a": {
+      "status": "past",
+      "description": "Beta build"
     },
 
-    "0.3.0-dev.1a": {
-      "status": "planned",
-      "description": "Import/Export + Data portability",
-      "features": [
-        "Export all data as JSON/Zip",
-        "Import from Notion, Confluence, Jira",
-        "Backup to local file",
-        "Better file handling for uploads"
-      ],
-      "tech": []
-    },
-
-    "0.4.0-dev.1a": {
-      "status": "planned",
-      "description": "Sync + E2E Encryption",
-      "features": [
-        "Local-first data storage (Dexie.js / IndexedDB)",
-        "E2E encryption for private content",
-        "Sync Gateway (Node.js + WebSocket)",
-        "Team sync with conflict resolution",
-        "Private mode (local only, no server)",
-        "Selective sync per module (Kanban/Docs/Notes)"
-      ],
-      "tech": [
-        "Dexie.js (IndexedDB wrapper)",
-        "TweetNaCl.js (E2E encryption)",
-        "ws (WebSocket for real-time sync)",
-        "Sync Gateway (Node.js)"
-      ]
-    },
-
-    "0.5.0-dev.1a": {
-      "status": "planned",
-      "description": "Headless client + CLI",
-      "features": [
-        "hatches-headless (CLI-only client)",
-        "Sync from command line",
-        "Cron-based sync scheduling",
-        "Webhook triggers"
-      ],
-      "tech": [
-        "Bun or Node.js CLI"
-      ]
-    },
-
-    "0.6.0-dev.1a": {
-      "status": "planned",
-      "description": "External editor support",
-      "features": [
-        "Open in Obsidian (future)",
-        "Open in VSCode (future)",
-        "Markdown file watching",
-        "Auto-reload on external changes"
-      ],
-      "tech": []
+    "0.1.0-a.1a": {
+      "status": "past",
+      "description": "Alpha build"
     },
 
     "1.0.0-dev.1a": {
-      "status": "future",
-      "description": "Agent API + Streaming Platform",
-      "features": [
-        "Agent SDK for AI developers",
-        "Agent Identity (own keys, signing)",
-        "Agents as channel participants",
-        "Agent Streaming (WebRTC host/viewer)",
-        "Agent Registry (public directory)",
-        "Agent Permissions & Capabilities",
-        "Multi-Agent patterns (Pipeline, Committee, Handoff)",
-        "Team Management API for agents"
-      ],
-      "tech": [
-        "Agent SDK (TypeScript)",
-        "WebRTC (streaming)",
-        "Coturn (STUN/TURN server)"
-      ]
+      "status": "current",
+      "description": "Current dev build — first stable-bound release"
     }
   },
 
-  "statuses": {
-    "alpha": "alpha builds — early testing, unstable API",
-    "beta": "beta builds — feature complete, testing",
-    "dev": "dev builds — active development",
-    "pre": "pre-release — release candidate"
+  "roadmap": {
+    "next": {
+      "0.1.1-dev.1a": {
+        "description": "Stability + UX improvements",
+        "features": [
+          "Dark/Light theme toggle",
+          "Markdown improvements (code syntax highlighting, tables)",
+          "Search across Docs + Notes",
+          "Keyboard shortcuts",
+          "Performance optimizations"
+        ]
+      },
+      "0.2.0-dev.1a": {
+        "description": "Import/Export + Data portability",
+        "features": [
+          "Export all data as JSON/Zip",
+          "Import from Notion, Confluence, Jira",
+          "Backup to local file",
+          "Better file handling for uploads"
+        ]
+      },
+      "0.3.0-dev.1a": {
+        "description": "Sync + E2E Encryption",
+        "features": [
+          "Local-first data storage (Dexie.js / IndexedDB)",
+          "E2E encryption for private content",
+          "Sync Gateway (Node.js + WebSocket)",
+          "Team sync with conflict resolution",
+          "Private mode (local only, no server)",
+          "Selective sync per module (Kanban/Docs/Notes)"
+        ]
+      },
+      "0.4.0-dev.1a": {
+        "description": "Headless client + CLI",
+        "features": [
+          "hatches-headless (CLI-only client)",
+          "Sync from command line",
+          "Cron-based sync scheduling",
+          "Webhook triggers"
+        ]
+      },
+      "0.5.0-dev.1a": {
+        "description": "External editor support",
+        "features": [
+          "Open in Obsidian (future)",
+          "Open in VSCode (future)",
+          "Markdown file watching",
+          "Auto-reload on external changes"
+        ]
+      },
+      "1.0.0-dev.1a": {
+        "description": "Agent API + Streaming Platform",
+        "features": [
+          "Agent SDK for AI developers",
+          "Agent Identity (own keys, signing)",
+          "Agents as channel participants",
+          "Agent Streaming (WebRTC host/viewer)",
+          "Agent Registry (public directory)",
+          "Agent Permissions & Capabilities",
+          "Multi-Agent patterns (Pipeline, Committee, Handoff)",
+          "Team Management API for agents"
+        ]
+      }
+    }
   },
 
-  "current": "0.1.2-dev.1a"
+  "current": "1.0.0-dev.1a"
 }
