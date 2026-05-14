@@ -4,101 +4,78 @@
     "description": "Self-hosted team workspace",
     "versioning": {
       "scheme": "[Release].[Patch]-[Stage].[Count][Tag]",
-      "explained": "Format: 1.0.0-dev.1a = Major.Minor.Patch-Stage.CountStageTag. Stage order: pre (pre-release) → b (beta) → a (alpha) → dev (development) → (stable release). Examples: 0.0.0-pre.1, 0.0.1-b.1a, 0.1.0-a.1a, 1.0.0-dev.1a",
-      "stages_order": ["pre", "b", "a", "dev"],
+      "explained": "Format: 1.0.0-dev.1a = Major.Minor.Patch-Stage.CountStageTag. Stage order: dev → b → a → pre → stable. Examples: 0.0.0-dev.1a, 0.0.0-b.1a, 0.0.0-a.1a, 0.0.0-pre.1, 1.0.0",
+      "stages_order": ["dev", "b", "a", "pre"],
       "stages_meaning": {
-        "pre": "Pre-release — earliest testing, unstable",
+        "dev": "Development — active development, unstable API",
         "b": "Beta — feature set defined, bug fixing",
         "a": "Alpha — feature complete, hardening",
-        "dev": "Dev — release candidate, stable-bound"
+        "pre": "Pre-release — near stable, final hardening"
       }
     }
   },
 
   "releases": {
-    "0.0.0-pre.1": {
+    "0.0.0-dev.1a": {
       "status": "past",
-      "description": "Initial pre-release"
+      "description": "Initial development build"
     },
 
-    "0.0.1-b.1a": {
+    "0.0.0-b.1a": {
       "status": "past",
       "description": "Beta build"
     },
 
-    "0.1.0-a.1a": {
+    "0.0.0-a.1a": {
       "status": "past",
       "description": "Alpha build"
     },
 
+    "0.0.0-pre.1": {
+      "status": "past",
+      "description": "Pre-release"
+    },
+
     "1.0.0-dev.1a": {
       "status": "current",
-      "description": "Current dev build — first stable-bound release"
+      "description": "Current dev build"
     }
   },
 
   "roadmap": {
     "next": {
-      "0.1.1-dev.1a": {
-        "description": "Stability + UX improvements",
-        "features": [
-          "Dark/Light theme toggle",
-          "Markdown improvements (code syntax highlighting, tables)",
-          "Search across Docs + Notes",
-          "Keyboard shortcuts",
-          "Performance optimizations"
-        ]
+      "1.0.0-dev.2a": {
+        "description": "Stability + UX improvements"
       },
-      "0.2.0-dev.1a": {
-        "description": "Import/Export + Data portability",
-        "features": [
-          "Export all data as JSON/Zip",
-          "Import from Notion, Confluence, Jira",
-          "Backup to local file",
-          "Better file handling for uploads"
-        ]
+      "1.0.0-b.1a": {
+        "description": "Beta release candidate"
       },
-      "0.3.0-dev.1a": {
-        "description": "Sync + E2E Encryption",
-        "features": [
-          "Local-first data storage (Dexie.js / IndexedDB)",
-          "E2E encryption for private content",
-          "Sync Gateway (Node.js + WebSocket)",
-          "Team sync with conflict resolution",
-          "Private mode (local only, no server)",
-          "Selective sync per module (Kanban/Docs/Notes)"
-        ]
+      "1.0.0-a.1a": {
+        "description": "Alpha release candidate"
       },
-      "0.4.0-dev.1a": {
-        "description": "Headless client + CLI",
-        "features": [
-          "hatches-headless (CLI-only client)",
-          "Sync from command line",
-          "Cron-based sync scheduling",
-          "Webhook triggers"
-        ]
+      "1.0.0-pre.1": {
+        "description": "Pre-stable release"
       },
-      "0.5.0-dev.1a": {
-        "description": "External editor support",
-        "features": [
-          "Open in Obsidian (future)",
-          "Open in VSCode (future)",
-          "Markdown file watching",
-          "Auto-reload on external changes"
-        ]
+      "1.0.0": {
+        "status": "stable",
+        "description": "First stable release — 1.0.0"
+      }
+    },
+    "future": {
+      "1.1.0-dev.1a": {
+        "description": "Import/Export + Data portability"
       },
-      "1.0.0-dev.1a": {
-        "description": "Agent API + Streaming Platform",
-        "features": [
-          "Agent SDK for AI developers",
-          "Agent Identity (own keys, signing)",
-          "Agents as channel participants",
-          "Agent Streaming (WebRTC host/viewer)",
-          "Agent Registry (public directory)",
-          "Agent Permissions & Capabilities",
-          "Multi-Agent patterns (Pipeline, Committee, Handoff)",
-          "Team Management API for agents"
-        ]
+      "1.2.0-dev.1a": {
+        "description": "Sync + E2E Encryption"
+      },
+      "1.3.0-dev.1a": {
+        "description": "Headless client + CLI"
+      },
+      "1.4.0-dev.1a": {
+        "description": "External editor support (Obsidian/VSCode)"
+      },
+      "2.0.0-dev.1a": {
+        "description": "Agent API + Streaming Platform"
       }
     }
   },
