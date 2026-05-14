@@ -93,7 +93,7 @@
     "0.5.4.14.27-dev.2d": {
       "display": "5.14.27-dev.2d",
       "stage": "dev",
-      "status": "current",
+      "status": "archived",
       "date": "2026-05-14",
       "description": "TypeScript Fehler gefixt",
       "changes": [
@@ -102,9 +102,24 @@
         "Fix: Prisma Client regeneriert — isArchived/archivedAt/archive Typen jetzt korrekt",
         "0 TypeScript Errors"
       ]
+    },
+    "0.5.5.14.27-dev.3d": {
+      "display": "5.14.27-dev.3d",
+      "stage": "dev",
+      "status": "current",
+      "date": "2026-05-14",
+      "description": "UX-Bugfixes + Inline-Styles entfernt (CONTRIBUTING.md)",
+      "changes": [
+        "Fix: Archivieren einer Karte entfernt sie jetzt sofort aus dem Board (POST /api/board/archive statt PATCH /api/board/cards)",
+        "Fix: Nach Wiederherstellen aus dem Archiv lädt das Board neu (onRestore-Callback)",
+        "Fix: Totes Archive-State (archivedCards, loadArchive, restoreCard, deleteArchivedCard) aus KanbanBoard entfernt",
+        "Refactor: Alle statischen Inline-Styles in KanbanBoard, KanbanColumn, CardItem, ArchivePanel, DocsEditor, NotesView durch Tailwind-Klassen ersetzt",
+        "Dynamische Farben (team.color) bleiben als Inline-Style (können nicht als Tailwind-Klassen ausgedrückt werden)",
+        "dnd-kit Transform-Styles bleiben inline (laufzeitabhängig)"
+      ]
     }
   },
 
-  "current": "0.5.4.14.27-dev.2d",
-  "current_display": "5.14.27-dev.2d"
+  "current": "0.5.5.14.27-dev.3d",
+  "current_display": "5.14.27-dev.3d"
 }
