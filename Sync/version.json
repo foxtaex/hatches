@@ -106,7 +106,7 @@
     "0.5.5.14.27-dev.3d": {
       "display": "5.14.27-dev.3d",
       "stage": "dev",
-      "status": "current",
+      "status": "archived",
       "date": "2026-05-14",
       "description": "UX-Bugfixes + Inline-Styles entfernt (CONTRIBUTING.md)",
       "changes": [
@@ -117,9 +117,78 @@
         "Dynamische Farben (team.color) bleiben als Inline-Style (können nicht als Tailwind-Klassen ausgedrückt werden)",
         "dnd-kit Transform-Styles bleiben inline (laufzeitabhängig)"
       ]
-    }
-  },
+    },
+    "0.5.6.14.27-dev.4d": {
+      "display": "5.14.27-dev.4d",
+      "stage": "dev",
+      "status": "archived",
+      "date": "2026-05-14",
+      "description": "Features 0.1.1–0.5.2 implementiert: Planner, GlobalPermissions, OrgGroups, AI Provider, Templates, Admin-Erweiterung",
+      "changes": [
+        "Feat: Prisma-Schema erweitert — GlobalPermission, OrgGroup, OrgGroupMember, Event, Template, AiConfig Modelle",
+        "Feat: Planner/Kalender — Monatsansicht, Terminverwaltung (Erstellen, Bearbeiten, Löschen, Wiederholung, Team-Zuordnung)",
+        "Feat: GlobalPermissions — Sonderrechte pro Benutzer (canCreateTeam, canManageUsers, canSeeApiKeys, canManageIntegrations)",
+        "Feat: Org-Gruppen — Bereichsbasierte Gruppen mit Mitgliederverwaltung",
+        "Feat: KI-Provider Config — OpenAI, Anthropic, Google, DeepSeek, MiniMax, Ollama, Custom; API-Key Masking; Aktivierungs-Toggle",
+        "Feat: Template-Bibliothek — Kategorie-Filter, Icon-Picker, Team-Zuordnung, öffentlich/privat",
+        "Feat: /api/ai/chat — Universaler Chat-Endpunkt für alle Provider (OpenAI-kompatibel + Anthropic)",
+        "Refactor: Websites & Integrationen in Admin-Panel verschoben (Sidebar-Navigation)",
+        "Refactor: Admin-Panel auf Sidebar-Layout umgestellt (9 Tabs in 3 Gruppen)",
+        "Feat: Planner-Link in Haupt-Navigation",
+        "Fix: /websites und /integrations redirecten zu /admin"
+      ]
+    },
+    "0.5.7.14.27-dev.5d": {
+      "display": "5.14.27-dev.5d",
+      "stage": "dev",
+      "status": "archived",
+      "date": "2026-05-14",
+      "description": "Globale Suche (Cmd+K) + Bugfixes + Settings Tailwind-Refactor",
+      "changes": [
+        "Feat: Globale Suche — Cmd+K Modal, durchsucht Karten, Docs, Notizen, Boards",
+        "Feat: /api/search — parallele DB-Suche, max. 5 Ergebnisse pro Kategorie, debounced",
+        "Feat: Suche-Button in Nav (⌘K Shortcut), Esc zum Schließen, Highlight der Treffer",
+        "Fix: Planner und TemplateLibrary lasen Teams falsch aus (m.team → direktes Array)",
+        "Refactor: settings.astro — alle Inline-Styles durch Tailwind ersetzt (CONTRIBUTING.md)"
+      ]
+    },
+    "0.5.8.14.27-dev.6d": {
+      "display": "5.14.27-dev.6d",
+      "stage": "dev",
+      "status": "archived",
+      "date": "2026-05-14",
+      "description": "Trello+Notion Kanban Cards — Detail Modal, Labels, Priority, Due Date, Checklist, Cover",
+      "changes": [
+        "Feat: CardDetailModal — Trello/Notion-style Karten-Detail-Ansicht (Titel, Beschreibung, Checkliste, Sidebar)",
+        "Feat: Card Labels — Farbige Labels pro Karte (JSON, Add/Remove im Modal)",
+        "Feat: Card Priority — Priorität (urgent/high/medium/low) mit farbigen Badges",
+        "Feat: Card Due Date — Fälligkeitsdatum mit Überfällig-Indikator (⚠ rot)",
+        "Feat: Card Checklist — Aufgaben-Liste mit Fortschrittsbalken, Toggle, Delete",
+        "Feat: Card Cover Color — Farbige Cover-Streifen oben auf der Karte",
+        "Feat: Assignee Avatar — Initialen-Avatar unten rechts auf der Karte",
+        "Refactor: CardItem.tsx komplett neu — visuelle Karte mit Cover, Labels, Meta-Row, Fortschrittsbalken",
+        "Refactor: KanbanColumn.tsx — users-Prop entfernt, onOpenCard-Prop hinzugefügt",
+        "Refactor: KanbanBoard.tsx — openCardId State + CardDetailModal eingebunden",
+        "Fix: /api/board/cards PATCH — explizites Field-Mapping, dueDate ISO→Date Konvertierung"
+      ]
+    },
+    "0.5.9.14.27-dev.7d": {
+    "display": "5.14.27-dev.7d",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-05-14",
+    "description": "Rollen-System überarbeitet — Websites/Integrationen raus, Planner/Templates rein",
+    "changes": [
+      "Fix: 'websites' und 'integrations' aus Permission-Sections entfernt (sind jetzt Admin-only)",
+      "Feat: 'planner' und 'templates' als neue Permission-Sections hinzugefügt",
+      "Feat: GET /api/admin/roles normalisiert Permissions — jede Rolle hat immer alle aktuellen Sections",
+      "Feat: Section-Icons (Emoji) im RolesTab UI",
+      "Fix: middleware.ts SECTION_MAP — /websites + /integrations gegen /planner + /templates getauscht",
+      "Refactor: SECTIONS an 4 Stellen synchron aktualisiert (permissions.ts, roles.ts, AdminPanel.tsx, middleware.ts)"
+    ]
+  }
+},
 
-  "current": "0.5.5.14.27-dev.3d",
-  "current_display": "5.14.27-dev.3d"
+"current": "0.5.9.14.27-dev.7d",
+"current_display": "5.14.27-dev.7d"
 }

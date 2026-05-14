@@ -116,31 +116,39 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein**:
 - API-Gruppe: `src/pages/api/<feature>/`
 - Typen: `types.ts`
 
-### 1. Pages / Docs (Block Editor)
-**Pfad:** `src/components/editor/`
-**Dateien:** `BlockEditor.tsx`, `BlockToolbar.tsx`, `SlashCommand.tsx`
+### 1. Pages / Docs (Markdown Editor)
+**Pfad:** `src/components/docs/`
 
-**Features:**
-- Block-basiertes Layout — jeder Absatz/Headline/List ist ein Block
-- Slash Commands — `/h1`, `/h2`, `/bullet`, `/numbered`, `/todo`, `/quote`, `/code`, `/divider`
-- Inline Editing — Doppelklick oder Enter zum Bearbeiten
-- Drag & Drop Blöcke neu anordnen (dnd-kit)
-- Nestable Blöcke — Aufgabenlisten mit Sub-Items
-- Rich Text — Bold, Italic, Code, Links inline
-- Embeds — Code-Blöcke mit Syntax-Highlighting, Bilder, Dateien
-- Auto-Save (debounced 600ms)
-- Version History — ältere Versionen wiederherstellen
-- Export als Markdown, PDF, HTML
+#### Komponenten
 
-**API:**
-- `GET /api/pages` — Alle Seiten
-- `POST /api/pages` — Seite erstellen
-- `GET /api/pages/[id]` — Einzelne Seite mit Blöcken
-- `PATCH /api/pages/[id]` — Metadaten (Titel, Icon, Cover)
-- `DELETE /api/pages/[id]` — Seite löschen
-- `GET/POST/PATCH/DELETE /api/pages/[id]/blocks/[blockId]` — Block CRUD
-- `POST /api/pages/[id]/blocks/reorder` — Blöcke neu anordnen
-- `GET /api/pages/[id]/versions` — Version History
+| Komponente | Datei | Beschreibung |
+|-------------|-------|-------------|
+| **DocsEditor** | [`DocsEditor.tsx`](./src/components/docs/DocsEditor.tsx) | Markdown Editor mit View-Mode Toggle (Preview/Edit/Both) |
+
+#### Features
+
+- **View Mode Toggle** — Preview / Edit / Both (wie Obsidian Read mode)
+  - **Preview** — Read-only Markdown-Ansicht (Standard)
+  - **Edit** — Quelltext bearbeiten
+  - **Both** — Split-View (Editor links, Preview rechts)
+- **Markdown Support** — volle Markdown-Syntax mit Live-Vorschau
+- **Auto-Save** — Änderungen werden automatisch gespeichert
+- **@uiw/react-md-editor** — Opensource Markdown-Editor
+
+#### API (REST)
+
+```
+GET    /api/docs              → Alle Docs abrufen
+POST   /api/docs              → Neues Doc erstellen
+GET    /api/docs/:id          → Einzelnes Doc abrufen
+PATCH  /api/docs/:id          → Doc aktualisieren (Titel, Inhalt)
+DELETE /api/docs/:id          → Doc löschen
+```
+
+#### Tech-Stack
+
+- **@uiw/react-md-editor** — Markdown Editor Component
+- **Tailwind CSS v4** — Styling
 
 ---
 
@@ -170,22 +178,105 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein**:
 
 ### 3. Kanban Board
 **Pfad:** `src/components/kanban/`
-**Dateien:** `KanbanBoard.tsx`, `KanbanColumn.tsx`, `CardItem.tsx`, `ArchivePanel.tsx`, `types.ts`
 
-**Features:**
-- Kanban View für Databases
-- Card-Management: erstellen, bearbeiten, archivieren
-- External Issue Badges: GitHub, GitLab, Jira Integration
-- Assignees und Due Dates
-- Filter/Suche im Board
+#### Komponenten
 
-**API:** (Teil von Database)
-- `POST /api/board/cards` — Karte erstellen
-- `PATCH /api/board/cards` — Karte aktualisieren
-- `DELETE /api/board/cards` — Karte löschen
-- `GET /api/board/archive` — Archivierte Karten
-- `POST /api/board/archive` — Karte archivieren
-- `DELETE /api/board/archive` — Karte wiederherstellen
+| Komponente | Datei | Beschreibung |
+|-------------|-------|-------------|
+| **KanbanBoard** | [`KanbanBoard.tsx`](./src/components/kanban/KanbanBoard.tsx) | Main Board-View, Sidebar mit Board-Liste, Board-Content-Bereich |
+| **KanbanColumn** | [`KanbanColumn.tsx`](./src/components/kanban/KanbanColumn.tsx) | Einzelne Spalte (To Do, In Progress, Done...) mit Drag & Drop |
+| **CardItem** | [`CardItem.tsx`](./src/components/kanban/CardItem.tsx) | Card-Darstellung mit Titel, Beschreibung, Assignees, Due Dates |
+| **ArchivePanel** | [`ArchivePanel.tsx`](./src/components/kanban/ArchivePanel.tsx) | Archivierte Cards anzeigen/wiederherstellen |
+| **BoardItem** | [`BoardItem.tsx`](./src/components/kanban/BoardItem.tsx) | Board-Eintrag in der Sidebar (mit Rename/Delete) |
+| **Types** | [`types.ts`](./src/components/kanban/types.ts) | TypeScript Interfaces: `Board`, `Card`, `Column` |
+
+#### Features
+
+- **Multi-Board** — Private Boards + Team Boards mit Farb-Labels
+- **Drag & Drop** — Cards zwischen Spalten verschieben (dnd-kit)
+- **Card-Management:**
+  - Erstellen, bearbeiten, archivieren
+  - Titel + Beschreibung (Markdown)
+  - Assignees (User zuweisen)
+  - Due Dates (Fälligkeitsdatum)
+  - Labels/Tags
+- **External Issue Badges** — GitHub, GitLab, Jira Integration
+- **Filter/Suche** — Cards im Board filtern
+- **Inline Rename** — Board-Name direkt in der Sidebar ändern
+- **Archive Panel** — Archivierte Cards anzeigen und wiederherstellen
+
+#### API (REST)
+
+```
+POST   /api/board              → Board erstellen
+GET    /api/board              → Alle Boards (privat + Teams)
+DELETE /api/board/:id          → Board löschen
+PATCH  /api/board/:id          → Board umbenennen
+
+POST   /api/board/cards        → Karte erstellen
+PATCH  /api/board/cards        → Karte aktualisieren (Titel, Beschreibung, Assignees...)
+DELETE /api/board/cards/:id    → Karte löschen
+
+POST   /api/board/columns     → Spalte erstellen
+PATCH  /api/board/columns/:id → Spalte umbenennen
+DELETE /api/board/columns/:id → Spalte löschen
+
+POST   /api/board/move        → Card zwischen Spalten verschieben (Drag & Drop)
+
+GET    /api/board/archive     → Archivierte Karten
+POST   /api/board/archive     → Karte archivieren
+DELETE /api/board/archive/:id  → Karte wiederherstellen
+```
+
+#### Datenmodell (Prisma)
+
+```prisma
+model Board {
+  id        Int       @id @default(autoincrement())
+  name      String
+  teamId    Int?
+  team      Team?     @relation(fields: [teamId], references: [id])
+  columns   Column[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Column {
+  id      Int    @id @default(autoincrement())
+  title   String
+  boardId Int
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards   Card[]
+  order   Int
+}
+
+model Card {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  columnId    Int
+  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  assignees   User[]    @relation("CardAssignees")
+  dueDate     DateTime?
+  labels      String[]
+  archived    Boolean   @default(false)
+  externalId String?   // GitHub/GitLab Issue ID
+  externalUrl String?
+  order       Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+```
+
+#### Tech-Stack
+
+- **dnd-kit** — Drag & Drop für Cards und Spalten
+- **@fortawesome/react-fontawesome** — Icons
+- **Tailwind CSS v4** — Styling (Dark Theme)
+
+#### Screenshots (Future)
+
+> TODO: Screenshots der Kanban-Board-UI hinzufügen
 
 ---
 

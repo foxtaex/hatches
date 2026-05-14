@@ -11,9 +11,22 @@ export const POST: APIRoute = async ({ request }) => {
   return Response.json(card);
 };
 
-// PATCH /api/board/cards — update card
+// PATCH /api/board/cards — update card fields
 export const PATCH: APIRoute = async ({ request }) => {
-  const { id, ...data } = await request.json();
+  const body = await request.json();
+  const { id } = body;
+
+  const data: Record<string, unknown> = {};
+  if (body.title !== undefined)       data.title = body.title;
+  if (body.description !== undefined) data.description = body.description;
+  if (body.assigneeId !== undefined)  data.assigneeId = body.assigneeId;
+  if (body.priority !== undefined)    data.priority = body.priority;
+  if (body.labels !== undefined)      data.labels = body.labels;
+  if (body.coverColor !== undefined)  data.coverColor = body.coverColor;
+  if (body.checklist !== undefined)   data.checklist = body.checklist;
+  // dueDate arrives as ISO string — convert to Date for Prisma
+  if (body.dueDate !== undefined)     data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
+
   const card = await prisma.card.update({ where: { id }, data });
   return Response.json(card);
 };

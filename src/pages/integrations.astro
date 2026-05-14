@@ -1,8 +1,3 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { IntegrationManager } from "../components/integrations/IntegrationManager";
+return Astro.redirect("/admin");
 ---
-
-<Layout title="Integrationen — Hatches" active="integrations">
-  <IntegrationManager client:load />
-</Layout>

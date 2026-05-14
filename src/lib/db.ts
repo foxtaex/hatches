@@ -24,7 +24,7 @@ async function createAdapter() {
 
 function createPrisma(adapter: any) {
   if (adapter) return new PrismaClient({ adapter });
-  // MySQL / MSSQL: URL kommt aus DATABASE_URL Env-Variable (prisma.config.ts)
+  // MySQL / MSSQL: URL comes from DATABASE_URL env var (prisma.config.ts)
   return new PrismaClient();
 }
 

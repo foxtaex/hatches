@@ -11,14 +11,14 @@ import { WebsiteManager } from "../websites/WebsiteManager";
 import { IntegrationManager } from "../integrations/IntegrationManager";
 
 // ── Types ────────────────────────────────────────────────
-type Section = "board" | "docs" | "notes" | "websites" | "integrations" | "admin";
-const SECTIONS: { key: Section; label: string }[] = [
-  { key: "board", label: "Board" },
-  { key: "docs", label: "Docs" },
-  { key: "notes", label: "Notizen" },
-  { key: "websites", label: "Websites" },
-  { key: "integrations", label: "Integrationen" },
-  { key: "admin", label: "Admin" },
+type Section = "board" | "docs" | "notes" | "planner" | "templates" | "admin";
+const SECTIONS: { key: Section; label: string; icon: string }[] = [
+  { key: "board",     label: "Kanban Board", icon: "📌" },
+  { key: "docs",      label: "Docs",         icon: "📄" },
+  { key: "notes",     label: "Notizen",      icon: "📝" },
+  { key: "planner",   label: "Planner",      icon: "📅" },
+  { key: "templates", label: "Templates",    icon: "📋" },
+  { key: "admin",     label: "Admin",        icon: "⚙️" },
 ];
 const ACTIONS = [
   { key: "canView" as const, label: "Lesen" },
@@ -111,7 +111,7 @@ function RolesTab({ roles, onRefresh }: { roles: Role[]; onRefresh: () => Promis
   }
 
   return (
-    <div className="flex border border-zinc-800 rounded-xl overflow-hidden" style={{ height: "calc(100vh - 13rem)" }}>
+    <div className="flex border border-zinc-800 rounded-xl overflow-hidden" style={{ height: "calc(100vh - 10rem)" }}>
       {/* Sidebar */}
       <div className="w-52 flex-shrink-0 bg-zinc-900 border-r border-zinc-800 flex flex-col">
         <div className="p-3 border-b border-zinc-800 flex flex-col gap-2">
@@ -184,12 +184,13 @@ function RolesTab({ roles, onRefresh }: { roles: Role[]; onRefresh: () => Promis
             </div>
 
             <div className="flex flex-col gap-3">
-              {SECTIONS.map(({ key, label }) => {
+              {SECTIONS.map(({ key, label, icon }) => {
                 const perm = selected.permissions.find((p) => p.section === key);
                 if (!perm) return null;
                 return (
                   <div key={key} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-                    <div className="px-4 py-2 bg-zinc-900 border-b border-zinc-800">
+                    <div className="px-4 py-2 bg-zinc-900 border-b border-zinc-800 flex items-center gap-2">
+                      <span>{icon}</span>
                       <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{label}</span>
                     </div>
                     <div className="divide-y divide-zinc-800/50">

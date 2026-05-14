@@ -43,6 +43,24 @@ model Card {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   archive       Archive?
+  // Trello/Notion Features
+  dueDate       DateTime?
+  priority      String?        // "low" | "medium" | "high" | "urgent"
+  labels        String         @default("[]") // JSON: {id,name,color}[]
+  coverColor    String?
+  checklist     String         @default("[]") // JSON: {id,text,done}[]
+  comments      CardComment[]
+}
+
+model CardComment {
+  id        Int      @id @default(autoincrement())
+  cardId    Int
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  authorId  Int
+  author    User     @relation("CommentAuthor", fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Archive {
@@ -120,6 +138,7 @@ model User {
   orgGroupMemberships OrgGroupMember[]
   createdEvents       Event[]            @relation("EventCreator")
   createdTemplates    Template[]         @relation("TemplateCreator")
+  comments            CardComment[]      @relation("CommentAuthor")
 }
 
 model Session {
