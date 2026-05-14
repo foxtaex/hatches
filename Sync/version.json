@@ -186,9 +186,25 @@
       "Fix: middleware.ts SECTION_MAP — /websites + /integrations gegen /planner + /templates getauscht",
       "Refactor: SECTIONS an 4 Stellen synchron aktualisiert (permissions.ts, roles.ts, AdminPanel.tsx, middleware.ts)"
     ]
+  },
+  "0.5.10.14.27-dev.8d": {
+    "display": "5.14.27-dev.8d",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-05-14",
+    "description": "Kommentare auf Karten — Trello-Style Kommentar-Thread im Card-Modal",
+    "changes": [
+      "Feat: CardComment Prisma-Modell (cardId, authorId, content, createdAt/updatedAt)",
+      "Feat: GET/POST/DELETE /api/board/comments — Kommentare laden, erstellen, löschen",
+      "Feat: GET /api/user/profile — gibt aktuellen User zurück (id, username, displayName)",
+      "Feat: Kommentar-Thread im CardDetailModal — Avatar, Autor, Zeitstempel, Löschen (eigene)",
+      "Feat: Enter = Senden, Shift+Enter = Zeilenumbruch im Kommentar-Input",
+      "Feat: KanbanBoard lädt currentUser und gibt ihn ans Modal weiter",
+      "Fix: marked-Package fehlte — installiert (MarkdownEditor.tsx TS-Fehler)"
+    ]
   }
 },
 
-"current": "0.5.9.14.27-dev.7d",
-"current_display": "5.14.27-dev.7d"
+"current": "0.5.10.14.27-dev.8d",
+"current_display": "5.14.27-dev.8d"
 }
