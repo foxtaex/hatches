@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus, faXmark, faPen, faCheck, faTableColumns,
-  faArrowRightArrowLeft, faTrash, faLock, faUsers,
+  faArrowRightArrowLeft, faTrash, faLock, faUsers, faBoxArchive,
   
 } from "@fortawesome/free-solid-svg-icons";
 import { KanbanColumn } from "./KanbanColumn";
