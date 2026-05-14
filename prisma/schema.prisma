@@ -43,6 +43,12 @@ model Card {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   archive       Archive?
+  // Trello/Notion Features
+  dueDate       DateTime?
+  priority      String?        // "low" | "medium" | "high" | "urgent"
+  labels        String         @default("[]") // JSON: {id,name,color}[]
+  coverColor    String?
+  checklist     String         @default("[]") // JSON: {id,text,done}[]
 }
 
 model Archive {
