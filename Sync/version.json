@@ -1,29 +1,23 @@
 {
   "meta": {
     "name": "hatches",
-    "description": "Self-hosted team workspace",
-    "versioning": {
-      "scheme": "[Major].[Minor].[Patch].[Date]-[Stage].[Count][Tag]",
-      "internal": "0.0.5.14.23-dev.4g = Major.Minor(Feature).Patch(Date)-Stage.CountTag",
-      "display": "Simple format shown to users: 5.14-dev",
-      "stage_order": ["dev", "a", "b", "pre"],
-      "stage_meaning": {
-        "dev": "Development",
-        "a": "Alpha",
-        "b": "Beta",
-        "pre": "Pre-release"
-      }
-    }
+    "description": "Self-hosted team workspace"
+  },
+
+  "versioning": {
+    "scheme": "[Major].[Minor].[Patch].[Date]-[Stage].[Count][Tag]",
+    "stage_order": ["dev", "a", "b", "pre", "stable"]
   },
 
   "releases": {
-    "5.14-dev": {
-      "internal": "0.0.5.14.23-dev.4g",
+    "0.0.5.14.23-dev.4g": {
+      "display": "5.14-dev",
+      "stage": "dev",
       "status": "current",
       "description": "Base hatches — Kanban, Docs, Notes, Websites, Teams, Integrations",
       "features": [
         "Kanban Board (multi-board, drag & drop, cards, assignment)",
-        "Docs (Markdown editor, live split-view preview)",
+        "Docs (Markdown editor with view mode toggle)",
         "Notes (Quick personal notes)",
         "Websites (Internal URL & project registry)",
         "Teams & Roles (Permission system per section)",
@@ -35,99 +29,55 @@
         "Astro 6 (SSR) + React Islands",
         "TypeScript",
         "Tailwind CSS v4",
-        "Prisma 7 (SQLite default, PostgreSQL, MySQL, MSSQL)",
-        "dnd-kit (Drag & Drop)",
-        "@uiw/react-md-editor (Markdown)"
+        "Prisma 7",
+        "dnd-kit",
+        "@uiw/react-md-editor"
       ]
     },
 
-    "5.15-dev": {
-      "internal": "0.0.5.15.XX-dev.Xg",
-      "status": "planned",
-      "description": "Stability + UX improvements",
-      "features": [
-        "Dark/Light theme toggle",
-        "Markdown improvements (code syntax highlighting, tables)",
-        "Search across Docs + Notes",
-        "Keyboard shortcuts",
-        "Performance optimizations"
-      ],
-      "tech": []
+    "0.5.14.23-a.4g": {
+      "display": "5.14-alpha",
+      "stage": "a",
+      "status": "planned"
     },
 
-    "6.0-dev": {
-      "internal": "0.0.6.0.XX-dev.Xg",
-      "status": "planned",
-      "description": "Import/Export + Data portability",
-      "features": [
-        "Export all data as JSON/Zip",
-        "Import from Notion, Confluence, Jira",
-        "Backup to local file"
-      ],
-      "tech": []
+    "0.0.5-b.14a": {
+      "display": "5-beta",
+      "stage": "b",
+      "status": "planned"
     },
 
-    "6.1-dev": {
-      "internal": "0.0.6.1.XX-dev.Xg",
-      "status": "planned",
-      "description": "Sync + E2E Encryption",
-      "features": [
-        "Local-first data storage (Dexie.js / IndexedDB)",
-        "E2E encryption for private content",
-        "Sync Gateway (Node.js + WebSocket)",
-        "Team sync with conflict resolution",
-        "Private mode (local only, no server)"
-      ],
-      "tech": [
-        "Dexie.js",
-        "TweetNaCl.js",
-        "ws"
-      ]
+    "0.0.0-pre.5a": {
+      "display": "pre",
+      "stage": "pre",
+      "status": "planned"
     },
 
-    "6.2-dev": {
-      "internal": "0.0.6.2.XX-dev.Xg",
-      "status": "planned",
-      "description": "Headless client + CLI",
-      "features": [
-        "hatches-headless (CLI-only client)",
-        "Sync from command line",
-        "Cron-based sync scheduling"
-      ],
-      "tech": [
-        "Bun or Node.js CLI"
-      ]
-    },
-
-    "6.3-dev": {
-      "internal": "0.0.6.3.XX-dev.Xg",
-      "status": "planned",
-      "description": "External editor support",
-      "features": [
-        "Open in Obsidian (future)",
-        "Open in VSCode (future)",
-        "Markdown file watching"
-      ],
-      "tech": []
-    },
-
-    "7.0-dev": {
-      "internal": "0.0.7.0.XX-dev.Xg",
+    "0.0.05a": {
+      "display": "5.0",
+      "stage": "stable",
       "status": "future",
-      "description": "Agent API + Streaming Platform",
-      "features": [
-        "Agent SDK for AI developers",
-        "Agents as channel participants",
-        "Agent Streaming (WebRTC)",
-        "Agent Registry"
-      ],
-      "tech": [
-        "Agent SDK",
-        "WebRTC",
-        "Coturn"
-      ]
+      "description": "First stable release"
     }
   },
 
-  "current": "5.14-dev"
+  "roadmap": {
+    "next": [
+      { "version": "0.5.14.23-a.4g", "name": "5.14-alpha", "stage": "a", "description": "Alpha — hardening, no new major features" },
+      { "version": "0.0.5-b.14a", "name": "5-beta", "stage": "b", "description": "Beta — bug fixing only" },
+      { "version": "0.0.0-pre.5a", "name": "pre", "stage": "pre", "description": "Pre-release" },
+      { "version": "0.0.05a", "name": "5.0", "stage": "stable", "description": "First stable release" }
+    ],
+    "future": [
+      { "version": "0.5.15.XX-dev.Xg", "name": "5.15-dev", "stage": "dev", "description": "UX + Stability improvements" },
+      { "version": "0.6.0.XX-dev.Xg", "name": "6.0-dev", "stage": "dev", "description": "Import/Export" },
+      { "version": "0.6.1.XX-dev.Xg", "name": "6.1-dev", "stage": "dev", "description": "Sync + E2E Encryption" },
+      { "version": "0.6.2.XX-dev.Xg", "name": "6.2-dev", "stage": "dev", "description": "Headless CLI" },
+      { "version": "0.6.3.XX-dev.Xg", "name": "6.3-dev", "stage": "dev", "description": "External Editor (Obsidian/VSCode)" },
+      { "version": "0.7.0.XX-dev.Xg", "name": "7.0-dev", "stage": "dev", "description": "Agent API + Streaming" }
+    ]
+  },
+
+  "current": "0.0.5.14.23-dev.4g",
+  "current_display": "5.14-dev"
 }
