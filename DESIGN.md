@@ -502,5 +502,7 @@ Trigger + Action für wiederkehrende Workflows:
 **For Hatches 2.0:**
 - Integration mit GitHatch (AI kann Repos durchsuchen, Issues erstellen)
 - Better AI Collaboration Features
+- AI Events — AI plant automatisch Meetings basierend auf Verfügbarkeit, erstellt Erinnerungen, Benachrichtigt das Team
+- AI-powered Event Intelligence — "Finde einen Slot für alle Team-Members diese Woche"
 - Enhanced Vibecoding Interface
 - Performance Optimizations

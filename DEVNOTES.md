@@ -117,4 +117,10 @@ not human babysitting AI. Creator Mode (Vibe-Coder/AI) vs Vision Mode (Non-Coder
 - CI/CD pipelines überwachen
 - Code Search und Navigation
 
+**AI Events (Hatches 2.0):**
+- AI plant automatisch Meetings basierend auf Verfügbarkeit
+- Erstellt Erinnerungen und benachrichtigt das Team
+- AI-powered Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
+- Automatische Timezone-Anpassung
+
 > Note: GitHatch is a separate project from Hatches and will be developed independently.
