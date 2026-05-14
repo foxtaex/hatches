@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/logo/mark-b.svg" width="160" alt="Hatches Logo — Mark B (Subtle)" /> <br/>
+  <img src="public/logo/mark-b.svg" width="160" alt="Hatches Logo — Mark B (Subtle)" />
   <h1>hatches</h1> 
 </div>
 
