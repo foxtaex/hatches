@@ -69,28 +69,51 @@ BugfixCount = wievielter Bugfix heute
 ## [5.14.23] - dev - Bugfix
 ```
 
-## Commands
+## Bekannte Bugs
 
 ```bash
 # TypeScript Check
 npx tsc --noEmit
 
-# Dev Server
-npm run dev
-
-# DB Push
-npx prisma db push
-
-# Build
-npm run build
+# Zeigt diese Fehler (Stand 2026-05-14):
+#
+# 1. PrismaClient not exported (prisma/seed.ts, lib/db.ts)
+#    → Fix: npx prisma generate
+#
+# 2. BoardItem not found (kanban/KanbanBoard.tsx:382,393,398)
+#    → BoardItem wird verwendet aber nicht importiert
+#    → Fehlt: import { BoardItem } from './BoardItem' (oder types.ts)
+#
+# 3. Parameter 'm' implicitly has 'any' type (5x API files)
+#    → Typisierte Parameter in API-Routes
 ```
 
-## Wichtige Files zum Lesen
+## Wichtige Docs zum Lesen
 
-1. `Sync/version.json.md` — Versionierungssystem
-2. `src/components/docs/DocsEditor.tsx` — Markdown Editor
-3. `prisma/schema.prisma` — Datenbank Schema
-4. `src/middleware.ts` — Auth & Permissions
+Lies diese Docs **alle** bevor du arbeitest:
+
+1. **`Sync/version.json.md`** — Versionierungssystem (Pflicht!)
+2. **`Sync/ARCHITECTURE.md`** — Architecure für hatches-sync Erweiterungen
+3. **`DESIGN.md`** — Vision, Features, Design System, alle Module erklärt
+4. **`SECURITY.md`** — Sicherheitshinweise (vibe-coded, nicht audited)
+5. **`DEVNOTES.md`** — Entwickler-Notizen
+6. **`CONTRIBUTING.md`** — Contribution Guidelines
+7. **`FEEDBACK.md`** — Feedback und Ideen
+
+**Kurzübersicht:**
+
+```
+DESIGN.md Highlights:
+├── Vision: Notion + Obsidian + Trello + AI + GitRepo
+├── Vibecoding Collaboration (Creator Mode + Vision Mode)
+├── Design System: Apple-inspired, Inter Font, Frosted Glass
+├── Modules: Pages, Database, Kanban, Notes, Planner, AI, etc.
+└── Future: Native Apps, AI Events, GitHatch
+
+SECURITY.md:
+└── ⚠️ vibe-coded, kein Security Audit
+    └── Nur lokal/VPN/intranet — nicht öffentlich!
+```
 
 ---
 
