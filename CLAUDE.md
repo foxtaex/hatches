@@ -182,12 +182,45 @@ npm run build
 
 ---
 
+## ZUKUNFT / ROADMAP
+
+Lies `Sync/version.json.md` für das vollständige Versions-System.
+
+### Geplante Features (Roadmap)
+
+
+| Version | Feature | Beschreibung |
+|---------|---------|-------------|
+| **5.14-dev** | Jetzt | Kanban, Docs, Notes, Websites, Teams, Integrations |
+| **5.15-dev** | UX + Stability | Theme Toggle, Search, Keyboard Shortcuts |
+| **6.0-dev** | Import/Export | JSON/Zip Export, Import von Notion/Jira |
+| **6.1-dev** | Sync + E2E | Local-first (Dexie.js), E2E Encryption, Sync Gateway |
+| **6.2-dev** | Headless CLI | CLI-only Client, Cron-Sync |
+| **6.3-dev** | External Editor | Obsidian/VSCode Integration |
+| **7.0-dev** | Agent API | AI Agents SDK, Streaming (WebRTC) |
+
+### Design.md Future Features
+
+```
+Future (DESIGN.md):
+├── Native Apps (iOS, Android)
+├── AI Events & Triggers
+├── GitHatch (integriertes Git Repo)
+├── Offline-First mit Sync
+├── E2E Encryption
+├── Self-Hosted Streaming (WebRTC)
+└── Agent SDK für Developer
+```
+
+---
+
 ## PRINZIPIEN
 
 1. **Lesen zuerst** — Verstehen bevor Fixen
 2. **Alles fixen** — Keine halben Sachen, keine "das könnte man noch..."
 3. **Konfigurierbar** — Nichts hardcoden, alles generisch
 4. **Sauber bleiben** — Keine遗留 (keine Hinterlassenschaften)
+5. **Future-Proof** — Code so schreiben dass er für zukünftige Features passt
 
 ---
 
