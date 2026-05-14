@@ -2,6 +2,9 @@
 
 <div align="center">
 
+<img src="/logo/mark-b.svg" width="160" alt="Hatches Logo — Mark B (Subtle)" />
+<br/><br/>
+
 ```
   ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
   ┃                                                 ┃
