@@ -302,20 +302,55 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 - Integration-Commands definieren (z.B. `/ai assign to @user`)
 - AI-Trigger konfigurieren (z.B. täglicher Standup-Bericht)
 
-### Template-Erstellung (AI-assisted)
+### Template Library
 
-**Features:**
-- **AI-generierte Templates:** Basierend auf Projekt-Typ (Software, Marketing, HR) schlägt AI passende Strukturen vor
-- **Dynamische Templates:** AI lernt from wiederholten Patterns und erstellt neue Templates
-- **Vorlagen:** Meetings, Projekte, Bug-Tracking, OKRs, Sprint-Planning
-- **Template Library:** Durchsuchbare Bibliothek mit KI-vorschlägen
+**Zweck:** Schnellstart für jedes Projekt — Templates sind fix und fertig, kein Rad neu erfinden.
+
+**Template-Kategorien:**
+
+**Software Development**
+- Sprint Planning (Board mit: To Do, In Progress, Review, Done)
+- Bug Tracker (Table mit: Priority, Status, Assignee, Labels)
+- Feature Request (Page + Database Combo)
+- Release Checklist (mit Due Dates, Assignees)
+- PR Review Workflow (GitHub Integration + Board)
+
+**Project Management**
+- Projektplanung (Timeline View + Tasks)
+- Meeting Notes (Page mit Agenda, Notes, Action-Items)
+- OKR Tracking (Database mit Metrics, Updates)
+- Team Onboarding (Page + Checklists pro Tag)
+
+**Marketing & Content**
+- Content Calendar (Calendar View)
+- Campaign Tracker (Board: Ideation, Draft, Review, Live)
+- Social Media Posts (Database mit Platform, Status, Schedule)
+
+**HR & Administration**
+- Employee Onboarding (Checklist + Docs)
+- Expense Tracking (Table mit Category, Amount, Status)
+- Vacation Request (Form + Approval Workflow)
+
+**General**
+- Knowledge Base (Nested Pages Struktur)
+- Personal Dashboard (Notes + Quick Actions)
+- Weekly Review (Page Template mit Sections)
+
+**Template Features:**
+- One-Click importieren → direkt einsatzbereit
+- Eigenes Template erstellen → als Blueprint speichern
+- AI-generiertes Template → basierend auf Beschreibung
+- Template teilen → öffentlich oder nur Team
+- Template bearbeiten → Changes gelten für neue Kopien
 
 **API:**
-- `GET /api/templates` — Alle Templates
+- `GET /api/templates` — Alle Templates (public + team)
 - `POST /api/templates` — Template erstellen
-- `POST /api/templates/generate` — AI-generiert Template basierend auf Beschreibung
+- `POST /api/templates/import/[templateId]` — Template in Workspace importieren
 - `PATCH /api/templates/[id]` — Template aktualisieren
 - `DELETE /api/templates/[id]` — Template löschen
+- `GET /api/templates/categories` — Alle Kategorien
+- `POST /api/templates/generate` — AI-generiert Template
 
 ### AI Agent Integration
 
