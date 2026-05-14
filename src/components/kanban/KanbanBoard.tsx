@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { KanbanColumn } from "./KanbanColumn";
 import { ArchivePanel } from "./ArchivePanel";
+import { CardDetailModal } from "./CardDetailModal";
 import type { Board, Card, Column } from "./types";
 
 interface TeamOption { id: number; name: string; color: string }
@@ -88,6 +89,7 @@ export function KanbanBoard() {
   const [users, setUsers] = useState<{ id: number; displayName: string | null; username: string }[]>([]);
   const [allBoards, setAllBoards] = useState<BoardWithCols[]>([]);
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
+  const [currentUser, setCurrentUser] = useState<{ id: number; username: string; displayName: string | null } | null>(null);
 
   // Sidebar state
   const [addingBoard, setAddingBoard] = useState(false);
@@ -103,13 +105,16 @@ export function KanbanBoard() {
   // Archive panel state
   const [showArchive, setShowArchive] = useState(false);
 
+  // Card detail modal state
+  const [openCardId, setOpenCardId] = useState<number | null>(null);
+
   // Double-submit guards
   const creatingBoardRef = useRef(false);
   const addingColRef = useRef(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  useEffect(() => { loadBoards(); loadUsers(); loadUserTeams(); }, []);
+  useEffect(() => { loadBoards(); loadUsers(); loadUserTeams(); loadCurrentUser(); }, []);
   useEffect(() => { if (activeBoardId) loadBoard(activeBoardId); }, [activeBoardId]);
   useEffect(() => { loadAllColumns(); }, [boards]);
 
@@ -135,6 +140,11 @@ export function KanbanBoard() {
       const res = await fetch("/api/admin/users");
       if (res.ok) setUsers(await res.json());
     } catch { /* non-admin */ }
+  }
+
+  async function loadCurrentUser() {
+    const res = await fetch("/api/user/profile");
+    if (res.ok) setCurrentUser(await res.json());
   }
 
   async function loadUserTeams() {
@@ -198,6 +208,15 @@ export function KanbanBoard() {
 
   function findColumnById(colId: number): Column | null {
     return board?.columns.find((c) => c.id === colId) ?? null;
+  }
+
+  function findCardWithColumn(cardId: number): { card: Card; columnName: string } | null {
+    if (!board) return null;
+    for (const col of board.columns) {
+      const card = col.cards.find((c) => c.id === cardId);
+      if (card) return { card, columnName: col.title };
+    }
+    return null;
   }
 
   function handleDragStart({ active }: DragStartEvent) {
@@ -421,7 +440,7 @@ export function KanbanBoard() {
                 <FontAwesomeIcon icon={faLock} className="w-2.5 h-2.5 text-zinc-700" />
                 <span className="text-[10px] font-semibold text-zinc-700 uppercase tracking-wider">Privat</span>
               </div>
-              {privateBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
+              {privateBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={() => renameBoard(b.id, renameBoardValue)} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
             </div>
           )}
 
@@ -433,12 +452,12 @@ export function KanbanBoard() {
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: team.color }} />
                 <span className="text-[10px] font-semibold uppercase tracking-wider truncate" style={{ color: team.color }}>{team.name}</span>
               </div>
-              {items.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
+              {items.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={() => renameBoard(b.id, renameBoardValue)} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
             </div>
           ))}
 
           {/* Boards from teams admin can see but aren't in userTeams */}
-          {otherTeamBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
+          {otherTeamBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={() => renameBoard(b.id, renameBoardValue)} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
 
           {boards.length === 0 && (
             <p className="text-xs text-zinc-700 px-3 py-4 text-center">Noch keine Boards</p>
@@ -458,13 +477,10 @@ export function KanbanBoard() {
               <KanbanColumn
                 key={col.id}
                 column={col}
-                users={users}
                 allBoards={allBoards.filter((b) => b.id !== board.id)}
                 currentBoardId={board.id}
                 onAddCard={addCard}
-                onUpdateCard={updateCard}
-                onDeleteCard={deleteCard}
-                onArchiveCard={archiveCard}
+                onOpenCard={setOpenCardId}
                 onMoveCardToBoard={moveCardToBoard}
                 onRenameColumn={renameColumn}
                 onDeleteColumn={deleteColumn}
@@ -519,6 +535,23 @@ export function KanbanBoard() {
           onRestore={() => loadBoard(activeBoardId)}
         />
       )}
+
+      {openCardId !== null && (() => {
+        const found = findCardWithColumn(openCardId);
+        if (!found) return null;
+        return (
+          <CardDetailModal
+            card={found.card}
+            users={users}
+            columnName={found.columnName}
+            currentUserId={currentUser?.id ?? null}
+            onClose={() => setOpenCardId(null)}
+            onUpdate={updateCard}
+            onDelete={(id) => { deleteCard(id); setOpenCardId(null); }}
+            onArchive={(id) => { archiveCard(id); setOpenCardId(null); }}
+          />
+        );
+      })()}
     </div>
   );
 }

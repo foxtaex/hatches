@@ -4,25 +4,22 @@ import { useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { CardItem } from "./CardItem";
-import type { Card, Column } from "./types";
+import type { Column } from "./types";
 
 interface BoardWithCols { id: number; name: string; columns: { id: number; title: string }[] }
 
 interface Props {
   column: Column;
-  users: { id: number; displayName: string | null; username: string }[];
   allBoards: BoardWithCols[];
   currentBoardId: number;
   onAddCard: (columnId: number, title: string) => void;
-  onUpdateCard: (id: number, data: Partial<Card>) => void;
-  onDeleteCard: (id: number) => void;
-  onArchiveCard: (id: number) => void;
+  onOpenCard: (id: number) => void;
   onMoveCardToBoard: (cardId: number, targetColumnId: number) => void;
   onRenameColumn: (id: number, title: string) => void;
   onDeleteColumn: (id: number) => void;
 }
 
-export function KanbanColumn({ column, users, allBoards, onAddCard, onUpdateCard, onDeleteCard, onArchiveCard, onMoveCardToBoard, onRenameColumn, onDeleteColumn }: Props) {
+export function KanbanColumn({ column, allBoards, onAddCard, onOpenCard, onMoveCardToBoard, onRenameColumn, onDeleteColumn }: Props) {
   const [addingCard, setAddingCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
@@ -88,11 +85,8 @@ export function KanbanColumn({ column, users, allBoards, onAddCard, onUpdateCard
             <CardItem
               key={card.id}
               card={card}
-              users={users}
               allBoards={allBoards}
-              onUpdate={onUpdateCard}
-              onDelete={onDeleteCard}
-              onArchive={onArchiveCard}
+              onOpenCard={onOpenCard}
               onMoveToBoard={onMoveCardToBoard}
             />
           ))}

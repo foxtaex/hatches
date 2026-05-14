@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
-const SECTIONS = ["board", "docs", "notes", "websites", "integrations", "admin"];
+const SECTIONS = ["board", "docs", "notes", "planner", "templates", "admin"];
 
 function requireAdmin(locals: any) {
   if (!locals.user?.isAdmin) throw new Error("forbidden");
@@ -13,7 +13,16 @@ export const GET: APIRoute = async ({ locals }) => {
     orderBy: { priority: "desc" },
     include: { permissions: true, _count: { select: { memberships: true } } },
   });
-  return Response.json(roles);
+  // Normalize: every role always has a permission row for every current section.
+  // Obsolete sections (websites, integrations) are excluded from the response.
+  const normalized = roles.map((role) => ({
+    ...role,
+    permissions: SECTIONS.map((s) => {
+      const existing = role.permissions.find((p) => p.section === s);
+      return existing ?? { section: s, canView: false, canCreate: false, canEdit: false, canDelete: false };
+    }),
+  }));
+  return Response.json(normalized);
 };
 
 export const POST: APIRoute = async ({ locals, request }) => {

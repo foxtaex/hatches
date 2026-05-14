@@ -4,12 +4,12 @@ import { can, type Section } from "./lib/permissions";
 
 const PUBLIC_PATHS = ["/login", "/setup", "/api/auth/login", "/api/auth/register", "/api/setup/"];
 const SECTION_MAP: Record<string, Section> = {
-  "/board": "board",
-  "/docs": "docs",
-  "/notes": "notes",
-  "/websites": "websites",
-  "/integrations": "integrations",
-  "/admin": "admin",
+  "/board":     "board",
+  "/docs":      "docs",
+  "/notes":     "notes",
+  "/planner":   "planner",
+  "/templates": "templates",
+  "/admin":     "admin",
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {

@@ -6,6 +6,8 @@ datasource db {
   provider = "sqlite"
 }
 
+// ── Kanban ───────────────────────────────────────────────
+
 model Board {
   id        Int      @id @default(autoincrement())
   name      String   @default("Main Board")
@@ -34,24 +36,44 @@ model Card {
   columnId      Int
   column        Column         @relation(fields: [columnId], references: [id], onDelete: Cascade)
   assigneeId    Int?
-  assignee      User?          @relation(fields: [assigneeId], references: [id])
+  assignee      User?          @relation("CardAssignee", fields: [assigneeId], references: [id])
   externalIssue ExternalIssue?
   isArchived    Boolean        @default(false)
   archivedAt    DateTime?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   archive       Archive?
+  // Trello/Notion Features
+  dueDate       DateTime?
+  priority      String?        // "low" | "medium" | "high" | "urgent"
+  labels        String         @default("[]") // JSON: {id,name,color}[]
+  coverColor    String?
+  checklist     String         @default("[]") // JSON: {id,text,done}[]
+  comments      CardComment[]
+}
+
+model CardComment {
+  id        Int      @id @default(autoincrement())
+  cardId    Int
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  authorId  Int
+  author    User     @relation("CommentAuthor", fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Archive {
-  id           Int       @id @default(autoincrement())
-  cardId       Int       @unique
-  card         Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  id           Int      @id @default(autoincrement())
+  cardId       Int      @unique
+  card         Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
   archivedById Int?
-  archivedBy   User?     @relation(fields: [archivedById], references: [id])
+  archivedBy   User?    @relation("ArchivedBy", fields: [archivedById], references: [id])
   reason       String?
-  archivedAt   DateTime  @default(now())
+  archivedAt   DateTime @default(now())
 }
+
+// ── Docs & Notes ─────────────────────────────────────────
 
 model Doc {
   id        Int      @id @default(autoincrement())
@@ -77,6 +99,8 @@ model Note {
   updatedAt DateTime @updatedAt
 }
 
+// ── Websites ─────────────────────────────────────────────
+
 model Website {
   id          Int      @id @default(autoincrement())
   name        String
@@ -90,23 +114,31 @@ model Website {
   updatedAt   DateTime @updatedAt
 }
 
+// ── Auth & Users ─────────────────────────────────────────
+
 model User {
-  id           Int              @id @default(autoincrement())
-  username     String           @unique
-  email        String           @unique
-  passwordHash String
-  displayName  String?
-  isAdmin      Boolean          @default(false)
-  isActive     Boolean          @default(true)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  sessions     Session[]
-  memberships  TeamMembership[]
-  cards        Card[]
-  archives     Archive[]
-  ownedBoards  Board[]          @relation("BoardOwner")
-  ownedDocs    Doc[]            @relation("DocOwner")
-  ownedNotes   Note[]           @relation("NoteOwner")
+  id                  Int                @id @default(autoincrement())
+  username            String             @unique
+  email               String             @unique
+  passwordHash        String
+  displayName         String?
+  isAdmin             Boolean            @default(false)
+  isActive            Boolean            @default(true)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  sessions            Session[]
+  memberships         TeamMembership[]
+  cards               Card[]             @relation("CardAssignee")
+  archives            Archive[]          @relation("ArchivedBy")
+  ownedBoards         Board[]            @relation("BoardOwner")
+  ownedDocs           Doc[]              @relation("DocOwner")
+  ownedNotes          Note[]             @relation("NoteOwner")
+  globalPermissions   GlobalPermission[] @relation("UserGlobalPermissions")
+  grantedPermissions  GlobalPermission[] @relation("GrantedByUser")
+  orgGroupMemberships OrgGroupMember[]
+  createdEvents       Event[]            @relation("EventCreator")
+  createdTemplates    Template[]         @relation("TemplateCreator")
+  comments            CardComment[]      @relation("CommentAuthor")
 }
 
 model Session {
@@ -116,6 +148,8 @@ model Session {
   expiresAt DateTime
   createdAt DateTime @default(now())
 }
+
+// ── Teams & Roles ─────────────────────────────────────────
 
 model Team {
   id          Int              @id @default(autoincrement())
@@ -127,6 +161,8 @@ model Team {
   boards      Board[]
   docs        Doc[]
   notes       Note[]
+  events      Event[]
+  templates   Template[]
 }
 
 model Role {
@@ -166,6 +202,100 @@ model Permission {
 
   @@unique([roleId, section])
 }
+
+// ── Global Permissions (Oga-only, team-independent) ──────
+
+model GlobalPermission {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation("UserGlobalPermissions", fields: [userId], references: [id], onDelete: Cascade)
+  permission  String   // "canCreateTeam" | "canManageUsers" | "canSeeApiKeys" | "canManageIntegrations"
+  grantedById Int?
+  grantedBy   User?    @relation("GrantedByUser", fields: [grantedById], references: [id])
+  grantedAt   DateTime @default(now())
+
+  @@unique([userId, permission])
+}
+
+// ── Org-Groups (area-based groups) ───────────────────────
+
+model OrgGroup {
+  id           Int              @id @default(autoincrement())
+  name         String           @unique
+  description  String?
+  color        String           @default("#6b7280")
+  lockedRights String           @default("[]") // JSON: string[]
+  normalRights String           @default("[]") // JSON: string[]
+  createdAt    DateTime         @default(now())
+  members      OrgGroupMember[]
+}
+
+model OrgGroupMember {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  orgGroupId Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orgGroup   OrgGroup @relation(fields: [orgGroupId], references: [id], onDelete: Cascade)
+  joinedAt   DateTime @default(now())
+
+  @@unique([userId, orgGroupId])
+}
+
+// ── Planner / Calendar ────────────────────────────────────
+
+model Event {
+  id           Int       @id @default(autoincrement())
+  title        String
+  description  String?
+  start        DateTime
+  end          DateTime?
+  allDay       Boolean   @default(false)
+  color        String    @default("#3CC79A")
+  recurring    String?   // "daily" | "weekly" | "monthly" | null
+  recurringEnd DateTime?
+  teamId       Int?
+  team         Team?     @relation(fields: [teamId], references: [id])
+  createdById  Int?
+  createdBy    User?     @relation("EventCreator", fields: [createdById], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// ── Templates ─────────────────────────────────────────────
+
+model Template {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  category    String   @default("general") // "software"|"project"|"marketing"|"hr"|"general"
+  icon        String   @default("📋")
+  content     String   @default("{}") // JSON: { boards?, docs?, notes? }
+  isPublic    Boolean  @default(true)
+  teamId      Int?
+  team        Team?    @relation(fields: [teamId], references: [id])
+  createdById Int?
+  createdBy   User?    @relation("TemplateCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── AI Provider Config ────────────────────────────────────
+
+model AiConfig {
+  id          Int      @id @default(autoincrement())
+  provider    String   // "openai"|"anthropic"|"google"|"deepseek"|"minimax"|"ollama"|"custom"
+  name        String
+  apiKey      String?
+  baseUrl     String?
+  model       String?
+  temperature Float    @default(0.7)
+  maxTokens   Int      @default(2048)
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── Integrations ──────────────────────────────────────────
 
 model Integration {
   id          Int             @id @default(autoincrement())

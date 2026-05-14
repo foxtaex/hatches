@@ -1,8 +1,3 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { WebsiteManager } from "../components/websites/WebsiteManager";
+return Astro.redirect("/admin");
 ---
-
-<Layout title="Websites — Hatches" active="websites">
-  <WebsiteManager client:load />
-</Layout>

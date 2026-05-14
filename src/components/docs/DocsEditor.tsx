@@ -1,7 +1,7 @@
 import MDEditor from "@uiw/react-md-editor";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faXmark, faLock, faCheck, faFileImport, faFileExport, faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faXmark, faLock, faCheck, faFileImport, faFileExport, faEye, faPenToSquare, faCode } from "@fortawesome/free-solid-svg-icons";
 
 interface TeamOption { id: number; name: string; color: string }
 interface Doc {
@@ -20,6 +20,7 @@ export function DocsEditor() {
   const [title, setTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
+  const [viewMode, setViewMode] = useState<"edit" | "preview" | "live">("preview");
 
   // Create form state
   const [creating, setCreating] = useState(false);
@@ -294,9 +295,45 @@ export function DocsEditor() {
             >
               <FontAwesomeIcon icon={faFileExport} className="w-3.5 h-3.5" />
             </button>
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-0.5 bg-zinc-800 rounded-lg p-0.5">
+              <button
+                onClick={() => setViewMode("edit")}
+                className={`px-2 py-1 rounded text-xs flex items-center gap-1 transition-colors ${
+                  viewMode === "edit" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+                title="Nur Editor"
+              >
+                <FontAwesomeIcon icon={faCode} className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => setViewMode("live")}
+                className={`px-2 py-1 rounded text-xs flex items-center gap-1 transition-colors ${
+                  viewMode === "live" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+                title="Beides (Edit + Preview)"
+              >
+                <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => setViewMode("preview")}
+                className={`px-2 py-1 rounded text-xs flex items-center gap-1 transition-colors ${
+                  viewMode === "preview" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+                title="Nur Vorschau"
+              >
+                <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
+              </button>
+            </div>
           </div>
           <div className="flex-1 overflow-hidden">
-            <MDEditor value={content} onChange={handleContentChange} height="100%" preview="live" className="h-full" />
+            <MDEditor
+              value={content}
+              onChange={handleContentChange}
+              height="100%"
+              preview={viewMode}
+              className="h-full"
+            />
           </div>
         </div>
       ) : (

@@ -4,18 +4,17 @@ import { HatchesLogo } from "../components/brand/HatchesLogo";
 
 export interface Props {
   title?: string;
-  active?: "board" | "docs" | "notes" | "websites" | "integrations" | "admin" | "settings";
+  active?: "board" | "docs" | "notes" | "planner" | "admin" | "settings";
 }
 
 const { title = "Hatches", active } = Astro.props;
 const user = (Astro.locals as any).user;
 
 const nav = [
-  { href: "/board",        label: "Board",         key: "board",        icon: "fa-solid fa-table-columns" },
-  { href: "/docs",         label: "Docs",          key: "docs",         icon: "fa-solid fa-file-lines" },
-  { href: "/notes",        label: "Notizen",       key: "notes",        icon: "fa-solid fa-note-sticky" },
-  { href: "/websites",     label: "Websites",      key: "websites",     icon: "fa-solid fa-globe" },
-  { href: "/integrations", label: "Integrationen", key: "integrations", icon: "fa-solid fa-puzzle-piece" },
+  { href: "/board",   label: "Board",   key: "board",   icon: "fa-solid fa-table-columns" },
+  { href: "/planner", label: "Planner", key: "planner", icon: "fa-solid fa-calendar-days" },
+  { href: "/docs",    label: "Docs",    key: "docs",    icon: "fa-solid fa-file-lines" },
+  { href: "/notes",   label: "Notizen", key: "notes",   icon: "fa-solid fa-note-sticky" },
 ];
 ---
 
@@ -25,6 +24,7 @@ const nav = [
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -76,6 +76,18 @@ const nav = [
             </a>
           )}
         </div>
+
+        <!-- Search button -->
+        {user && (
+          <button
+            id="search-btn"
+            style="display:flex; align-items:center; gap:8px; padding:8px 14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:10px; cursor:pointer; color:rgba(255,255,255,0.45); font-size:13px; font-family:inherit; transition:all 0.2s; margin-right:8px;"
+          >
+            <i class="fa-solid fa-magnifying-glass" style="font-size:13px;"></i>
+            <span>Suchen</span>
+            <span style="margin-left:8px; background:rgba(255,255,255,0.08); border-radius:5px; padding:1px 6px; font-size:11px; letter-spacing:0.03em;">⌘K</span>
+          </button>
+        )}
 
         <!-- Right: user menu -->
         {user && (
@@ -131,6 +143,31 @@ const nav = [
       }
     </style>
 
+    <!-- ── Suche Modal ──────────────────────────────────────────────── -->
+    <div id="search-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); align-items:flex-start; justify-content:center; padding-top:120px;">
+      <div style="width:100%; max-width:560px; margin:0 16px; background:rgba(22,22,24,0.98); border:1px solid rgba(255,255,255,0.12); border-radius:18px; box-shadow:0 24px 80px rgba(0,0,0,0.8); overflow:hidden;">
+
+        <!-- Input -->
+        <div style="display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.07);">
+          <i class="fa-solid fa-magnifying-glass" style="color:rgba(255,255,255,0.3); font-size:15px; flex-shrink:0;"></i>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Suchen in Board, Docs, Notizen…"
+            style="flex:1; background:transparent; border:none; outline:none; color:rgba(255,255,255,0.9); font-size:15px; font-family:inherit;"
+            autocomplete="off"
+          />
+          <kbd style="background:rgba(255,255,255,0.07); border-radius:5px; padding:2px 7px; font-size:11px; color:rgba(255,255,255,0.3); font-family:inherit; flex-shrink:0;">Esc</kbd>
+        </div>
+
+        <!-- Results -->
+        <div id="search-results" style="max-height:420px; overflow-y:auto; padding:8px;"></div>
+
+        <!-- Footer hint -->
+        <div id="search-empty" style="padding:32px; text-align:center; color:rgba(255,255,255,0.2); font-size:13px;">Mindestens 2 Zeichen eingeben</div>
+      </div>
+    </div>
+
     <script>
       // User dropdown toggle
       const menuBtn = document.getElementById("user-menu-btn");
@@ -151,6 +188,105 @@ const nav = [
         await fetch("/api/auth/logout", { method: "POST" });
         window.location.href = "/login";
       });
+
+      // ── Suche ────────────────────────────────────────────────────
+      const searchModal  = document.getElementById("search-modal")!;
+      const searchInput  = document.getElementById("search-input") as HTMLInputElement | null;
+      const searchResults= document.getElementById("search-results")!;
+      const searchEmpty  = document.getElementById("search-empty")!;
+
+      function openSearch() {
+        if (!searchModal) return;
+        searchModal.style.display = "flex";
+        searchInput?.focus();
+      }
+      function closeSearch() {
+        if (!searchModal) return;
+        searchModal.style.display = "none";
+        if (searchInput) searchInput.value = "";
+        if (searchResults) searchResults.innerHTML = "";
+        if (searchEmpty) { searchEmpty.style.display = "block"; searchEmpty.textContent = "Mindestens 2 Zeichen eingeben"; }
+      }
+
+      document.getElementById("search-btn")?.addEventListener("click", openSearch);
+      searchModal?.addEventListener("click", (e) => { if (e.target === searchModal) closeSearch(); });
+
+      // Cmd+K / Ctrl+K
+      document.addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); openSearch(); }
+        if (e.key === "Escape") closeSearch();
+      });
+
+      // Debounce search
+      let searchTimer: ReturnType<typeof setTimeout>;
+      searchInput?.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(runSearch, 220);
+      });
+
+      const ICONS: Record<string, string> = {
+        cards: "fa-solid fa-table-columns",
+        docs:  "fa-solid fa-file-lines",
+        notes: "fa-solid fa-note-sticky",
+        boards:"fa-solid fa-layer-group",
+      };
+      const LABELS: Record<string, string> = {
+        cards: "Board-Karte",
+        docs:  "Dokument",
+        notes: "Notiz",
+        boards:"Board",
+      };
+      const HREFS: Record<string, (r: Record<string, unknown>) => string> = {
+        cards:  (r) => `/board`,
+        docs:   (r) => `/docs`,
+        notes:  (r) => `/notes`,
+        boards: (r) => `/board`,
+      };
+
+      async function runSearch() {
+        const q = searchInput?.value.trim() ?? "";
+        if (q.length < 2) {
+          searchResults.innerHTML = "";
+          searchEmpty.style.display = "block";
+          searchEmpty.textContent = "Mindestens 2 Zeichen eingeben";
+          return;
+        }
+        searchEmpty.style.display = "none";
+        searchResults.innerHTML = `<div style="padding:16px 12px; color:rgba(255,255,255,0.3); font-size:13px;">Suche…</div>`;
+
+        const res  = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json() as Record<string, Record<string, unknown>[]>;
+
+        const total = Object.values(data).flat().length;
+        if (total === 0) {
+          searchResults.innerHTML = `<div style="padding:32px; text-align:center; color:rgba(255,255,255,0.25); font-size:13px;">Keine Ergebnisse für „${q}"</div>`;
+          return;
+        }
+
+        let html = "";
+        for (const [type, items] of Object.entries(data)) {
+          if (!items.length) continue;
+          html += `<div style="padding:6px 10px 2px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.3);">${LABELS[type] ?? type}</div>`;
+          for (const item of items) {
+            const title = (item.title ?? item.name ?? "") as string;
+            const sub   = (item.description ?? item.content ?? "") as string;
+            const href  = HREFS[type]?.(item) ?? "/";
+            const icon  = ICONS[type] ?? "fa-solid fa-circle";
+            const hi    = title.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`, "gi"), `<mark style="background:rgba(60,199,154,0.25);color:#3CC79A;border-radius:2px;">$1</mark>`);
+            html += `
+              <a href="${href}" onclick="setTimeout(()=>{ document.getElementById('search-modal').style.display='none'; },50)"
+                style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; text-decoration:none; transition:background 0.15s; cursor:pointer;"
+                onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">
+                <i class="${icon}" style="width:14px; text-align:center; color:rgba(255,255,255,0.35); font-size:13px; flex-shrink:0;"></i>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:500; color:rgba(255,255,255,0.88); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${hi}</div>
+                  ${sub ? `<div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sub.slice(0,80)}</div>` : ""}
+                </div>
+              </a>`;
+          }
+        }
+        searchResults.innerHTML = html;
+      }
     </script>
   </body>
 </html>
