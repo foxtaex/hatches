@@ -413,6 +413,40 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 
 ---
 
+### 9. Planner & Calendar
+**Pfad:** `src/components/planner/`
+**Dateien:** `Planner.tsx`, `CalendarView.tsx`, `Timeline.tsx`, `SchedulePanel.tsx`
+
+**Features:**
+- **Calendar View** — Monat, Woche, Tag-Ansicht
+- **Timeline View** — Horizontale Zeitleiste für Projekte/Meilensteine
+- **Schedule** — Termine, Deadlines, Erinnerungen
+- **Drag & Drop** — Events verschieben, Dauer ändern
+- **Ressourcen-Belegung** — Wer ist wann verfügbar (Team-Kalender)
+- **Meilenstein-Marker** — Wichtige Termine hervorheben
+- **iCal Import/Export** — Externe Kalender einbinden
+- **Recurring Events** — Wiederholende Termine (täglich, wöchentlich, monatlich)
+- **Integration mit AI** — "Plane Meeting am Freitag 14:00" → AI checkt Verfügbarkeit
+
+**View Types:**
+- **Month Grid** — Klassischer Kalender
+- **Week Agenda** — Woche mit Zeit-Blöcken
+- **Day Timeline** — Tagesansicht mit stündlicher Aufteilung
+- **Gantt / Timeline** — Projekt-Zeitleiste mit Abhängigkeiten
+
+**API:**
+- `GET /api/events` — Alle Events
+- `POST /api/events` — Event erstellen
+- `GET /api/events/[id]` — Einzelnes Event
+- `PATCH /api/events/[id]` — Event aktualisieren
+- `DELETE /api/events/[id]` — Event löschen
+- `POST /api/events/import` — iCal importieren
+- `GET /api/events/export` — iCal exportieren
+- `GET /api/calendar/[year]/[month]` — Kalender-Daten für Monat
+- `POST /api/calendar/reminders` — Erinnerung setzen
+
+---
+
 ## UI-Komponenten (Design System)
 
 Apple-inspiriertes Design mit:
