@@ -122,7 +122,13 @@ export function KanbanBoard() {
     const res = await fetch("/api/board");
     const data: BoardMeta[] = await res.json();
     setBoards(data);
-    if (data.length > 0) setActiveBoardId((prev) => prev ?? data[0].id);
+    if (data.length === 0) return;
+    const urlId = Number(new URLSearchParams(window.location.search).get("boardId"));
+    if (urlId && data.some((b) => b.id === urlId)) {
+      setActiveBoardId(urlId);
+    } else {
+      setActiveBoardId((prev) => prev ?? data[0].id);
+    }
   }
 
   async function loadBoard(id: number) {

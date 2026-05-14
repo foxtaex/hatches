@@ -237,10 +237,10 @@ const nav = [
         boards:"Board",
       };
       const HREFS: Record<string, (r: Record<string, unknown>) => string> = {
-        cards:  (r) => `/board`,
-        docs:   (r) => `/docs`,
-        notes:  (r) => `/notes`,
-        boards: (r) => `/board`,
+        cards:  (r) => { const boardId = (r.column as any)?.board?.id; return boardId ? `/board?boardId=${boardId}` : `/board`; },
+        docs:   (r) => `/docs?id=${r.id}`,
+        notes:  (r) => `/notes?id=${r.id}`,
+        boards: (r) => `/board?boardId=${r.id}`,
       };
 
       async function runSearch() {

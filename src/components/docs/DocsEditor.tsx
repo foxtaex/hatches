@@ -39,7 +39,10 @@ export function DocsEditor() {
     const res = await fetch("/api/docs");
     const data: Doc[] = await res.json();
     setDocs(data);
-    if (data.length > 0 && activeId === null) openDoc(data[0]);
+    if (data.length === 0) return;
+    const urlId = Number(new URLSearchParams(window.location.search).get("id"));
+    const target = (urlId && data.find((d) => d.id === urlId)) || data[0];
+    openDoc(target);
   }
 
   async function loadUserTeams() {

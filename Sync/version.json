@@ -202,9 +202,24 @@
       "Feat: KanbanBoard lädt currentUser und gibt ihn ans Modal weiter",
       "Fix: marked-Package fehlte — installiert (MarkdownEditor.tsx TS-Fehler)"
     ]
+  },
+  "0.5.11.14.27-dev.9d": {
+    "display": "5.14.27-dev.9d",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-05-14",
+    "description": "Repo-Review Bugfixes — Totes Duplikat entfernt, Suche navigiert zu echten Items",
+    "changes": [
+      "Fix: BoardItem.tsx gelöscht — war totes Duplikat von KanbanBoard.tsx (inline)",
+      "Fix: Globale Suche (⌘K) navigiert jetzt zu echten Items statt immer /board oder /docs",
+      "Fix: Docs öffnet direkt das gesuchte Dokument via ?id=X URL-Param",
+      "Fix: Notes öffnet direkt die gesuchte Notiz via ?id=X URL-Param",
+      "Fix: Board wechselt automatisch zum richtigen Board via ?boardId=X URL-Param",
+      "Fix: Karten-Suchtreffer navigieren zum Board des richtigen Boards (?boardId=X)"
+    ]
   }
 },
 
-"current": "0.5.10.14.27-dev.8d",
-"current_display": "5.14.27-dev.8d"
+"current": "0.5.11.14.27-dev.9d",
+"current_display": "5.14.27-dev.9d"
 }

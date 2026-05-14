@@ -34,7 +34,10 @@ export function NotesView() {
     const res = await fetch("/api/notes");
     const data: Note[] = await res.json();
     setNotes(data);
-    if (data.length > 0) openNote(data[0]);
+    if (data.length === 0) return;
+    const urlId = Number(new URLSearchParams(window.location.search).get("id"));
+    const target = (urlId && data.find((n) => n.id === urlId)) || data[0];
+    openNote(target);
   }
 
   async function loadUserTeams() {
