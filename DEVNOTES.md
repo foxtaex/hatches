@@ -110,7 +110,7 @@ not human babysitting AI. Creator Mode (Vibe-Coder/AI) vs Vision Mode (Non-Coder
 
 **GitHatch:** Self-hosted Git Repository Management Interface (like GitLab) — independent project, not in this repo.
 
-**Tech Stack:** Rust (if still relevant at time of development)
+**Tech Stack:** Rust + Axum (if still relevant at time of development)
 
 **Features:** Like GitLab — repo management, issues, merge requests, CI/CD pipelines, webhooks, SSH keys. Can sync with GitHub/GitLab (pull/push) or work standalone.
 
