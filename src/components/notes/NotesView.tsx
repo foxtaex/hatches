@@ -121,9 +121,9 @@ export function NotesView() {
 
   return (
     <div className="flex-1 flex overflow-hidden">
-      {/* Sidebar — Glassmorphism */}
-      <aside style={{ width: 280, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.08)", background: "rgba(18,18,18,0.6)", backdropFilter: "blur(30px) saturate(180%)", WebkitBackdropFilter: "blur(30px) saturate(180%)", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      {/* Sidebar */}
+      <aside className="w-[280px] flex-shrink-0 flex flex-col border-r border-[rgba(255,255,255,0.08)] bg-[rgba(18,18,18,0.6)] backdrop-blur-[30px] backdrop-saturate-[180%]">
+        <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
           {creating ? (
             <div className="flex flex-col gap-1.5">
               <input
@@ -177,6 +177,7 @@ export function NotesView() {
           {teamGroups.map(({ team, items }) => (
             <div key={team.id}>
               <div className="flex items-center gap-1.5 px-3 py-1 mt-1">
+                {/* team.color is a dynamic runtime value — must stay inline */}
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: team.color }} />
                 <span className="text-[10px] font-semibold uppercase tracking-wider truncate" style={{ color: team.color }}>{team.name}</span>
               </div>
@@ -196,11 +197,12 @@ export function NotesView() {
       {/* Editor */}
       {activeId !== null ? (
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex items-center gap-3" style={{ padding: "12px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(24,24,27,0.8)" }}>
+          <div className="flex items-center gap-3 px-6 py-3 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(24,24,27,0.8)]">
             <div className="flex-1">
               {editingTitle ? (
                 <input
-                  autoFocus value={title}
+                  autoFocus
+                  value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onBlur={saveTitle}
                   onKeyDown={(e) => {
@@ -216,8 +218,11 @@ export function NotesView() {
               )}
             </div>
             {activeNote?.team && (
-              <span className="text-xs rounded-full px-2.5 py-0.5 flex-shrink-0"
-                style={{ background: activeNote.team.color + "22", color: activeNote.team.color, border: `1px solid ${activeNote.team.color}44` }}>
+              // Team badge uses dynamic color — must stay inline
+              <span
+                className="text-xs rounded-full px-2.5 py-0.5 flex-shrink-0"
+                style={{ background: activeNote.team.color + "22", color: activeNote.team.color, border: `1px solid ${activeNote.team.color}44` }}
+              >
                 {activeNote.team.name}
               </span>
             )}
@@ -231,7 +236,7 @@ export function NotesView() {
             value={content}
             onChange={handleContentChange}
             placeholder="Notiz schreiben..."
-            style={{ flex: 1, background: "#000", color: "rgba(212,212,216,0.95)", fontSize: 14, fontFamily: "ui-monospace, monospace", padding: 24, outline: "none", resize: "none" as const, lineHeight: 1.6, border: "none" }}
+            className="flex-1 bg-black text-[rgba(212,212,216,0.95)] text-sm font-mono p-6 outline-none resize-none leading-[1.6] border-none"
           />
         </div>
       ) : (
