@@ -7,8 +7,11 @@ export interface Card {
   assigneeId: number | null;
   assignee?: { id: number; displayName: string | null; username: string } | null;
   externalIssue?: { externalId: string; url: string | null; integration: { type: string } } | null;
+  isArchived: boolean;
+  archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  column?: { id: number; title: string; board?: { id: number; name: string } } | null;
 }
 
 export interface Column {
