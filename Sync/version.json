@@ -137,9 +137,7 @@
         "Feat: Planner-Link in Haupt-Navigation",
         "Fix: /websites und /integrations redirecten zu /admin"
       ]
-    }
-  },
-
+    },
     "0.5.7.14.27-dev.5d": {
       "display": "5.14.27-dev.5d",
       "stage": "dev",
