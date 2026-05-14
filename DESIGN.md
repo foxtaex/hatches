@@ -354,7 +354,22 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 
 ### AI Agent Integration
 
-**Agent-Type:** OpenAI GPT / Claude / Gemini (konfigurierbar)
+**Provider:** Beliebig — jeder API-Key verwendbar.
+
+**Unterstützte Provider:**
+- **OpenAI** — GPT-4, GPT-4o, GPT-4o-mini, o1, o1-mini, o3, o3-mini
+- **Anthropic** — Claude 3.5 Sonnet, Claude 3 Opus, Claude 3.7 Sonnet, Claude 4 Sonnet
+- **Google** — Gemini 2.0 Flash, Gemini 2.5 Pro, Gemini 2.5 Flash
+- **DeepSeek** — V3, R1
+- **Local / Ollama** — Jeder lokale Model (llama3, mistral, etc.)
+- **Custom Endpoint** — Beliebige OpenAI-kompatible API
+
+**Konfiguration:**
+- API-Key pro Provider hinterlegen
+- Base URL für Custom Endpoints (z.B. lokal, Proxy)
+- Model-Auswahl pro Task (z.B. schnelle Tasks → mini, komplexe → full)
+- Temperature, Max Tokens, Top-P pro Request konfigurierbar
+- Budget-Limits pro User/Team
 
 **Fähigkeiten:**
 - **Natural Language Interface:** "Erstelle ein Board für das neue Feature X"
@@ -372,7 +387,9 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 - `/ai remind <was> <wann>` — Erstellt Erinnerung
 
 **API:**
-- `POST /api/ai/chat` — Chat mit AI Agent
+- `GET /api/ai/config` — AI-Konfiguration (ohne Key)
+- `PATCH /api/ai/config` — API-Key, Model, Provider updaten
+- `POST /api/ai/chat` — Chat mit AI Agent (modellabhängig)
 - `POST /api/ai/command` — Slash Command ausführen
 - `POST /api/ai/generate` — Content generieren (Summaries, Templates)
 - `GET /api/ai/context` — Kontext für Agent (Pages, Boards, Members)
