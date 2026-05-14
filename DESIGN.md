@@ -496,4 +496,4 @@ Trigger + Action für wiederkehrende Workflows:
 - AI Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
 - Automatische Timezone-Anpassung
 
-**Note:** See **GitHatch** project — internal Git backup before things go public. Not GitHub/GitLab replacement. Pulls from and pushes to those services for more control and backup.
+**Note:** See **GitHatch** project — internal Git backup and standalone git repo. Not GitHub/GitLab replacement. Users can also use GitHatch directly as their own git repo. Partially open source — not fully local-hostable (control retained).

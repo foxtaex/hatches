@@ -110,4 +110,6 @@ not human babysitting AI. Creator Mode (Vibe-Coder/AI) vs Vision Mode (Non-Coder
 
 **GitHatch:** Separate Git Repository Management Interface — independent project, not in this repo.
 
-**Purpose:** Internal Git backup before things go to the internet. Not a GitHub/GitLab replacement — pulls from those services and pushes back to them. More internal control, backup before public.
+**Purpose:** Internal Git backup and standalone git repo. Not a GitHub/GitLab replacement — pulls from those services and pushes back. Users can also use GitHatch directly as their own git repo.
+
+**License:** Partially open source — not fully local-hostable (control retained). Users can self-host, but full feature set may require hosted version.
