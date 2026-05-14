@@ -1,4 +1,4 @@
-# Hatches — Markdown CMS Master Plan
+# Hatches Markdown
 
 > **Version:** 0.1 (Planung)
 > **Ziel:** Obsidian + Notion + Astro-editor in einem
@@ -8,7 +8,7 @@
 
 ## Vision
 
-**Hatches** = Obsidian (Local-First, Markdown, Graph) + Notion (Blocks, DB, Views) + Astro-editor (Frontmatter, MDX, Schema) + mehr
+**Hatches Markdown** = Obsidian (Local-First, Markdown, Graph) + Notion (Blocks, DB, Views) + Astro-editor (Frontmatter, MDX, Schema) + mehr
 
 Ein CMS das:
 - Markdown liebt (nicht bekämpft)
