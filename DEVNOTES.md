@@ -108,4 +108,6 @@ not human babysitting AI. Creator Mode (Vibe-Coder/AI) vs Vision Mode (Non-Coder
 - AI Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
 - Automatische Timezone-Anpassung
 
-**GitHatch:** Separate Git Repository Management Interface (independent project, not in this repo).
+**GitHatch:** Separate Git Repository Management Interface — independent project, not in this repo.
+
+**Purpose:** Internal Git backup before things go to the internet. Not a GitHub/GitLab replacement — pulls from those services and pushes back to them. More internal control, backup before public.
