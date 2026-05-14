@@ -1,8 +1,12 @@
 # Hatches — Design & Feature Specification
 
-> **Vision:** Notion-Alternative mit Apple-Design-Ästhetik — clean, minimalistisch, self-hosted & kostenlos. Entwickelt von **CoreForAi** als Erweiterung ihres internen Dev-Tools.
+> **Vision:** Notion-Alternative mit Apple-Design-Ästhetik — clean, minimalistisch, self-hosted & kostenlos. Entwickelt von **CoreForAi** für bessere interne Zusammenarbeit — konkret und fertig für die Zukunft.
 
-**Background:** Hatches stammt aus dem CoreForAi-Ökosystem — es war ursprünglich ein internes Dev-Tool, das zu einer vollwertigen Workspace-Plattform erweitert wurde. Inter (der Font) war bereits Teil des CoreForAi-Design-Systems.
+**Background:**
+- Hatches stammt aus dem CoreForAi-Ökosystem
+- Ursprünglich nicht als eigenständiges Produkt gedacht — wurde es aber für bessere interne Arbeit
+- Inter (Font) ist Teil des CoreForAi-Design-Systems
+- **Ziel:** Ein konkretes, fertiges Tool — kein Halbfertiges, keine Kompromisse
 
 ## Design Philosophy
 
