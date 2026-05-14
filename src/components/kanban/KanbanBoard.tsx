@@ -421,7 +421,7 @@ export function KanbanBoard() {
                 <FontAwesomeIcon icon={faLock} className="w-2.5 h-2.5 text-zinc-700" />
                 <span className="text-[10px] font-semibold text-zinc-700 uppercase tracking-wider">Privat</span>
               </div>
-              {privateBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
+              {privateBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={() => renameBoard(b.id, renameBoardValue)} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
             </div>
           )}
 
@@ -433,12 +433,12 @@ export function KanbanBoard() {
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: team.color }} />
                 <span className="text-[10px] font-semibold uppercase tracking-wider truncate" style={{ color: team.color }}>{team.name}</span>
               </div>
-              {items.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
+              {items.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={() => renameBoard(b.id, renameBoardValue)} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
             </div>
           ))}
 
           {/* Boards from teams admin can see but aren't in userTeams */}
-          {otherTeamBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={renameBoard} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
+          {otherTeamBoards.map((b) => <BoardItem key={b.id} b={b} active={activeBoardId === b.id} renamingId={renamingBoardId} renameValue={renameBoardValue} onSelect={() => setActiveBoardId(b.id)} onRename={() => { setRenamingBoardId(b.id); setRenameBoardValue(b.name); }} onRenameChange={setRenameBoardValue} onRenameSubmit={() => renameBoard(b.id, renameBoardValue)} onRenameCancel={() => setRenamingBoardId(null)} onDelete={deleteBoard} />)}
 
           {boards.length === 0 && (
             <p className="text-xs text-zinc-700 px-3 py-4 text-center">Noch keine Boards</p>
