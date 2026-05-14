@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus, faXmark, faUser, faShield, faUsers, faGear,
   faChevronRight, faCheck, faTrash, faDatabase, faInfoCircle,
+  faClockRotateLeft,
   type IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -474,8 +475,90 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
 }
 
 // ── Einstellungen Tab ────────────────────────────────────
+interface ReleaseEntry {
+  key: string;
+  display: string;
+  stage: string;
+  date: string;
+  description: string;
+  changes: string[];
+  status: string;
+  isCurrent: boolean;
+}
+
+const STAGE_STYLE: Record<string, { bg: string; text: string; label: string }> = {
+  dev:    { bg: "bg-zinc-800",                    text: "text-zinc-400",  label: "dev"    },
+  a:      { bg: "bg-blue-950",                    text: "text-blue-400",  label: "alpha"  },
+  b:      { bg: "bg-violet-950",                  text: "text-violet-400",label: "beta"   },
+  pre:    { bg: "bg-yellow-950",                  text: "text-yellow-400",label: "pre"    },
+  stable: { bg: "bg-[rgba(60,199,154,0.15)]",     text: "text-[#3CC79A]", label: "stable" },
+};
+
+function StageBadge({ stage }: { stage: string }) {
+  const s = STAGE_STYLE[stage] ?? STAGE_STYLE.dev;
+  return (
+    <span className={`text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md ${s.bg} ${s.text}`}>
+      {s.label}
+    </span>
+  );
+}
+
+function ReleaseCard({ r }: { r: ReleaseEntry }) {
+  const [open, setOpen] = useState(r.isCurrent);
+  return (
+    <div className={`rounded-xl border overflow-hidden transition-colors ${r.isCurrent ? "border-[rgba(60,199,154,0.3)] bg-[rgba(60,199,154,0.04)]" : "border-zinc-800 bg-zinc-900"}`}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left"
+      >
+        <FontAwesomeIcon
+          icon={faChevronRight}
+          className={`w-2.5 h-2.5 text-zinc-600 transition-transform duration-200 flex-shrink-0 ${open ? "rotate-90" : ""}`}
+        />
+        <span className={`font-mono text-sm font-semibold flex-shrink-0 ${r.isCurrent ? "text-[#3CC79A]" : "text-zinc-300"}`}>
+          v{r.display}
+        </span>
+        <StageBadge stage={r.stage} />
+        {r.isCurrent && (
+          <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[rgba(60,199,154,0.15)] text-[#3CC79A]">
+            current
+          </span>
+        )}
+        <span className="flex-1" />
+        {r.date && <span className="text-xs text-zinc-600 flex-shrink-0">{r.date}</span>}
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 flex flex-col gap-2 border-t border-zinc-800/60">
+          {r.description && (
+            <p className="text-sm text-zinc-400 pt-3">{r.description}</p>
+          )}
+          {r.changes.length > 0 && (
+            <ul className="flex flex-col gap-1 mt-1">
+              {r.changes.map((c, i) => {
+                // Bold the prefix (Fix:, Feat:, Refactor:, etc.)
+                const match = c.match(/^([A-Za-zÄÖÜäöü]+:)\s*(.*)/s);
+                return (
+                  <li key={i} className="flex items-start gap-2 text-xs text-zinc-500">
+                    <span className="text-zinc-700 mt-0.5 flex-shrink-0">—</span>
+                    {match ? (
+                      <span>
+                        <span className="font-semibold text-zinc-400">{match[1]}</span>{" "}{match[2]}
+                      </span>
+                    ) : c}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SettingsTab() {
-  const [info, setInfo] = useState<{ version: string; node: string; provider: string; url: string; uptime: number } | null>(null);
+  const [info, setInfo] = useState<{ version: string; releases: ReleaseEntry[]; node: string; provider: string; url: string; uptime: number } | null>(null);
   const [dbProvider, setDbProvider] = useState("sqlite");
   const [dbUrl, setDbUrl] = useState("file:./dev.db");
   const [dbMsg, setDbMsg] = useState("");
@@ -505,7 +588,7 @@ function SettingsTab() {
   const uptime = info ? `${Math.floor(info.uptime / 3600)}h ${Math.floor((info.uptime % 3600) / 60)}m` : "—";
 
   return (
-    <div className="flex flex-col gap-6 max-w-xl">
+    <div className="flex flex-col gap-6 max-w-2xl">
 
       {/* App Info */}
       <section className="flex flex-col gap-3">
@@ -525,6 +608,18 @@ function SettingsTab() {
           ))}
         </div>
       </section>
+
+      {/* Version History */}
+      {info?.releases && info.releases.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+            <FontAwesomeIcon icon={faClockRotateLeft} className="w-3 h-3" /> Version History
+          </h3>
+          <div className="flex flex-col gap-2">
+            {info.releases.map((r) => <ReleaseCard key={r.key} r={r} />)}
+          </div>
+        </section>
+      )}
 
       {/* Database */}
       <section className="flex flex-col gap-3">
