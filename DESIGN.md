@@ -5,82 +5,32 @@
 **Background:**
 - Hatches stammt aus dem CoreForAi-Ökosystem
 - Ursprünglich nicht als eigenständiges Produkt gedacht — wurde es aber für bessere interne Arbeit
-- Inter (Font) ist Teil des CoreForAi-Design-Systems
 - **Ziel:** Ein konkretes, fertiges Tool — kein Halbfertiges, keine Kompromisse
-
-## Design Philosophy
-
-### Apple-Inspired Minimalism
-- **Clean surfaces** — Weiß/helles Grau statt dunklem Zinc
-- **SF Pro** als Primärfont (system-ui fallback chain)
-- **Großzügiger Whitespace** —，空气感，breathing room
-- **Subtle shadows** für Tiefe statt harter Borders
-- **Smooth animations** — 300ms ease-out, spring-feel bei Interaktionen
-- **Gradients** dezent eingesetzt (z.B. акценты, highlights)
-- **Transparenz** mit backdrop-blur für overlays
-
-### Notion-Referenz
-- **Block-basiertes Layout** — alles ist ein Block
-- **Sidebar + Content Area** — основной Layout
-- **Inline Editing** — Doppelklick zum Bearbeiten
-- **Slash Commands** — `/` für schnelle Actions
-- **Database Views** — Table, Board, Gallery, Calendar, Timeline
-- **Nestable Seiten** — Hierarchie mit Drag & Drop
-
-### Dark Mode (Toggle)
-- **Licht nach dark** — erstelle hellen Modus, dann dark als Alternative
-- **Dark: #1c1c1e** surfaces, **#2c2c2e** borders, **#f5f5f7** text
-- **Accent: #007AFF** (Apple Blue) für primary actions
-- **Kein reines Schwarz** — Apple verwendet "fab التجميل" dark grays
-
-### Content Style
-- **German UI** (z.B. "Anmelden", "Speichern", "Notizen")
-- **Clean labels** — kein Marketing-Sprech
-- **Emoji erlaubt** für personality ( Unlike current design system)
-- **Großzügige Typografie** — mehr line-height, größere Schriften
 
 ---
 
 ## Design System
 
-**Quelle:** `design-system/` (im Repo enthalten)
-
-### Visual DNA (Apple-Inspired)
+### Apple-Inspired Minimalism
 - **Light-first:** #ffffff surfaces, #f5f5f7 body, #e5e5e5 borders
-- **High contrast:** #000 active text, #86868b secondary text
-- **Accent:** #007AFF (Apple Blue) for primary actions
-- **Generous spacing:** 16px–24px padding, relaxed line-height (1.6)
-- **Inter** as primary font (clean, modern, Google Fonts)
-- **Subtle shadows:** rgba(0,0,0,0.08) for depth, no harsh borders
-- **Smooth transitions:** 300ms ease-out, spring feel
-- **Gradients:** subtle (e.g. frosted glass overlays)
-- **Transparencies:** backdrop-blur for modals, overlays
-
-### Dark Mode
-- **#1c1c1e** surface, **#2c2c2e** borders, **#f5f5f7** text
-- **Accent:** #0A84FF (Apple Blue dark variant)
-- **Frosted glass:** backdrop-blur with rgba(255,255,255,0.08) panels
+- **Inter** als Primärfont (CoreForAi Design System, Google Fonts)
+- **Großzügiger Whitespace** — breathing room
+- **Subtle shadows** rgba(0,0,0,0.08) für Tiefe statt harter Borders
+- **Smooth 300ms transitions** mit spring feel
+- **Frosted glass** backdrop-blur für overlays
+- **Dark Mode:** #1c1c1e surfaces, #2c2c2e borders, #f5f5f7 text
 
 ### Content Style
-- **German UI** throughout (e.g., "Anmelden", "Speichern", "Notizen")
-- **Direct, utilitarian** language — no marketing fluff
-- **Developer-first** terminology
-- **UPPERCASE brand text** with wide letter-spacing (HATCHES)
-- **No emoji** — pure text and icons only
+- **German UI** (z.B. "Anmelden", "Speichern", "Notizen")
+- **Clean labels** — kein Marketing-Sprech
+- **Emoji erlaubt** für personality
+- **UPPERCASE brand text** (HATCHES)
 
-### Color Palette (CSS Custom Properties)
-See `design-system/colors_and_type.css` für vollständige Token-Definition.
-
-### Typography
-- **Font:** Inter (CoreForAi Design System) — clean, modern, Google Fonts
-- **Fallback:** system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
-- **Mono:** 'JetBrains Mono', ui-monospace, 'SF Mono', monospace
-- **Scale:** 14px–24px range
-- **Weights:** 400 (normal), 500 (medium), 600 (semibold), 700 (bold)
-- **Line-height:** 1.6 for body text (generous)
-- **Letter-spacing:** -0.01em for headings, normal for body
-
-> **CoreForAi:** Inter ist Teil des CoreForAi-Design-Systems, das auch in anderen CoreForAi-Produkten verwendet wird.
+### Assets
+- `public/logo/mark-a.svg` — Logo A (Vivid: mint squircle, white H)
+- `public/logo/mark-b.svg` — Logo B (Subtle: dark squircle, glowing H)
+- `public/logo/mark-c.svg` — Logo C (Outline: neon-edge stroke)
+- `public/favicon.svg` — Favicon
 
 ---
 
@@ -88,26 +38,26 @@ See `design-system/colors_and_type.css` für vollständige Token-Definition.
 
 > **Ziel:** Notion-Klon — aber mit Apple-Design, self-hosted, kostenlos.
 
-Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
-- Eigener Component-Ordner (`src/components/<feature>/`)
-- Eigener API-Gruppe (`src/pages/api/<feature>/`)
-- Eigenen Typen (`types.ts`)
+Jedes Feature ist ein **eigenständiger, modularer Baustein**:
+- Component-Ordner: `src/components/<feature>/`
+- API-Gruppe: `src/pages/api/<feature>/`
+- Typen: `types.ts`
 
 ### 1. Pages / Docs (Block Editor)
 **Pfad:** `src/components/editor/`
 **Dateien:** `BlockEditor.tsx`, `BlockToolbar.tsx`, `SlashCommand.tsx`
 
 **Features:**
-- **Block-basiertes Layout** — jeder Absatz/Headline/List ist ein Block
-- **Slash Commands** — `/h1`, `/h2`, `/bullet`, `/numbered`, `/todo`, `/quote`, `/code`, `/divider`
-- **Inline Editing** — Doppelklick oder Enter zum Bearbeiten
-- **Drag & Drop** Blöcke neu anordnen (dnd-kit)
-- **Nestable Blöcke** — Aufgabenlisten mit Sub-Items
-- **Rich Text** — Bold, Italic, Code, Links inline
-- **Embeds** — Code-Blöcke mit Syntax-Highlighting, Bilder, Dateien
-- **Auto-Save** (debounced 600ms)
-- **Version History** — ältere Versionen wiederherstellen
-- **Export** als Markdown, PDF, HTML
+- Block-basiertes Layout — jeder Absatz/Headline/List ist ein Block
+- Slash Commands — `/h1`, `/h2`, `/bullet`, `/numbered`, `/todo`, `/quote`, `/code`, `/divider`
+- Inline Editing — Doppelklick oder Enter zum Bearbeiten
+- Drag & Drop Blöcke neu anordnen (dnd-kit)
+- Nestable Blöcke — Aufgabenlisten mit Sub-Items
+- Rich Text — Bold, Italic, Code, Links inline
+- Embeds — Code-Blöcke mit Syntax-Highlighting, Bilder, Dateien
+- Auto-Save (debounced 600ms)
+- Version History — ältere Versionen wiederherstellen
+- Export als Markdown, PDF, HTML
 
 **API:**
 - `GET /api/pages` — Alle Seiten
@@ -115,12 +65,8 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 - `GET /api/pages/[id]` — Einzelne Seite mit Blöcken
 - `PATCH /api/pages/[id]` — Metadaten (Titel, Icon, Cover)
 - `DELETE /api/pages/[id]` — Seite löschen
-- `GET /api/pages/[id]/blocks` — Blöcke der Seite
-- `POST /api/pages/[id]/blocks` — Block hinzufügen
-- `PATCH /api/pages/[id]/blocks/[blockId]` — Block aktualisieren
-- `DELETE /api/pages/[id]/blocks/[blockId]` — Block löschen
+- `GET/POST/PATCH/DELETE /api/pages/[id]/blocks/[blockId]` — Block CRUD
 - `POST /api/pages/[id]/blocks/reorder` — Blöcke neu anordnen
-- `POST /api/pages/[id]/blocks/[blockId]/children` — Kind-Block
 - `GET /api/pages/[id]/versions` — Version History
 
 ---
@@ -130,27 +76,22 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Dateien:** `DatabaseView.tsx`, `TableView.tsx`, `BoardView.tsx`, `GalleryView.tsx`, `CalendarView.tsx`, `TimelineView.tsx`
 
 **Features:**
-- **Multiple Views** pro Database — Table, Board (Kanban), Gallery, Calendar, Timeline
-- **Custom Properties** — Text, Number, Select, Multi-Select, Date, Person, Files, URL, Checkbox, Formula
-- **Filter & Sort** — nach Property filtern, multiple Sort-Kriterien
-- **Group By** — Zeilen nach Property gruppieren
-- **Inline Editing** — Zellen direkt bearbeiten
-- **Relation** — Links zwischen Databases (Linked Databases)
-- **Formula** — berechnete Felder (ähnlich Notion)
-- **Aggregation** — Count, Sum, Average über Groups
+- Multiple Views pro Database — Table, Board, Gallery, Calendar, Timeline
+- Custom Properties — Text, Number, Select, Multi-Select, Date, Person, Files, URL, Checkbox, Formula
+- Filter & Sort — nach Property filtern, multiple Sort-Kriterien
+- Group By — Zeilen nach Property gruppieren
+- Inline Editing — Zellen direkt bearbeiten
+- Relation — Links zwischen Databases
+- Formula — berechnete Felder (ähnlich Notion)
+- Aggregation — Count, Sum, Average über Groups
 
 **API:**
 - `GET /api/databases` — Alle Databases
 - `POST /api/databases` — Database erstellen
-- `GET /api/databases/[id]` — Database mit Properties
-- `PATCH /api/databases/[id]` — Database umbenennen/Properties
-- `DELETE /api/databases/[id]` — Database löschen
-- `GET /api/databases/[id]/items` — Items mit Views
-- `POST /api/databases/[id]/items` — Item erstellen
-- `PATCH /api/databases/[id]/items/[itemId]` — Item aktualisieren
-- `DELETE /api/databases/[id]/items/[itemId]` — Item löschen
+- `GET/PATCH/DELETE /api/databases/[id]` — Database CRUD
+- `GET/POST /api/databases/[id]/items` — Items
+- `PATCH/DELETE /api/databases/[id]/items/[itemId]` — Item updaten
 - `POST /api/databases/[id]/views` — View erstellen
-- `PATCH /api/databases/[id]/views/[viewId]` — View updaten
 
 ---
 
@@ -159,13 +100,13 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Dateien:** `KanbanBoard.tsx`, `KanbanColumn.tsx`, `CardItem.tsx`, `ArchivePanel.tsx`, `types.ts`
 
 **Features:**
-- **View Mode:** Kanban/Board für Databases (siehe Database Views)
-- **Card-Management:** erstellen, bearbeiten, archivieren
-- **External Issue Badges:** GitHub, GitLab, Jira Integration
-- **Assignees:** User zuweisen, Due Dates
-- **Filter/Suche:** im Board
+- Kanban View für Databases
+- Card-Management: erstellen, bearbeiten, archivieren
+- External Issue Badges: GitHub, GitLab, Jira Integration
+- Assignees und Due Dates
+- Filter/Suche im Board
 
-**API:** (Teil von Database API)
+**API:** (Teil von Database)
 - `POST /api/board/cards` — Karte erstellen
 - `PATCH /api/board/cards` — Karte aktualisieren
 - `DELETE /api/board/cards` — Karte löschen
@@ -180,18 +121,15 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Dateien:** `NotesView.tsx`, `NoteEditor.tsx`
 
 **Features:**
-- **Schnelle Notizen** — einzelne Seite ohne Block-Struktur
-- **Markdown-Support** — headings, lists, code, links
-- **Tagging** — Notizen mit Tags versehen
-- **Full-Text Search** — durchsuchen
-- **Sidebar-Liste** — alle Notizen mit Preview
+- Schnelle Notizen ohne Block-Struktur
+- Markdown-Support — headings, lists, code, links
+- Tagging — Notizen mit Tags versehen
+- Full-Text Search — durchsuchen
+- Sidebar-Liste mit Preview
 
 **API:**
-- `GET /api/notes` — Alle Notizen
-- `POST /api/notes` — Notiz erstellen
-- `GET /api/notes/[id]` — Einzelne Notiz
-- `PATCH /api/notes/[id]` — Notiz aktualisieren
-- `DELETE /api/notes/[id]` — Notiz löschen
+- `GET/POST /api/notes` — Notizen auflisten/erstellen
+- `GET/PATCH/DELETE /api/notes/[id]` — Notiz CRUD
 
 ---
 
@@ -200,19 +138,18 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Dateien:** `Sidebar.tsx`, `SidebarItem.tsx`, `QuickFinder.tsx`
 
 **Features:**
-- **Favorites** — Pin oft genutzte Seiten
-- **Trash** — Gelöschte Seiten (30 Tage)
-- **Search** — QuickFinder (Cmd+K) für Seiten/Databases
-- **Nested Pages** — Drag & Drop Hierarchie
-- **Toggle Sections** —-collapse/expand Page groups
-- **Workspace Switcher** — zwischen Teams/Pages
-- **Dark/Light Mode Toggle** — persisten
+- Favorites — Pin oft genutzte Seiten
+- Trash — Gelöschte Seiten (30 Tage)
+- Search — QuickFinder (Cmd+K) für Seiten/Databases
+- Nested Pages — Drag & Drop Hierarchie
+- Toggle Sections — collapse/expand Page groups
+- Workspace Switcher — zwischen Teams/Pages
+- Dark/Light Mode Toggle — persistent
 
 **API:**
 - `GET /api/navigation` — Seitenstruktur
 - `PATCH /api/navigation/reorder` — Reihenfolge updaten
-- `POST /api/navigation/favorites` — Favorit hinzufügen
-- `DELETE /api/navigation/favorites/[id]` — Favorit entfernen
+- `POST/DELETE /api/navigation/favorites/[id]` — Favoriten
 
 ---
 
@@ -221,19 +158,15 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Dateien:** `TeamSpace.tsx`, `MemberList.tsx`, `Permissions.tsx`
 
 **Features:**
-- **Workspace per Team** — eigene Pages, Databases, Members
-- **Member Management** — einladen, rollen zuweisen, entfernen
-- **Permission Levels:** Full Access, Can Edit, Can Comment, Can View
-- **Admin Controls** — Team-Einstellungen
+- Workspace pro Team — eigene Pages, Databases, Members
+- Member Management — einladen, Rollen zuweisen, entfernen
+- Permission Levels: Full Access, Can Edit, Can Comment, Can View
+- Admin Controls — Team-Einstellungen
 
 **API:**
-- `GET /api/team` — Teams auflisten
-- `POST /api/team` — Team erstellen
-- `GET /api/team/[id]` — Team Details
-- `PATCH /api/team/[id]` — Team aktualisieren
-- `DELETE /api/team/[id]` — Team löschen
-- `GET /api/team/[id]/members` — Members
-- `POST /api/team/[id]/members` — Member einladen
+- `GET/POST /api/team` — Teams
+- `GET/PATCH/DELETE /api/team/[id]` — Team CRUD
+- `GET/POST /api/team/[id]/members` — Members
 - `DELETE /api/team/[id]/members/[userId]` — Member entfernen
 
 ---
@@ -244,20 +177,16 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Lib:** `src/lib/integrations/`
 
 **Features:**
-- **GitHub:** Issues → Cards, PR Reviews, Actions Status
-- **GitLab:** Issues, MRs, Pipelines
-- **Jira:** Issues sync, Custom Fields
-- **Slack:** Notifications, Slash Commands
-- **Figma:** File embeds (als Link-Vorschau)
-- **URL Previews:** Link-Vorschau für alle URLs
-- **Webhooks:** eigene Webhooks für Automation
+- GitHub: Issues → Cards, PR Reviews, Actions Status
+- GitLab: Issues, MRs, Pipelines
+- Jira: Issues sync, Custom Fields
+- Slack: Notifications, Slash Commands
+- URL Previews: Link-Vorschau für alle URLs
+- Webhooks: eigene Webhooks für Automation
 
 **API:**
-- `GET /api/integrations` — Alle Integrationen
-- `POST /api/integrations` — Integration erstellen
-- `GET /api/integrations/[id]` — Einzelne
-- `PATCH /api/integrations/[id]` — Aktualisieren
-- `DELETE /api/integrations/[id]` — Löschen
+- `GET/POST /api/integrations` — Integrationen
+- `GET/PATCH/DELETE /api/integrations/[id]` — Integration CRUD
 - `POST /api/integrations/[id]/sync` — Sync trigger
 
 ---
@@ -267,12 +196,12 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Dateien:** `Login.tsx`, `Setup.tsx`, `UserSettings.tsx`
 
 **Features:**
-- **Email/Passwort** Login (bcrypt)
-- **Session-basiert** (Cookie)
-- **Profile:** Name, Avatar, Email, Passwort ändern
-- **Appearance:** Theme (Light/Dark/System), Font Size
-- **Notifications:** Email-Notifications für Erwähnungen, Due Dates
-- **Export:** Alle eigenen Daten exportieren (GDPR)
+- Email/Passwort Login (bcrypt)
+- Session-basiert (Cookie)
+- Profile: Name, Avatar, Email, Passwort ändern
+- Appearance: Theme (Light/Dark/System), Font Size
+- Notifications: Email für Erwähnungen, Due Dates
+- Export: Alle eigenen Daten exportieren (GDPR)
 
 **API:**
 - `POST /api/auth/login` — Login
@@ -283,14 +212,56 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 
 ---
 
+### 9. Planner & Calendar
+**Pfad:** `src/components/planner/`
+**Dateien:** `Planner.tsx`, `CalendarView.tsx`, `Timeline.tsx`, `SchedulePanel.tsx`
+
+**Features:**
+- Calendar View — Monat, Woche, Tag-Ansicht
+- Timeline View — Horizontale Zeitleiste für Projekte/Meilensteine
+- Schedule — Termine, Deadlines, Erinnerungen
+- Drag & Drop — Events verschieben, Dauer ändern
+- Ressourcen-Belegung — Wer ist wann verfügbar (Team-Kalender)
+- Meilenstein-Marker — Wichtige Termine hervorheben
+- iCal Import/Export — Externe Kalender einbinden
+- Recurring Events — täglich, wöchentlich, monatlich
+- AI-Integration — "Plane Meeting am Freitag 14:00" → AI checkt Verfügbarkeit
+
+**Views:** Month Grid, Week Agenda, Day Timeline, Gantt/Timeline
+
+**API:**
+- `GET/POST /api/events` — Events
+- `GET/PATCH/DELETE /api/events/[id]` — Event CRUD
+- `POST /api/events/import` — iCal importieren
+- `GET /api/events/export` — iCal exportieren
+- `GET /api/calendar/[year]/[month]` — Kalender-Daten
+
+---
+
 ## AI Features (CoreForAi Integration)
 
-> **Ziel:** Hatches wird nicht nur ein Workspace — sondern ein **AI-powered Workspace**. Der AI Agent sitzt oben drauf und übernimmt die Aufgabenverteilung, Template-Erstellung und Routine-Arbeit.
+> **Ziel:** Hatches wird nicht nur ein Workspace — sondern ein **AI-powered Workspace**.
+
+### AI Provider (Beliebig)
+Jeder API-Key verwendbar:
+
+- **OpenAI** — GPT-4, GPT-4o, o1, o3
+- **Anthropic** — Claude 3.5/3.7/4 Sonnet, Claude 3 Opus
+- **Google** — Gemini 2.0/2.5 Flash, Gemini 2.5 Pro
+- **DeepSeek** — V3, R1
+- **MiniMax** — MiniMax-M2, MiniMax-M2.7 (Text + Vision + Audio)
+  - Music Generation — AI generierte Musik für Podcasts/Meetings
+  - Voice Synthesis — Meeting-Notes als MP3/WAV
+  - Image Generation — Cover-Images für Pages generieren
+- **Ollama** — Lokale Models (llama3, mistral, etc.)
+- **Custom Endpoint** — OpenAI-kompatible API
+
+**Konfiguration:** API-Key, Base URL, Model pro Task, Temperature, Max Tokens, Budget-Limits
 
 ### CoreForAi Harness
+AI Agent der konfiguriert wird und oben drauf sitzt:
 
-**Der AI Agent (Harness):** Ein konfigurierbarer AI-Assistent, der:
-- Aufgaben aus Konversationen erkennt und automatisch Boards/Karten zuweist
+- Aufgaben aus Konversationen erkennt und automatisch zuweist
 - Dokumente zusammenfasst und Key-Points extrahiert
 - Templates basierend auf Context vorschlägt
 - Erinnerungen und Deadlines verwaltet
@@ -299,96 +270,10 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 **Harness bearbeiten:**
 - Prompt-Templates pro Team anpassen
 - Behavior rules setzen (z.B. "Wenn Issue erstellt wird, automatisch zu Board hinzufügen")
-- Integration-Commands definieren (z.B. `/ai assign to @user`)
+- Integration-Commands definieren
 - AI-Trigger konfigurieren (z.B. täglicher Standup-Bericht)
 
-### Template Library
-
-**Zweck:** Schnellstart für jedes Projekt — Templates sind fix und fertig, kein Rad neu erfinden.
-
-**Template-Kategorien:**
-
-**Software Development**
-- Sprint Planning (Board mit: To Do, In Progress, Review, Done)
-- Bug Tracker (Table mit: Priority, Status, Assignee, Labels)
-- Feature Request (Page + Database Combo)
-- Release Checklist (mit Due Dates, Assignees)
-- PR Review Workflow (GitHub Integration + Board)
-
-**Project Management**
-- Projektplanung (Timeline View + Tasks)
-- Meeting Notes (Page mit Agenda, Notes, Action-Items)
-- OKR Tracking (Database mit Metrics, Updates)
-- Team Onboarding (Page + Checklists pro Tag)
-
-**Marketing & Content**
-- Content Calendar (Calendar View)
-- Campaign Tracker (Board: Ideation, Draft, Review, Live)
-- Social Media Posts (Database mit Platform, Status, Schedule)
-
-**HR & Administration**
-- Employee Onboarding (Checklist + Docs)
-- Expense Tracking (Table mit Category, Amount, Status)
-- Vacation Request (Form + Approval Workflow)
-
-**General**
-- Knowledge Base (Nested Pages Struktur)
-- Personal Dashboard (Notes + Quick Actions)
-- Weekly Review (Page Template mit Sections)
-
-**Template Features:**
-- One-Click importieren → direkt einsatzbereit
-- Eigenes Template erstellen → als Blueprint speichern
-- AI-generiertes Template → basierend auf Beschreibung
-- Template teilen → öffentlich oder nur Team
-- Template bearbeiten → Changes gelten für neue Kopien
-
-**API:**
-- `GET /api/templates` — Alle Templates (public + team)
-- `POST /api/templates` — Template erstellen
-- `POST /api/templates/import/[templateId]` — Template in Workspace importieren
-- `PATCH /api/templates/[id]` — Template aktualisieren
-- `DELETE /api/templates/[id]` — Template löschen
-- `GET /api/templates/categories` — Alle Kategorien
-- `POST /api/templates/generate` — AI-generiert Template
-
-### AI Agent Integration
-
-**Provider:** Beliebig — jeder API-Key verwendbar.
-
-**Unterstützte Provider:**
-- **OpenAI** — GPT-4, GPT-4o, GPT-4o-mini, o1, o3
-- **Anthropic** — Claude 3.5/3.7/4 Sonnet, Claude 3 Opus
-- **Google** — Gemini 2.0/2.5 Flash, Gemini 2.5 Pro
-- **DeepSeek** — V3, R1
-- **MiniMax** — MiniMax-M2, MiniMax-M2.7 (Text + Vision + Audio)
-- **Local / Ollama** — Jeder lokale Model (llama3, mistral, etc.)
-- **Custom Endpoint** — Beliebige OpenAI-kompatible API
-
-**MiniMax Features (CoreForAi Integration):**
-- **MiniMax-M2.7** — Latest flagship model (Text, Vision, Audio)
-- **MiniMax-M2** — Fast, efficient all-rounder
-- **Music Generation** — AI-generierte Hintergrundmusik für Podcasts/Meetings
-- **Voice Synthesis** — Meeting-Notes als Audio-Datei (MP3/WAV)
-- **Image Generation** — Cover-Images für Pages automatisch generieren
-- **MiniMax API Key** — Direkt in Hatches hinterlegen, keineextra Konfiguration nötig
-
-**Konfiguration:**
-- API-Key pro Provider hinterlegen
-- Base URL für Custom Endpoints (z.B. lokal, Proxy)
-- Model-Auswahl pro Task (z.B. schnelle Tasks → mini, komplexe → full)
-- Temperature, Max Tokens, Top-P pro Request konfigurierbar
-- Budget-Limits pro User/Team
-
-**Fähigkeiten:**
-- **Natural Language Interface:** "Erstelle ein Board für das neue Feature X"
-- **Task Assignment:** "Weise @lisa die Aufgabe 'Design review' zu"
-- **Smart Summaries:** Tägliche/weekly Zusammenfassungen für Team
-- **Code Review:** AI analysiert Code und erstellt Tickets für gefundene Issues
-- **Meeting Notes:** AI transkribiert und erstellt Action-Items
-- **Auto-Tagging:** Doc/Notes werden automatisch mit Tags versehen
-
-**Slash Commands:**
+### AI Agent Commands
 - `/ai task <beschreibung>` — Erstellt Aufgabe im Board
 - `/ai summarize` — Fasst aktuelle Seite/Dokument zusammen
 - `/ai assign <person> <aufgabe>` — Weist direkt zu
@@ -396,82 +281,75 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein** mit:
 - `/ai remind <was> <wann>` — Erstellt Erinnerung
 
 **API:**
-- `GET /api/ai/config` — AI-Konfiguration (ohne Key)
-- `PATCH /api/ai/config` — API-Key, Model, Provider updaten
-- `POST /api/ai/chat` — Chat mit AI Agent (modellabhängig)
-- `POST /api/ai/command` — Slash Command ausführen
-- `POST /api/ai/generate` — Content generieren (Summaries, Templates)
-- `GET /api/ai/context` — Kontext für Agent (Pages, Boards, Members)
-- `PATCH /api/ai/harness` — Harness-Konfiguration updaten
-- `GET /api/ai/harness` — Aktuelle Harness-Einstellungen
+- `GET/POST /api/ai/chat` — Chat mit Agent
+- `POST /api/ai/command` — Slash Command
+- `POST /api/ai/generate` — Content generieren
+- `GET/PATCH /api/ai/harness` — Harness Config
+
+---
+
+### Template Library
+
+**Zweck:** Schnellstart für jedes Projekt — Templates sind fix und fertig.
+
+**Kategorien:**
+
+**Software Development**
+- Sprint Planning (Board: To Do, In Progress, Review, Done)
+- Bug Tracker (Table: Priority, Status, Assignee, Labels)
+- Feature Request (Page + Database Combo)
+- Release Checklist (mit Due Dates, Assignees)
+- PR Review Workflow (GitHub Integration + Board)
+
+**Project Management**
+- Projektplanung (Timeline View + Tasks)
+- Meeting Notes (Page: Agenda, Notes, Action-Items)
+- OKR Tracking (Database: Metrics, Updates)
+- Team Onboarding (Page + Checklists pro Tag)
+
+**Marketing & Content**
+- Content Calendar (Calendar View)
+- Campaign Tracker (Board: Ideation, Draft, Review, Live)
+- Social Media Posts (Database: Platform, Status, Schedule)
+
+**HR & Administration**
+- Employee Onboarding (Checklist + Docs)
+- Expense Tracking (Table: Category, Amount, Status)
+- Vacation Request (Form + Approval Workflow)
+
+**General**
+- Knowledge Base (Nested Pages Struktur)
+- Personal Dashboard (Notes + Quick Actions)
+- Weekly Review (Page Template: Sections)
+
+**Features:**
+- One-Click importieren → direkt einsatzbereit
+- Eigenes Template erstellen → als Blueprint speichern
+- AI-generiertes Template → basierend auf Beschreibung
+- Template teilen → öffentlich oder nur Team
+- Template bearbeiten → Changes gelten für neue Kopien
+
+**API:**
+- `GET/POST /api/templates` — Templates
+- `GET/PATCH/DELETE /api/templates/[id]` — Template CRUD
+- `GET /api/templates/categories` — Kategorien
+- `POST /api/templates/import/[templateId]` — Template importieren
+- `POST /api/templates/generate` — AI-generiert Template
+
+---
 
 ### Automation Rules
+Trigger + Action für wiederkehrende Workflows:
 
-**Trigger + Action:**
 - Trigger: Issue erstellt (GitHub) → Action: Karte im Board erstellen
 - Trigger: Deadline erreicht → Action: Team benachrichtigen
 - Trigger: Neue Page erstellt → Action: AI-Template vorschlagen
 - Trigger: Voice-Nachricht → Action: Transkribieren + Action-Items erstellen
 
 **API:**
-- `GET /api/automation/rules` — Alle Regeln
-- `POST /api/automation/rules` — Regel erstellen
-- `PATCH /api/automation/rules/[id]` — Regel aktualisieren
-- `DELETE /api/automation/rules/[id]` — Regel löschen
+- `GET/POST /api/automation/rules` — Regeln
+- `GET/PATCH/DELETE /api/automation/rules/[id]` — Regel CRUD
 - `POST /api/automation/rules/[id]/trigger` — Regel testen
-
----
-
-### 9. Planner & Calendar
-**Pfad:** `src/components/planner/`
-**Dateien:** `Planner.tsx`, `CalendarView.tsx`, `Timeline.tsx`, `SchedulePanel.tsx`
-
-**Features:**
-- **Calendar View** — Monat, Woche, Tag-Ansicht
-- **Timeline View** — Horizontale Zeitleiste für Projekte/Meilensteine
-- **Schedule** — Termine, Deadlines, Erinnerungen
-- **Drag & Drop** — Events verschieben, Dauer ändern
-- **Ressourcen-Belegung** — Wer ist wann verfügbar (Team-Kalender)
-- **Meilenstein-Marker** — Wichtige Termine hervorheben
-- **iCal Import/Export** — Externe Kalender einbinden
-- **Recurring Events** — Wiederholende Termine (täglich, wöchentlich, monatlich)
-- **Integration mit AI** — "Plane Meeting am Freitag 14:00" → AI checkt Verfügbarkeit
-
-**View Types:**
-- **Month Grid** — Klassischer Kalender
-- **Week Agenda** — Woche mit Zeit-Blöcken
-- **Day Timeline** — Tagesansicht mit stündlicher Aufteilung
-- **Gantt / Timeline** — Projekt-Zeitleiste mit Abhängigkeiten
-
-**API:**
-- `GET /api/events` — Alle Events
-- `POST /api/events` — Event erstellen
-- `GET /api/events/[id]` — Einzelnes Event
-- `PATCH /api/events/[id]` — Event aktualisieren
-- `DELETE /api/events/[id]` — Event löschen
-- `POST /api/events/import` — iCal importieren
-- `GET /api/events/export` — iCal exportieren
-- `GET /api/calendar/[year]/[month]` — Kalender-Daten für Monat
-- `POST /api/calendar/reminders` — Erinnerung setzen
-
----
-
-## UI-Komponenten (Design System)
-
-Apple-inspiriertes Design mit:
-- **Clean surfaces** — #ffffff, #f5f5f7
-- **SF Pro / system fonts** — Apple-like typography
-- **Subtle shadows** für depth
-- **Smooth 300ms transitions** mit spring feel
-- **Frosted glass** — backdrop-blur für overlays
-- **Transparenz** — rgba overlays
-
-Siehe `design-system/ui_kits/hatches/` für React-Komponenten:
-- `Navigation.jsx` — Sidebar-Navigation
-- `KanbanBoard.jsx` — Kanban Board
-- `DocsEditor.jsx` — Block Editor
-- `UserAccount.jsx` — User Panel
-- `AdminSettings.jsx` — Admin Settings
 
 ---
 
@@ -494,7 +372,9 @@ Siehe `design-system/ui_kits/hatches/` für React-Komponenten:
 
 **Other:**
 - `Note` — id, title, content, tags[], userId, teamId
+- `Event` — id, title, start, end, recurring, reminders
 - `Integration` — id, type, config (JSON), teamId
+- `Template` — id, name, category, content (JSON), isPublic, teamId
 
 ---
 
