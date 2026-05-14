@@ -5,53 +5,67 @@
   },
 
   "versioning": {
-    "scheme": {
-      "internal": "[Major].[Minor].[Patch].[YYMMDD]-[Stage].[Count][WeekTag]",
-      "display": "[Major].[Minor]-[Stage]",
-      "example": "0.0.5.14.23-dev.4g = 5.14-dev"
+    "internal": {
+      "scheme": "[Major].[Minor].[Patch].[YYMMDD]-[Stage].[BugfixCount][MiniUpdateCount][WeekTag]",
+      "example": "0.0.5.14.23-dev.4g",
+      "parts": {
+        "major": "Major Versionszähler",
+        "minor": "Feature-Minor",
+        "patch": "Patch-Level",
+        "date": "Datum (YYMMDD)",
+        "stage": "Stage (dev/a/b/pre/stable)",
+        "bugfix": "Bugfix-Zähler an diesem Tag",
+        "mini": "Mini-Update-Zähler",
+        "weektag": "Wochentag (a-m = So-Sa = 0-6)"
+      }
+    },
+    "display": {
+      "scheme_dev": "[Major].[Minor].[YYMMDD]-[Stage].[BugfixCount][WeekTag]",
+      "scheme_stable": "[Major].[Minor]-[Stage]",
+      "example_dev": "5.14.23-dev.4g",
+      "example_stable": "5-beta",
+      "example_full_dev": "1.2.5.14.23-dev.4g → 1.2.5-b.0a"
     },
     "weektag": {
       "range": "a-m",
       "count": 13,
-      "cycle": "Woche 1=a, Woche 2=b, ... Woche 13=m",
-      "note": "WeekTag läuft a-m (13 Wochen), nur bei Bugfixes/Mini-Fixes"
-    },
-    "count": {
-      "meaning": "Iterationszähler — wie oft diese Version gebaut/getestet wurde"
-    },
-    "date": {
-      "format": "YYMMDD (z.B. 23.05.14 = 23)",
-      "note": "Tagesdatum beim Bauen"
+      "meaning": "Wochentag-Tracking: a=So, b=Mo, c=Di, d=Mi, e=Do, f=Fr, g=Sa",
+      "note": "Nur bei Mini-Fixes relevant"
     },
     "stage_order": ["dev", "a", "b", "pre", "stable"]
   },
 
   "version_types": {
     "bugfix": {
-      "description": "Kleine Fixes, Mini-Updates",
-      "version_change": "Count oder WeekTag hoch",
+      "trigger": "Kleine Fixes",
+      "what_changes": "BugfixCount hoch",
+      "display": "gleiche Anzeige, nur Count ändert sich",
       "example": "dev.1g → dev.2g"
     },
     "mini_update": {
-      "description": "Kleine Änderungen ohne neue Features",
-      "version_change": "Count bleibt, WeekTag hoch",
-      "example": "dev.1g → dev.1h"
+      "trigger": "Mini-Update ohne neue Features",
+      "what_changes": "MiniUpdateCount hoch",
+      "display": "WeekTag bleibt, Mini hoch",
+      "example": "dev.1g → dev.1h (gleiche Woche, neuer Mini-Fix)"
     },
     "update": {
-      "description": "Neue Features",
-      "version_change": "Minor hoch, Count+WeekTag reset",
-      "example": "5.14 → 5.15"
+      "trigger": "Neue Features",
+      "what_changes": "Minor hoch, Bugfix/Mini/WeekTag reset",
+      "display": "Anzeige: Minor hoch",
+      "example": "5.14.23-dev.4g → 5.15.01-dev.1a"
     },
     "release": {
-      "description": "Geplant, stable",
-      "version_change": "Stable-Format, simplified",
+      "trigger": "Stable-Release",
+      "what_changes": "Stable-Format, stark vereinfacht",
+      "display": "Anzeige: nur noch [Major].[Minor]",
       "example": "5.14-dev → 5.0"
     }
   },
 
   "releases": {
     "0.0.5.14.23-dev.4g": {
-      "display": "5.14-dev",
+      "display": "5.14.23-dev.4g",
+      "display_short": "5.14-dev",
       "stage": "dev",
       "type": "update",
       "status": "current",
@@ -77,7 +91,7 @@
     },
 
     "0.5.14.23-a.4g": {
-      "display": "5.14-alpha",
+      "display": "5.14.23-alpha",
       "stage": "a",
       "type": "update",
       "status": "planned"
@@ -108,21 +122,22 @@
 
   "roadmap": {
     "next": [
-      { "version": "0.5.14.23-a.4g", "name": "5.14-alpha", "stage": "a", "type": "update" },
+      { "version": "0.5.14.23-a.4g", "name": "5.14.23-alpha", "stage": "a", "type": "update" },
       { "version": "0.0.5-b.14a", "name": "5-beta", "stage": "b", "type": "bugfix" },
       { "version": "0.0.0-pre.5a", "name": "pre", "stage": "pre", "type": "release" },
       { "version": "0.0.05a", "name": "5.0", "stage": "stable", "type": "release" }
     ],
     "future": [
-      { "version": "0.5.15.01-dev.1a", "name": "5.15-dev", "stage": "dev", "type": "update", "description": "UX + Stability" },
-      { "version": "0.6.0.01-dev.1a", "name": "6.0-dev", "stage": "dev", "type": "update", "description": "Import/Export" },
-      { "version": "0.6.1.01-dev.1a", "name": "6.1-dev", "stage": "dev", "type": "update", "description": "Sync + E2E" },
-      { "version": "0.6.2.01-dev.1a", "name": "6.2-dev", "stage": "dev", "type": "update", "description": "Headless CLI" },
-      { "version": "0.6.3.01-dev.1a", "name": "6.3-dev", "stage": "dev", "type": "update", "description": "External Editor" },
-      { "version": "0.7.0.01-dev.1a", "name": "7.0-dev", "stage": "dev", "type": "update", "description": "Agent API + Streaming" }
+      { "version": "0.5.15.01-dev.1a", "name": "5.15.01-dev.1a", "stage": "dev", "type": "update", "description": "UX + Stability" },
+      { "version": "0.6.0.01-dev.1a", "name": "6.0.01-dev.1a", "stage": "dev", "type": "update", "description": "Import/Export" },
+      { "version": "0.6.1.01-dev.1a", "name": "6.1.01-dev.1a", "stage": "dev", "type": "update", "description": "Sync + E2E" },
+      { "version": "0.6.2.01-dev.1a", "name": "6.2.01-dev.1a", "stage": "dev", "type": "update", "description": "Headless CLI" },
+      { "version": "0.6.3.01-dev.1a", "name": "6.3.01-dev.1a", "stage": "dev", "type": "update", "description": "External Editor" },
+      { "version": "0.7.0.01-dev.1a", "name": "7.0.01-dev.1a", "stage": "dev", "type": "update", "description": "Agent API + Streaming" }
     ]
   },
 
   "current": "0.0.5.14.23-dev.4g",
-  "current_display": "5.14-dev"
+  "current_display": "5.14.23-dev.4g",
+  "current_display_short": "5.14-dev"
 }
