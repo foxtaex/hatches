@@ -44,7 +44,7 @@
 - **High contrast:** #000 active text, #86868b secondary text
 - **Accent:** #007AFF (Apple Blue) for primary actions
 - **Generous spacing:** 16px–24px padding, relaxed line-height (1.6)
-- **SF Pro / system fonts:** clean Apple-like typography
+- **Inter** as primary font (clean, modern, Google Fonts)
 - **Subtle shadows:** rgba(0,0,0,0.08) for depth, no harsh borders
 - **Smooth transitions:** 300ms ease-out, spring feel
 - **Gradients:** subtle (e.g. frosted glass overlays)
@@ -66,10 +66,13 @@
 See `design-system/colors_and_type.css` für vollständige Token-Definition.
 
 ### Typography
-- System fonts: `system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-- Mono: `ui-monospace, 'SF Mono', 'Cascadia Code', monospace`
-- Scale: 12px–24px range (tight)
-- Weights: 400, 500, 600, 700
+- **Font:** Inter (Google Fonts) — clean, modern, perfect for productivity apps
+- **Fallback:** system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
+- **Mono:** 'JetBrains Mono', ui-monospace, 'SF Mono', monospace
+- **Scale:** 14px–24px range
+- **Weights:** 400 (normal), 500 (medium), 600 (semibold), 700 (bold)
+- **Line-height:** 1.6 for body text (generous)
+- **Letter-spacing:** -0.01em for headings, normal for body
 
 ---
 
