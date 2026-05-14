@@ -414,7 +414,32 @@ Features:
 
 ---
 
-## 8. Contribution
+## 8. Documentation Structure
+
+```
+docs/
+└── plan/
+    ├── md-editor/      → Markdown Editor Spec
+    ├── kanban/         → Kanban Board Spec
+    ├── notes/          → Quick Notes Spec
+    ├── planner/        → Calendar + Timeline Spec
+    ├── admin/          → Admin Panel Spec
+    ├── settings/      → Settings Spec
+    └── auth/           → Authentication Spec
+```
+
+Jedes Modul hat eigene Specs — [siehe `docs/plan/`](../docs/plan/)
+
+---
+
+## 9. Contribution
+
+```
+Johanna (Aice)  → Lead, Vision, Design
+Yuri            → Architecture, Docs, AI
+Claude Code     → Code, Fixes, Features
+Team (Foxtaex, Erik, Syntarex, Harry) → Testing, Feedback
+```
 
 Wer macht was:
 
