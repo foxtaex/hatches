@@ -121,7 +121,7 @@
     "0.5.6.14.27-dev.4d": {
       "display": "5.14.27-dev.4d",
       "stage": "dev",
-      "status": "current",
+      "status": "archived",
       "date": "2026-05-14",
       "description": "Features 0.1.1–0.5.2 implementiert: Planner, GlobalPermissions, OrgGroups, AI Provider, Templates, Admin-Erweiterung",
       "changes": [
@@ -140,6 +140,22 @@
     }
   },
 
-  "current": "0.5.6.14.27-dev.4d",
-  "current_display": "5.14.27-dev.4d"
+    "0.5.7.14.27-dev.5d": {
+      "display": "5.14.27-dev.5d",
+      "stage": "dev",
+      "status": "current",
+      "date": "2026-05-14",
+      "description": "Globale Suche (Cmd+K) + Bugfixes + Settings Tailwind-Refactor",
+      "changes": [
+        "Feat: Globale Suche — Cmd+K Modal, durchsucht Karten, Docs, Notizen, Boards",
+        "Feat: /api/search — parallele DB-Suche, max. 5 Ergebnisse pro Kategorie, debounced",
+        "Feat: Suche-Button in Nav (⌘K Shortcut), Esc zum Schließen, Highlight der Treffer",
+        "Fix: Planner und TemplateLibrary lasen Teams falsch aus (m.team → direktes Array)",
+        "Refactor: settings.astro — alle Inline-Styles durch Tailwind ersetzt (CONTRIBUTING.md)"
+      ]
+    }
+  },
+
+  "current": "0.5.7.14.27-dev.5d",
+  "current_display": "5.14.27-dev.5d"
 }
