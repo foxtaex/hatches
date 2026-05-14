@@ -111,7 +111,7 @@ function RolesTab({ roles, onRefresh }: { roles: Role[]; onRefresh: () => Promis
   }
 
   return (
-    <div className="flex border border-zinc-800 rounded-xl overflow-hidden" style={{ height: "calc(100vh - 13rem)" }}>
+    <div className="flex border border-zinc-800 rounded-xl overflow-hidden" style={{ height: "calc(100vh - 10rem)" }}>
       {/* Sidebar */}
       <div className="w-52 flex-shrink-0 bg-zinc-900 border-r border-zinc-800 flex flex-col">
         <div className="p-3 border-b border-zinc-800 flex flex-col gap-2">

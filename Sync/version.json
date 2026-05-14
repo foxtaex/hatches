@@ -106,7 +106,7 @@
     "0.5.5.14.27-dev.3d": {
       "display": "5.14.27-dev.3d",
       "stage": "dev",
-      "status": "current",
+      "status": "archived",
       "date": "2026-05-14",
       "description": "UX-Bugfixes + Inline-Styles entfernt (CONTRIBUTING.md)",
       "changes": [
@@ -117,9 +117,29 @@
         "Dynamische Farben (team.color) bleiben als Inline-Style (können nicht als Tailwind-Klassen ausgedrückt werden)",
         "dnd-kit Transform-Styles bleiben inline (laufzeitabhängig)"
       ]
+    },
+    "0.5.6.14.27-dev.4d": {
+      "display": "5.14.27-dev.4d",
+      "stage": "dev",
+      "status": "current",
+      "date": "2026-05-14",
+      "description": "Features 0.1.1–0.5.2 implementiert: Planner, GlobalPermissions, OrgGroups, AI Provider, Templates, Admin-Erweiterung",
+      "changes": [
+        "Feat: Prisma-Schema erweitert — GlobalPermission, OrgGroup, OrgGroupMember, Event, Template, AiConfig Modelle",
+        "Feat: Planner/Kalender — Monatsansicht, Terminverwaltung (Erstellen, Bearbeiten, Löschen, Wiederholung, Team-Zuordnung)",
+        "Feat: GlobalPermissions — Sonderrechte pro Benutzer (canCreateTeam, canManageUsers, canSeeApiKeys, canManageIntegrations)",
+        "Feat: Org-Gruppen — Bereichsbasierte Gruppen mit Mitgliederverwaltung",
+        "Feat: KI-Provider Config — OpenAI, Anthropic, Google, DeepSeek, MiniMax, Ollama, Custom; API-Key Masking; Aktivierungs-Toggle",
+        "Feat: Template-Bibliothek — Kategorie-Filter, Icon-Picker, Team-Zuordnung, öffentlich/privat",
+        "Feat: /api/ai/chat — Universaler Chat-Endpunkt für alle Provider (OpenAI-kompatibel + Anthropic)",
+        "Refactor: Websites & Integrationen in Admin-Panel verschoben (Sidebar-Navigation)",
+        "Refactor: Admin-Panel auf Sidebar-Layout umgestellt (9 Tabs in 3 Gruppen)",
+        "Feat: Planner-Link in Haupt-Navigation",
+        "Fix: /websites und /integrations redirecten zu /admin"
+      ]
     }
   },
 
-  "current": "0.5.5.14.27-dev.3d",
-  "current_display": "5.14.27-dev.3d"
+  "current": "0.5.6.14.27-dev.4d",
+  "current_display": "5.14.27-dev.4d"
 }
