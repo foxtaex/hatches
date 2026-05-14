@@ -24,8 +24,8 @@ async function createAdapter() {
 
 function createPrisma(adapter: any) {
   if (adapter) return new PrismaClient({ adapter });
-  // MySQL / MSSQL: traditional URL-based connection
-  return new PrismaClient({ datasources: { db: { url } } });
+  // MySQL / MSSQL: URL kommt aus DATABASE_URL Env-Variable (prisma.config.ts)
+  return new PrismaClient();
 }
 
 // Top-level await — module waits before exports become available

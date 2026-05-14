@@ -1,8 +1,8 @@
-﻿import { useSortable } from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGripVertical, faPen, faXmark, faUser, faArrowRightArrowLeft, faChevronRight, faArchive, faTrashCan } from "@fortawesome/free-solid-svg-icons";
+import { faGripVertical, faPen, faXmark, faUser, faArrowRightArrowLeft, faChevronRight, faBoxArchive } from "@fortawesome/free-solid-svg-icons";
 import type { Card } from "./types";
 
 interface BoardWithCols { id: number; name: string; columns: { id: number; title: string }[] }
@@ -13,10 +13,11 @@ interface Props {
   allBoards: BoardWithCols[];
   onUpdate: (id: number, data: Partial<Card>) => void;
   onDelete: (id: number) => void;
+  onArchive: (id: number) => void;
   onMoveToBoard: (cardId: number, targetColumnId: number) => void;
 }
 
-export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToBoard }: Props) {
+export function CardItem({ card, users, allBoards, onUpdate, onDelete, onArchive, onMoveToBoard }: Props) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(card.title);
   const [showDesc, setShowDesc] = useState(false);
@@ -28,7 +29,8 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: `card-${card.id}` });
 
-  const style = {
+  // Keep dnd-kit transform inline — these are dynamic runtime values
+  const dndStyle = {
     transform: CSS.Transform.toString(transform),
     transition: transition || "all 0.3s cubic-bezier(0.4,0,0.2,1)",
     opacity: isDragging ? 0.4 : 1,
@@ -47,30 +49,35 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
   }
 
   return (
-    <div ref={setNodeRef} style={{
-      ...style,
-      background: "rgba(40,40,40,0.9)",
-      borderRadius: 12,
-      padding: 14,
-      border: "1px solid rgba(255,255,255,0.12)",
-      cursor: "pointer",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-      position: "relative" as const,
-    }}
-      className="group hover-lift">
+    <div
+      ref={setNodeRef}
+      style={dndStyle}
+      className="group relative bg-[rgba(40,40,40,0.9)] rounded-xl p-[14px] border border-[rgba(255,255,255,0.12)] cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.15)] hover-lift"
+    >
       <div className="flex items-start gap-2">
-        <div {...attributes} {...listeners}
-          style={{ marginTop: 2, color: "rgba(255,255,255,0.25)", cursor: "grab", flexShrink: 0 }}>
-          <FontAwesomeIcon icon={faGripVertical} style={{ fontSize: 12 }} />
+        <div
+          {...attributes}
+          {...listeners}
+          className="mt-0.5 text-[rgba(255,255,255,0.25)] cursor-grab flex-shrink-0"
+        >
+          <FontAwesomeIcon icon={faGripVertical} className="text-xs" />
         </div>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="flex-1 min-w-0">
           {editing ? (
-            <input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} onBlur={saveTitle}
+            <input
+              autoFocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={saveTitle}
               onKeyDown={(e) => { if (e.key === "Enter") saveTitle(); if (e.key === "Escape") { setTitle(card.title); setEditing(false); } }}
-              style={{ width: "100%", background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.95)", fontSize: 15, borderRadius: 6, padding: "2px 8px", outline: "none", border: "1px solid rgba(255,255,255,0.2)" }} />
+              className="w-full bg-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.95)] text-[15px] rounded-md px-2 py-0.5 outline-none border border-[rgba(255,255,255,0.2)]"
+            />
           ) : (
-            <p style={{ fontSize: 15, fontWeight: 500, color: "rgba(255,255,255,0.95)", margin: "0 0 6px 0", wordBreak: "break-word" as const, lineHeight: 1.4, cursor: "pointer" }} onClick={() => setEditing(true)}>
+            <p
+              className="text-[15px] font-medium text-[rgba(255,255,255,0.95)] mb-1.5 break-words leading-[1.4] cursor-pointer"
+              onClick={() => setEditing(true)}
+            >
               {card.title}
             </p>
           )}
@@ -81,9 +88,15 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
 
           {showDesc && (
             <div className="mt-2">
-              <textarea autoFocus value={desc} onChange={(e) => setDesc(e.target.value)} onBlur={saveDesc}
-                rows={3} placeholder="Beschreibung..."
-                className="w-full bg-zinc-700 text-zinc-200 text-xs rounded px-2 py-1.5 outline-none border border-zinc-500 resize-none" />
+              <textarea
+                autoFocus
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                onBlur={saveDesc}
+                rows={3}
+                placeholder="Beschreibung..."
+                className="w-full bg-zinc-700 text-zinc-200 text-xs rounded px-2 py-1.5 outline-none border border-zinc-500 resize-none"
+              />
             </div>
           )}
 
@@ -94,16 +107,22 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
               </span>
             )}
             {showAssignee ? (
-              <select autoFocus value={card.assigneeId ?? ""}
+              <select
+                autoFocus
+                value={card.assigneeId ?? ""}
                 onChange={(e) => { onUpdate(card.id, { assigneeId: e.target.value ? Number(e.target.value) : null }); setShowAssignee(false); }}
                 onBlur={() => setShowAssignee(false)}
-                className="bg-zinc-700 text-zinc-200 text-xs rounded px-1.5 py-0.5 outline-none border border-zinc-500">
+                className="bg-zinc-700 text-zinc-200 text-xs rounded px-1.5 py-0.5 outline-none border border-zinc-500"
+              >
                 <option value="">— Niemand</option>
                 {users.map((u) => <option key={u.id} value={u.id}>{u.displayName || u.username}</option>)}
               </select>
             ) : (
-              <button onClick={() => setShowAssignee(true)}
-                className="flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-400 transition-colors" title="Zuweisen">
+              <button
+                onClick={() => setShowAssignee(true)}
+                className="flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+                title="Zuweisen"
+              >
                 <FontAwesomeIcon icon={faUser} className="w-2.5 h-2.5" />
                 {card.assignee
                   ? <span className="bg-zinc-700 rounded px-1.5 py-0.5">{card.assignee.displayName || card.assignee.username}</span>
@@ -114,18 +133,34 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
         </div>
 
         <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-          <button onClick={() => setShowDesc(!showDesc)} className="text-zinc-500 hover:text-zinc-300 transition-colors" title="Beschreibung">
+          <button
+            onClick={() => setShowDesc(!showDesc)}
+            className="text-zinc-500 hover:text-zinc-300 transition-colors"
+            title="Beschreibung"
+          >
             <FontAwesomeIcon icon={faPen} className="w-3 h-3" />
           </button>
-          <button onClick={() => { onUpdate(card.id, { isArchived: true }); }} className="text-zinc-600 hover:text-yellow-500 transition-colors" title="Archivieren">
-            <FontAwesomeIcon icon={faArchive} className="w-3 h-3" />
+          <button
+            onClick={() => onArchive(card.id)}
+            className="text-zinc-600 hover:text-yellow-500 transition-colors"
+            title="Archivieren"
+          >
+            <FontAwesomeIcon icon={faBoxArchive} className="w-3 h-3" />
           </button>
           {allBoards.length > 0 && (
-            <button onClick={() => setShowMovePicker(!showMovePicker)} className="text-zinc-500 hover:text-blue-400 transition-colors" title="Zu anderem Board verschieben">
+            <button
+              onClick={() => setShowMovePicker(!showMovePicker)}
+              className="text-zinc-500 hover:text-blue-400 transition-colors"
+              title="Zu anderem Board verschieben"
+            >
               <FontAwesomeIcon icon={faArrowRightArrowLeft} className="w-3 h-3" />
             </button>
           )}
-          <button onClick={() => onDelete(card.id)} className="text-zinc-600 hover:text-red-400 transition-colors" title="Loeschen">
+          <button
+            onClick={() => onDelete(card.id)}
+            className="text-zinc-600 hover:text-red-400 transition-colors"
+            title="Loeschen"
+          >
             <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
           </button>
         </div>
@@ -133,8 +168,10 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
 
       {/* Cross-board move picker */}
       {showMovePicker && allBoards.length > 0 && (
-        <div className="absolute right-0 top-full mt-1 z-50 bg-zinc-800 border border-zinc-600 rounded-lg shadow-xl min-w-[180px] py-1 text-sm"
-          onMouseLeave={() => setMoveHoverBoard(null)}>
+        <div
+          className="absolute right-0 top-full mt-1 z-50 bg-zinc-800 border border-zinc-600 rounded-lg shadow-xl min-w-[180px] py-1 text-sm"
+          onMouseLeave={() => setMoveHoverBoard(null)}
+        >
           <p className="text-xs text-zinc-500 px-3 py-1.5 border-b border-zinc-700">Verschieben nach Board</p>
           {allBoards.map((b) => (
             <div key={b.id} className="relative" onMouseEnter={() => setMoveHoverBoard(b.id)}>
@@ -145,9 +182,11 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
               {moveHoverBoard === b.id && b.columns.length > 0 && (
                 <div className="absolute left-full top-0 ml-1 bg-zinc-800 border border-zinc-600 rounded-lg shadow-xl min-w-[160px] py-1">
                   {b.columns.map((col) => (
-                    <button key={col.id}
+                    <button
+                      key={col.id}
                       onClick={() => { onMoveToBoard(card.id, col.id); setShowMovePicker(false); setMoveHoverBoard(null); }}
-                      className="w-full text-left px-3 py-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-sm truncate">
+                      className="w-full text-left px-3 py-1.5 text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors text-sm truncate"
+                    >
                       {col.title}
                     </button>
                   ))}
@@ -155,7 +194,10 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
               )}
             </div>
           ))}
-          <button onClick={() => setShowMovePicker(false)} className="w-full flex items-center gap-1.5 px-3 py-1.5 text-zinc-600 hover:text-zinc-400 text-xs border-t border-zinc-700 mt-1">
+          <button
+            onClick={() => setShowMovePicker(false)}
+            className="w-full flex items-center gap-1.5 px-3 py-1.5 text-zinc-600 hover:text-zinc-400 text-xs border-t border-zinc-700 mt-1"
+          >
             <FontAwesomeIcon icon={faXmark} className="w-3 h-3" /> Abbrechen
           </button>
         </div>

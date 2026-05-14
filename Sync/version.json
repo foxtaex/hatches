@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "name": "hatches",
+    "description": "Self-hosted team workspace"
+  },
+
+  "versioning": {
+    "internal": {
+      "scheme": "[Major].[Minor].[Patch].[YYMMDD]-[Stage].[BugfixCount][MiniUpdateCount][WeekTag]",
+      "example": "0.0.5.14.23-dev.4g"
+    },
+    "display": {
+      "scheme": "[Feature].[Patch].[YYMMDD]-[Stage].[BugfixCount][WeekTag]",
+      "example_dev": "5.14.23-dev.4g",
+      "example_beta": "1.2.5-b.0a",
+      "note": "Major.Minor werden aus Display entfernt oder simplified"
+    },
+    "weektag": {
+      "values": "a-m",
+      "count": 13,
+      "meaning": "Week-Tag: Woche im Quartal (1-13), nur bei Mini-Fixes",
+      "days": "So-Sa = 0-6",
+      "weektag_meaning": "Day of week (Wochentag: Sonntag=0 bis Samstag=6)"
+    },
+    "stages": ["dev", "a", "b", "pre", "stable"]
+  },
+
+  "version_types": {
+    "week": {
+      "meaning": "Wochen-Tag a-m = 13 Wochen im Quartal",
+      "note": "Nur relevant bei Mini-Fixes",
+      "values": "a=1, b=2, c=3, d=4, e=5, f=6, g=7, h=8, i=9, j=10, k=11, l=12, m=13"
+    },
+    "weektag": {
+      "meaning": "Wochentag So-Sa = 0-6",
+      "values": "a=So, b=Mo, c=Di, d=Mi, e=Do, f=Fr, g=Sa"
+    },
+    "bugfix": {
+      "trigger": "Bugfix am selben Tag",
+      "counter": "BugfixCount",
+      "example": "dev.1g → dev.2g"
+    },
+    "mini_update": {
+      "trigger": "Mini-Update",
+      "counter": "MiniUpdateCount",
+      "note": "Zählt Mini-Updates seit letztem Bugfix",
+      "example": "dev.1g → dev.1h"
+    },
+    "update": {
+      "trigger": "Neue Features",
+      "counter": "Update-Zähler in Minor",
+      "example": "5.14 → 5.15"
+    },
+    "release": {
+      "trigger": "Stable-Release",
+      "display": "Stable-Format",
+      "example": "1.2.5-b.0a → 1.2.5"
+    }
+  },
+
+  "releases": {
+    "0.0.5.14.23-dev.4g": {
+      "display": "5.14.23-dev.4g",
+      "stage": "dev",
+      "status": "archived",
+      "description": "Base hatches — Kanban, Docs, Notes, Websites, Teams, Integrations",
+      "features": [
+        "Kanban Board (multi-board, drag & drop, cards, assignment)",
+        "Docs (Markdown editor with view mode toggle: preview/edit/both)",
+        "Notes (Quick personal notes)",
+        "Websites (Internal URL & project registry)",
+        "Teams & Roles (Permission system per section)",
+        "Integrations (GitHub, GitLab, Jira, Redmine, MantisBT, Confluence, Trello)",
+        "Auth (Session-based, password hashing)",
+        "Setup Wizard (/setup on first visit)"
+      ],
+      "tech": [
+        "Astro 6 (SSR) + React Islands",
+        "TypeScript",
+        "Tailwind CSS v4",
+        "Prisma 7",
+        "dnd-kit",
+        "@uiw/react-md-editor"
+      ]
+    },
+    "0.5.3.14.27-dev.1d": {
+      "display": "5.14.27-dev.1d",
+      "stage": "dev",
+      "status": "archived",
+      "date": "2026-05-14",
+      "description": "Design System + Icon & Hydration Fixes"
+    },
+    "0.5.4.14.27-dev.2d": {
+      "display": "5.14.27-dev.2d",
+      "stage": "dev",
+      "status": "current",
+      "date": "2026-05-14",
+      "description": "TypeScript Fehler gefixt",
+      "changes": [
+        "Fix: BoardItem Komponente in KanbanBoard.tsx fehlte komplett (TS2304)",
+        "Fix: db.ts datasources → Prisma 7 API (MySQL/MSSQL path)",
+        "Fix: Prisma Client regeneriert — isArchived/archivedAt/archive Typen jetzt korrekt",
+        "0 TypeScript Errors"
+      ]
+    }
+  },
+
+  "current": "0.5.4.14.27-dev.2d",
+  "current_display": "5.14.27-dev.2d"
+}

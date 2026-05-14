@@ -141,9 +141,9 @@ export function DocsEditor() {
 
   return (
     <div className="flex-1 flex overflow-hidden" data-color-mode="dark">
-      {/* Sidebar — Glassmorphism */}
-      <aside style={{ width: 280, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.08)", background: "rgba(18,18,18,0.6)", backdropFilter: "blur(30px) saturate(180%)", WebkitBackdropFilter: "blur(30px) saturate(180%)", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", gap: 8 }}>
+      {/* Sidebar */}
+      <aside className="w-[280px] flex-shrink-0 flex flex-col border-r border-[rgba(255,255,255,0.08)] bg-[rgba(18,18,18,0.6)] backdrop-blur-[30px] backdrop-saturate-[180%]">
+        <div className="flex flex-col gap-2 px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
           {/* Import modal */}
           {importing && (
             <div className="flex flex-col gap-2 bg-zinc-800 rounded-lg p-3 border border-zinc-700">
@@ -153,8 +153,18 @@ export function DocsEditor() {
                   <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
                 </button>
               </div>
-              <input ref={fileInputRef} type="file" accept=".md,.markdown,.txt" onChange={(e) => { const f = e.target.files?.[0]; if (f) importMarkdown(f, importTeamId || null); }} className="text-xs text-zinc-400 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-zinc-700 file:text-zinc-300" />
-              <select value={importTeamId} onChange={(e) => setImportTeamId(e.target.value)} className="bg-zinc-700 border border-zinc-600 text-zinc-300 text-xs rounded px-2 py-1 outline-none">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".md,.markdown,.txt"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) importMarkdown(f, importTeamId || null); }}
+                className="text-xs text-zinc-400 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-zinc-700 file:text-zinc-300"
+              />
+              <select
+                value={importTeamId}
+                onChange={(e) => setImportTeamId(e.target.value)}
+                className="bg-zinc-700 border border-zinc-600 text-zinc-300 text-xs rounded px-2 py-1 outline-none"
+              >
                 <option value="">🔒 Privat</option>
                 {userTeams.map((t) => <option key={t.id} value={t.id}>👥 {t.name}</option>)}
               </select>
@@ -190,10 +200,17 @@ export function DocsEditor() {
             </div>
           ) : (
             <div className="flex gap-1">
-              <button onClick={() => { createRef.current = false; setCreating(true); }} className="flex-1 flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded px-3 py-1.5 text-left transition-colors">
+              <button
+                onClick={() => { createRef.current = false; setCreating(true); }}
+                className="flex-1 flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded px-3 py-1.5 text-left transition-colors"
+              >
                 <FontAwesomeIcon icon={faPlus} className="w-3 h-3" /> Neu
               </button>
-              <button onClick={() => { setImporting(true); }} className="text-zinc-600 hover:text-zinc-300 px-1.5 py-1.5 rounded hover:bg-zinc-800 transition-colors" title="Markdown hochladen">
+              <button
+                onClick={() => setImporting(true)}
+                className="text-zinc-600 hover:text-zinc-300 px-1.5 py-1.5 rounded hover:bg-zinc-800 transition-colors"
+                title="Markdown hochladen"
+              >
                 <FontAwesomeIcon icon={faFileImport} className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -216,6 +233,7 @@ export function DocsEditor() {
           {teamGroups.map(({ team, items }) => (
             <div key={team.id}>
               <div className="flex items-center gap-1.5 px-3 py-1 mt-1">
+                {/* team.color is a dynamic runtime value — must stay inline */}
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: team.color }} />
                 <span className="text-[10px] font-semibold uppercase tracking-wider truncate" style={{ color: team.color }}>{team.name}</span>
               </div>
@@ -235,11 +253,12 @@ export function DocsEditor() {
       {/* Editor */}
       {activeId !== null ? (
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex items-center gap-3" style={{ padding: "12px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(24,24,27,0.8)" }}>
+          <div className="flex items-center gap-3 px-6 py-3 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(24,24,27,0.8)]">
             <div className="flex-1">
               {editingTitle ? (
                 <input
-                  autoFocus value={title}
+                  autoFocus
+                  value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   onBlur={saveTitle}
                   onKeyDown={(e) => {
@@ -255,8 +274,11 @@ export function DocsEditor() {
               )}
             </div>
             {activeDoc?.team && (
-              <span className="text-xs rounded-full px-2.5 py-0.5 flex-shrink-0"
-                style={{ background: activeDoc.team.color + "22", color: activeDoc.team.color, border: `1px solid ${activeDoc.team.color}44` }}>
+              // Team badge uses dynamic color — must stay inline
+              <span
+                className="text-xs rounded-full px-2.5 py-0.5 flex-shrink-0"
+                style={{ background: activeDoc.team.color + "22", color: activeDoc.team.color, border: `1px solid ${activeDoc.team.color}44` }}
+              >
                 {activeDoc.team.name}
               </span>
             )}
@@ -265,7 +287,11 @@ export function DocsEditor() {
                 <FontAwesomeIcon icon={faLock} className="w-2.5 h-2.5" /> Privat
               </span>
             )}
-            <button onClick={() => activeId && exportMarkdown(activeId, title)} className="text-zinc-500 hover:text-zinc-300 transition-colors flex-shrink-0" title="Als .md herunterladen">
+            <button
+              onClick={() => activeId && exportMarkdown(activeId, title)}
+              className="text-zinc-500 hover:text-zinc-300 transition-colors flex-shrink-0"
+              title="Als .md herunterladen"
+            >
               <FontAwesomeIcon icon={faFileExport} className="w-3.5 h-3.5" />
             </button>
           </div>
