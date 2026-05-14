@@ -46,7 +46,7 @@ Hatches Markdown:
 ├── Kanban      → Cards = Doc Blocks, Columns = Status
 ├── Planner     → Calendar Events = Docs mit Date Frontmatter
 ├── Notes       → Quick Notes (Mini Docs)
-├── Websites    → URL Registry (Doc mit URL Field)
+├── Websites    → CMS Pages Registry
 └── Database    → Notion-style DB als Block
 ```
 
@@ -81,6 +81,16 @@ Hatches Markdown:
 - **Calendar** = DB mit Date Field
 - **Relations** = Cross-DB Links
 - **Formulas** = Calculated Fields
+
+### Websites = CMS Pages Registry
+- **Page Registry** = Alle deployten Seiten/Apps
+- **URL Management** = Interne Links, Endpoints verwalten
+- **Status** = Live, Staging, Dev
+- **Metadata** = Title, Description, Screenshot (OG Preview)
+- **Quick Access** = Direkte Links zu allen CMS-Seiten
+- **SEO** = Meta tags, sitemap, robots.txt
+- **Custom Domain** = Domain Mapping
+- **Publishing** = Von Docs zu Websites deployen
 
 ## 1. Block Editor (Unified Core)
 
