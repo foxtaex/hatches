@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faXmark, faLock, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faXmark, faLock, faCheck, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { MarkdownEditor } from "../docs/MarkdownEditor";
 
 interface TeamOption { id: number; name: string; color: string }
 interface Note {
@@ -19,6 +20,7 @@ export function NotesView() {
   const [title, setTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Create form state
   const [creating, setCreating] = useState(false);
@@ -65,10 +67,9 @@ export function NotesView() {
     }, 600);
   }
 
-  function handleContentChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const v = e.target.value;
-    setContent(v);
-    if (activeId !== null) scheduleSave(activeId, { content: v });
+  function handleContentChange(value: string) {
+    setContent(value);
+    if (activeId !== null) scheduleSave(activeId, { content: value });
   }
 
   function saveTitle() {
@@ -112,13 +113,22 @@ export function NotesView() {
     }
   }
 
-  // Grouping
-  const privateNotes = notes.filter((n) => !n.teamId);
+  // Filtered notes based on search query
+  const filteredNotes = useMemo(() => {
+    if (!searchQuery.trim()) return notes;
+    const q = searchQuery.toLowerCase();
+    return notes.filter((n) =>
+      n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
+    );
+  }, [notes, searchQuery]);
+
+  // Grouping (uses filtered set)
+  const privateNotes = filteredNotes.filter((n) => !n.teamId);
   const teamGroups = userTeams
-    .map((t) => ({ team: t, items: notes.filter((n) => n.teamId === t.id) }))
+    .map((t) => ({ team: t, items: filteredNotes.filter((n) => n.teamId === t.id) }))
     .filter((g) => g.items.length > 0);
   const knownTeamIds = new Set(userTeams.map((t) => t.id));
-  const otherNotes = notes.filter((n) => n.teamId && !knownTeamIds.has(n.teamId));
+  const otherNotes = filteredNotes.filter((n) => n.teamId && !knownTeamIds.has(n.teamId));
 
   const activeNote = notes.find((n) => n.id === activeId);
 
@@ -126,7 +136,7 @@ export function NotesView() {
     <div className="flex-1 flex overflow-hidden">
       {/* Sidebar */}
       <aside className="w-[280px] flex-shrink-0 flex flex-col border-r border-[rgba(255,255,255,0.08)] bg-[rgba(18,18,18,0.6)] backdrop-blur-[30px] backdrop-saturate-[180%]">
-        <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
+        <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)] flex flex-col gap-2">
           {creating ? (
             <div className="flex flex-col gap-1.5">
               <input
@@ -162,6 +172,26 @@ export function NotesView() {
               <FontAwesomeIcon icon={faPlus} className="w-3 h-3" /> Neue Notiz
             </button>
           )}
+
+          {/* Search */}
+          <div className="relative">
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-600 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Suchen..."
+              className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded pl-7 pr-2 py-1.5 outline-none focus:border-zinc-600 placeholder-zinc-700"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400"
+              >
+                <FontAwesomeIcon icon={faXmark} className="w-2.5 h-2.5" />
+              </button>
+            )}
+          </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-1">
@@ -191,8 +221,10 @@ export function NotesView() {
           {/* Other */}
           {otherNotes.map((note) => <NoteItem key={note.id} note={note} active={activeId === note.id} onOpen={() => openNote(note)} onDelete={deleteNote} />)}
 
-          {notes.length === 0 && (
-            <p className="text-xs text-zinc-700 px-3 py-4 text-center">Keine Notizen</p>
+          {filteredNotes.length === 0 && (
+            <p className="text-xs text-zinc-700 px-3 py-4 text-center">
+              {searchQuery ? "Keine Treffer" : "Keine Notizen"}
+            </p>
           )}
         </nav>
       </aside>
@@ -235,12 +267,13 @@ export function NotesView() {
               </span>
             )}
           </div>
-          <textarea
-            value={content}
-            onChange={handleContentChange}
-            placeholder="Notiz schreiben..."
-            className="flex-1 bg-black text-[rgba(212,212,216,0.95)] text-sm font-mono p-6 outline-none resize-none leading-[1.6] border-none"
-          />
+          <div className="flex-1 overflow-hidden">
+            <MarkdownEditor
+              value={content}
+              onChange={handleContentChange}
+              placeholder="Notiz schreiben..."
+            />
+          </div>
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center text-zinc-700">

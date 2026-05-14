@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPlus, faXmark, faMagnifyingGlass, faTrash, faPen, faArrowRight
+  faPlus, faXmark, faMagnifyingGlass, faTrash, faPen, faArrowRight,
+  faSpinner, faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
 interface Team {
@@ -57,6 +58,12 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
   const [editTemplate, setEditTemplate] = useState<Template | null>(null);
   const [form, setForm] = useState({ name: "", description: "", category: "general", icon: "📋", isPublic: true, teamId: "" });
   const [saving, setSaving] = useState(false);
+
+  // Apply modal state
+  const [applyTemplate, setApplyTemplate] = useState<Template | null>(null);
+  const [applyTeamId, setApplyTeamId] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [applyDone, setApplyDone] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -137,6 +144,24 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
     await fetch(`/api/templates/${id}`, { method: "DELETE" });
     setTemplates(ts => ts.filter(t => t.id !== id));
     setShowModal(false);
+  }
+
+  async function applyNow() {
+    if (!applyTemplate) return;
+    setApplying(true);
+    try {
+      const res = await fetch(`/api/templates/${applyTemplate.id}/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teamId: applyTeamId ? Number(applyTeamId) : null }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setApplyDone(data.redirect);
+      }
+    } finally {
+      setApplying(false);
+    }
   }
 
   return (
@@ -220,17 +245,27 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
                   <button
                     onClick={e => { e.stopPropagation(); openEdit(t); }}
                     className="w-7 h-7 flex items-center justify-center rounded-lg bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.18)] text-white/60 hover:text-white/90 transition-colors"
+                    title="Bearbeiten"
                   >
                     <FontAwesomeIcon icon={faPen} className="w-2.5 h-2.5" />
                   </button>
-                  {showApply && onApply && (
-                    <button
-                      onClick={e => { e.stopPropagation(); onApply(t); }}
-                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-[rgba(60,199,154,0.15)] hover:bg-[rgba(60,199,154,0.25)] text-[#3CC79A] transition-colors"
-                    >
-                      <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5" />
-                    </button>
-                  )}
+                  <button
+                    onClick={e => { e.stopPropagation(); setApplyTemplate(t); setApplyTeamId(""); setApplyDone(null); }}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-[rgba(60,199,154,0.15)] hover:bg-[rgba(60,199,154,0.25)] text-[#3CC79A] transition-colors"
+                    title="Template anwenden"
+                  >
+                    <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+
+                {/* Apply button at bottom */}
+                <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)] opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={e => { e.stopPropagation(); setApplyTemplate(t); setApplyTeamId(""); setApplyDone(null); }}
+                    className="w-full text-xs text-[#3CC79A] hover:text-white bg-[rgba(60,199,154,0.08)] hover:bg-[rgba(60,199,154,0.18)] rounded-lg py-1.5 transition-colors"
+                  >
+                    Anwenden →
+                  </button>
                 </div>
               </div>
             ))}
@@ -238,7 +273,85 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Apply Modal */}
+      {applyTemplate && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => !applying && setApplyTemplate(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-[rgba(22,22,24,0.98)] border border-[rgba(255,255,255,0.1)] rounded-2xl shadow-2xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[rgba(255,255,255,0.08)]">
+              <div>
+                <h2 className="text-base font-semibold text-white/90">Template anwenden</h2>
+                <p className="text-xs text-white/40 mt-0.5">{applyTemplate.icon} {applyTemplate.name}</p>
+              </div>
+              {!applying && (
+                <button onClick={() => setApplyTemplate(null)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[rgba(255,255,255,0.08)] text-white/50 hover:text-white/80 transition-colors">
+                  <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="p-6 flex flex-col gap-4">
+              {applyDone !== null ? (
+                <div className="flex flex-col items-center gap-3 py-4">
+                  <div className="w-12 h-12 rounded-full bg-[rgba(60,199,154,0.15)] flex items-center justify-center">
+                    <FontAwesomeIcon icon={faCheck} className="w-6 h-6 text-[#3CC79A]" />
+                  </div>
+                  <p className="text-sm text-white/80 font-medium">Template erfolgreich angewendet!</p>
+                  {applyDone && (
+                    <a href={applyDone} className="text-sm text-[#3CC79A] hover:underline">
+                      Zum erstellten Inhalt →
+                    </a>
+                  )}
+                  <button onClick={() => setApplyTemplate(null)} className="text-sm text-white/40 hover:text-white/60 transition-colors mt-1">
+                    Schließen
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="text-xs text-white/40 mb-2 block">Team (optional)</label>
+                    <select
+                      value={applyTeamId}
+                      onChange={e => setApplyTeamId(e.target.value)}
+                      className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl px-3 py-2 text-sm text-white/90 outline-none focus:border-[rgba(60,199,154,0.5)] transition-colors"
+                    >
+                      <option value="">🔒 Privat (kein Team)</option>
+                      {teams.map(t => <option key={t.id} value={String(t.id)}>👥 {t.name}</option>)}
+                    </select>
+                  </div>
+
+                  {applyTemplate.description && (
+                    <p className="text-xs text-white/40 bg-[rgba(255,255,255,0.03)] rounded-xl px-3 py-2.5">
+                      {applyTemplate.description}
+                    </p>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button onClick={() => setApplyTemplate(null)} className="flex-1 px-4 py-2 rounded-xl text-sm bg-[rgba(255,255,255,0.06)] text-white/60 hover:text-white/90 transition-colors">
+                      Abbrechen
+                    </button>
+                    <button
+                      onClick={applyNow}
+                      disabled={applying}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-[#3CC79A] hover:bg-[#34b389] text-white transition-colors disabled:opacity-60"
+                    >
+                      {applying ? <FontAwesomeIcon icon={faSpinner} className="w-3.5 h-3.5 animate-spin" /> : <FontAwesomeIcon icon={faArrowRight} className="w-3.5 h-3.5" />}
+                      {applying ? "Erstelle…" : "Anwenden"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit/Create Modal */}
       {showModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"

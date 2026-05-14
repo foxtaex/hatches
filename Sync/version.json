@@ -221,7 +221,7 @@
   "0.5.12.14.27-dev.10d": {
     "display": "5.14.27-dev.10d",
     "stage": "dev",
-    "status": "current",
+    "status": "archived",
     "date": "2026-05-14",
     "description": "Board-Filter — Filter-Bar über den Spalten (Assignee, Priority, Label, Fällig, Text)",
     "changes": [
@@ -235,9 +235,111 @@
       "Feat: Anzeige 'N Karten ausgeblendet' wenn Filter aktiv",
       "Feat: 'Alle Filter entfernen' im Dropdown"
     ]
+  },
+  "0.5.13.14.27-dev.11d": {
+    "display": "5.14.27-dev.11d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-14",
+    "description": "Notes-Upgrade + Planner Woche/Agenda — MarkdownEditor in Notizen, Suche, Woche- und Agenda-Ansicht im Planner",
+    "changes": [
+      "Feat: Notes nutzt jetzt MarkdownEditor (Edit/Split/Preview-Modus, Toolbar mit Formatierungen)",
+      "Feat: Notiz-Sidebar — Suchfeld (Echtzeit-Filter nach Titel + Inhalt)",
+      "Feat: Planner Wochenansicht — 7-Tage-Grid mit Terminen, Klick zum Erstellen",
+      "Feat: Planner Agenda-Ansicht — nächste 60 Tage als Liste, nach Datum gruppiert",
+      "Feat: Planner View-Toggle (Monat | Woche | Agenda) in der Header-Leiste",
+      "Refactor: Planner Navigation passt sich an View an (Monat/Woche: Prev/Next, Agenda: ohne Nav)"
+    ]
+  },
+  "0.5.14.14.27-dev.12d": {
+    "display": "5.14.27-dev.12d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-14",
+    "description": "KI-Chat — AI Chat UI mit Provider-Erkennung, Markdown-Rendering, Vorschlägen",
+    "changes": [
+      "Feat: /ai — neue KI-Chat-Seite in der Navigation",
+      "Feat: AiChat-Komponente — Chat-Bubbles mit Markdown-Rendering (marked)",
+      "Feat: Animierter Lade-Indikator (drei springende Punkte)",
+      "Feat: Schnellvorschläge als Einstieg wenn kein Chat-Verlauf",
+      "Feat: Provider-Status-Anzeige — zeigt aktiven Provider/Modell im Header",
+      "Feat: Kein Provider → Hinweis + Link zu Admin → KI",
+      "Feat: Auto-Resize Textarea, Enter = Senden, Shift+Enter = Zeilenumbruch",
+      "Feat: 'Chat leeren' Button wenn Verlauf vorhanden"
+    ]
+  },
+  "0.5.15.14.27-dev.13d": {
+    "display": "5.14.27-dev.13d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-14",
+    "description": "Suche erweitert — Planner-Termine + Templates in ⌘K-Suche",
+    "changes": [
+      "Feat: Globale Suche findet jetzt auch Planner-Termine (Titel + Beschreibung)",
+      "Feat: Globale Suche findet jetzt auch öffentliche Templates (Name + Beschreibung)",
+      "Feat: Suchresultate für Termine zeigen Event-Farbe als Icon-Farbe",
+      "Feat: Suchresultate für Templates zeigen Template-Emoji als Icon"
+    ]
+  },
+  "0.5.16.14.27-dev.14d": {
+    "display": "5.14.27-dev.14d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-14",
+    "description": "Template Apply — Templates auf echte Boards/Docs/Notes anwenden; Standard-Templates als Seed-Daten",
+    "changes": [
+      "Feat: POST /api/templates/[id]/apply — Template auf Board/Doc/Notes anwenden (mit Team-Zuordnung)",
+      "Feat: TemplateLibrary — Apply-Modal mit Team-Auswahl, Lade-Animation, Erfolgsstate, Weiterleitung",
+      "Feat: 7 Standard-Templates als Seed-Daten (Sprint, Bug-Tracker, Meeting, Kickoff, Weekly Review, Content, Onboarding)",
+      "Fix: seed.ts Template-Upsert nutzt findFirst+create statt upsert (kein @unique auf name)"
+    ]
+  },
+  "0.5.17.14.27-dev.15d": {
+    "display": "5.14.27-dev.15d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-14",
+    "description": "Admin-Erweiterungen + Session-Management — Passwort-Reset & Force Logout im Admin, aktive Sitzungen in Einstellungen",
+    "changes": [
+      "Feat: Admin → Benutzer — Passwort zurücksetzen (Inline-Eingabe mit Min-6-Zeichen-Validierung)",
+      "Feat: Admin → Benutzer — Alle Sitzungen beenden (Force Logout via PATCH /api/admin/users)",
+      "Feat: GET /api/user/sessions — eigene aktive Sitzungen abrufen",
+      "Feat: DELETE /api/user/sessions — einzelne Sitzung widerrufen",
+      "Feat: Einstellungen → Aktive Sitzungen — Liste aller Sitzungen mit Widerruf-Button",
+      "Feat: Einstellungen → 'Alle anderen beenden' — widerruft alle Sitzungen außer der aktuellen",
+      "Fix: /api/admin/users PATCH trennt invalidateSessions vom User-Update (kein leeres data-Objekt)"
+    ]
+  },
+  "0.5.18.14.27-dev.16d": {
+    "display": "5.14.27-dev.16d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-14",
+    "description": "Planner + MD-Editor Upgrades — Kanban-Karten mit Fälligkeitsdatum im Planner, Keyboard Shortcuts im Editor",
+    "changes": [
+      "Feat: Planner — Kanban-Karten mit Fälligkeitsdatum erscheinen im Monats-, Wochen- und Agenda-View (gestrichelter Rand, 📌-Icon)",
+      "Feat: GET /api/board/cards?withDueDate=true — Karten mit Fälligkeitsdatum für Planner-Integration",
+      "Feat: DueCardChip-Komponente — visuell unterschiedlich von Event-Chips (gestrichelt, dezenter)",
+      "Feat: Agenda-View zeigt Kanban-Karten mit Board-Pfad und Priorität-Badge",
+      "Feat: MarkdownEditor — Ctrl+B (Fett), Ctrl+I (Kursiv), Ctrl+K (Link), Ctrl+Shift+X (Durchgestrichen)",
+      "Fix: MarkdownEditor Toolbar-Tooltips zeigen jetzt Keyboard Shortcuts an"
+    ]
+  },
+  "0.5.19.14.27-dev.17d": {
+    "display": "5.14.27-dev.17d",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-05-14",
+    "description": "iCal Export — Planner-Termine als RFC-5545-konformes .ics herunterladen",
+    "changes": [
+      "Feat: GET /api/events/export — generiert RFC-5545-konformes iCal (.ics) für alle Planner-Termine",
+      "Feat: Unterstützt allDay-Termine (DATE), zeitgenaue Termine (DATETIME), wiederkehrende Termine (RRULE)",
+      "Feat: RFC-5545 Line Folding (75-Zeichen-Limit), korrekte Escaping-Funktion für ICS-Sonderzeichen",
+      "Feat: Export-Button im Planner-Header (neben 'Neuer Termin') — direkter Download als hatches-planner.ics"
+    ]
   }
 },
 
-"current": "0.5.12.14.27-dev.10d",
-"current_display": "5.14.27-dev.10d"
+"current": "0.5.19.14.27-dev.17d",
+"current_display": "5.14.27-dev.17d"
 }

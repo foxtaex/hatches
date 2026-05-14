@@ -4,7 +4,7 @@ import {
   faPlus, faXmark, faUser, faShield, faUsers, faGear,
   faChevronRight, faCheck, faTrash, faDatabase, faInfoCircle,
   faClockRotateLeft, faLayerGroup, faKey, faRobot, faPen,
-  faGlobe, faPuzzlePiece,
+  faGlobe, faPuzzlePiece, faRightFromBracket,
   type IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import { WebsiteManager } from "../websites/WebsiteManager";
@@ -381,6 +381,9 @@ function TeamsTab({ teams, roles, users, onRefresh }: { teams: Team[]; roles: Ro
 function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promise<void> }) {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ username: "", email: "", password: "", displayName: "" });
+  const [resetPwUserId, setResetPwUserId] = useState<number | null>(null);
+  const [resetPwValue, setResetPwValue] = useState("");
+  const [resetPwLoading, setResetPwLoading] = useState(false);
 
   async function createUser(e: React.FormEvent) {
     e.preventDefault();
@@ -407,6 +410,27 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
     if (!confirm("Benutzer wirklich löschen?")) return;
     await fetch("/api/admin/users", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
     await onRefresh();
+  }
+
+  async function resetPassword() {
+    if (!resetPwUserId || resetPwValue.trim().length < 6) return;
+    setResetPwLoading(true);
+    await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: resetPwUserId, password: resetPwValue }),
+    });
+    setResetPwUserId(null);
+    setResetPwValue("");
+    setResetPwLoading(false);
+  }
+
+  async function forceLogout(userId: number) {
+    await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId, invalidateSessions: true }),
+    });
   }
 
   return (
@@ -441,33 +465,77 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
 
       <div className="flex flex-col gap-2">
         {users.map((user) => (
-          <div key={user.id} className={`flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 transition-opacity ${user.isActive ? "" : "opacity-50"}`}>
-            <div className="w-9 h-9 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-300 flex-shrink-0">
-              {(user.displayName || user.username).charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-medium text-zinc-200">{user.displayName || user.username}</span>
-                <span className="text-xs text-zinc-500">@{user.username}</span>
-                {user.isAdmin && <span className="text-xs bg-red-900/40 text-red-400 border border-red-800/40 rounded-full px-2 py-0.5">Admin</span>}
+          <div key={user.id} className={`bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden transition-opacity ${user.isActive ? "" : "opacity-60"}`}>
+            <div className="flex items-center gap-3 px-4 py-3">
+              <div className="w-9 h-9 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-300 flex-shrink-0">
+                {(user.displayName || user.username).charAt(0).toUpperCase()}
               </div>
-              <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                {user.memberships.map(({ team, role }) => (
-                  <span key={team.id} className="text-xs rounded-full px-2.5 py-0.5"
-                    style={{ background: team.color + "1a", color: team.color, border: `1px solid ${team.color}44` }}>
-                    {team.name} · <span style={{ color: role.color }}>{role.name}</span>
-                  </span>
-                ))}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-zinc-200">{user.displayName || user.username}</span>
+                  <span className="text-xs text-zinc-500">@{user.username}</span>
+                  {user.isAdmin && <span className="text-xs bg-red-900/40 text-red-400 border border-red-800/40 rounded-full px-2 py-0.5">Admin</span>}
+                </div>
+                <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                  {user.memberships.map(({ team, role }) => (
+                    <span key={team.id} className="text-xs rounded-full px-2.5 py-0.5"
+                      style={{ background: team.color + "1a", color: team.color, border: `1px solid ${team.color}44` }}>
+                      {team.name} · <span style={{ color: role.color }}>{role.name}</span>
+                    </span>
+                  ))}
+                </div>
               </div>
+              <span className="text-xs text-zinc-600 hidden md:block shrink-0">{user.email}</span>
+              <button onClick={() => toggleActive(user)}
+                className={`text-xs rounded-full px-2.5 py-0.5 font-medium transition-colors flex-shrink-0 ${user.isActive ? "bg-green-900/30 text-green-400 hover:bg-red-900/30 hover:text-red-400" : "bg-red-900/30 text-red-400 hover:bg-green-900/30 hover:text-green-400"}`}>
+                {user.isActive ? "Aktiv" : "Inaktiv"}
+              </button>
+              <button
+                onClick={() => { setResetPwUserId(resetPwUserId === user.id ? null : user.id); setResetPwValue(""); }}
+                title="Passwort zurücksetzen"
+                className={`transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800 ${resetPwUserId === user.id ? "text-yellow-400" : "text-zinc-700 hover:text-yellow-400"}`}
+              >
+                <FontAwesomeIcon icon={faKey} className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => forceLogout(user.id)}
+                title="Alle Sitzungen beenden (Force Logout)"
+                className="text-zinc-700 hover:text-orange-400 transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800"
+              >
+                <FontAwesomeIcon icon={faRightFromBracket} className="w-3 h-3" />
+              </button>
+              <button onClick={() => deleteUser(user.id)} className="text-zinc-700 hover:text-red-400 transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800">
+                <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <span className="text-xs text-zinc-600 hidden md:block shrink-0">{user.email}</span>
-            <button onClick={() => toggleActive(user)}
-              className={`text-xs rounded-full px-2.5 py-0.5 font-medium transition-colors flex-shrink-0 ${user.isActive ? "bg-green-900/30 text-green-400 hover:bg-red-900/30 hover:text-red-400" : "bg-red-900/30 text-red-400 hover:bg-green-900/30 hover:text-green-400"}`}>
-              {user.isActive ? "Aktiv" : "Inaktiv"}
-            </button>
-            <button onClick={() => deleteUser(user.id)} className="text-zinc-700 hover:text-red-400 transition-colors flex-shrink-0">
-              <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
-            </button>
+
+            {resetPwUserId === user.id && (
+              <div className="border-t border-zinc-800 px-4 py-3 bg-zinc-900/50 flex items-center gap-2">
+                <FontAwesomeIcon icon={faKey} className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                <span className="text-xs text-zinc-500 flex-shrink-0">Neues Passwort:</span>
+                <input
+                  autoFocus
+                  type="password"
+                  value={resetPwValue}
+                  onChange={(e) => setResetPwValue(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") resetPassword(); if (e.key === "Escape") { setResetPwUserId(null); setResetPwValue(""); } }}
+                  placeholder="Min. 6 Zeichen"
+                  minLength={6}
+                  className="flex-1 bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs rounded-lg px-3 py-1.5 outline-none focus:border-yellow-600/50"
+                />
+                <button
+                  onClick={resetPassword}
+                  disabled={resetPwLoading || resetPwValue.trim().length < 6}
+                  className="bg-yellow-600 hover:bg-yellow-500 disabled:opacity-40 text-white text-xs rounded-lg px-3 py-1.5 transition-colors flex-shrink-0"
+                >
+                  {resetPwLoading ? "…" : "Speichern"}
+                </button>
+                <button onClick={() => { setResetPwUserId(null); setResetPwValue(""); }}
+                  className="text-zinc-600 hover:text-zinc-400 transition-colors flex-shrink-0">
+                  <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
         ))}
         {users.length === 0 && (

@@ -35,9 +35,14 @@ export const POST: APIRoute = async ({ locals, request }) => {
 
 export const PATCH: APIRoute = async ({ locals, request }) => {
   try { requireAdmin(locals); } catch { return Response.json({ error: "Keine Berechtigung" }, { status: 403 }); }
-  const { id, password, ...data } = await request.json();
+  const { id, password, invalidateSessions, ...data } = await request.json();
   if (password) (data as any).passwordHash = await hashPassword(password);
-  await prisma.user.update({ where: { id }, data });
+  if (Object.keys(data).length > 0 || password) {
+    await prisma.user.update({ where: { id }, data });
+  }
+  if (invalidateSessions) {
+    await prisma.session.deleteMany({ where: { userId: id } });
+  }
   return Response.json({ ok: true });
 };
 

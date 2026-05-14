@@ -1,6 +1,29 @@
 ﻿import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
+// GET /api/board/cards?withDueDate=true — cards with due dates (for Planner integration)
+export const GET: APIRoute = async ({ locals, url }) => {
+  const user = (locals as any).user;
+  if (!user) return Response.json({ error: "Nicht angemeldet" }, { status: 401 });
+
+  const withDueDate = url.searchParams.get("withDueDate") === "true";
+  if (!withDueDate) return Response.json([]);
+
+  const cards = await prisma.card.findMany({
+    where: { isArchived: false, dueDate: { not: null } },
+    include: {
+      column: {
+        include: {
+          board: { select: { id: true, name: true, teamId: true } },
+        },
+      },
+    },
+    orderBy: { dueDate: "asc" },
+  });
+
+  return Response.json(cards);
+};
+
 // POST /api/board/cards — create card
 export const POST: APIRoute = async ({ request }) => {
   const { title, columnId } = await request.json();
