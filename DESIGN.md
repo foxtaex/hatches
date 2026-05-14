@@ -236,6 +236,7 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein**:
 - Unabhängig von Rolle oder Team — einmal vergeben, gelten überall
 - Beispiele: "Kann Team erstellen", "Kann API-Keys sehen", "Kann andere User verwalten"
 - Gesetzt von Oga Team-Admins, nicht von Team-Rollen
+- **Private Daten** sind verschlüsselt — selbst Oga kann sie nicht lesen (Future)
 
 **2. Oga Team — Super Admin**
 - Steht über allem — hat Zugriff auf alle Teams und globalen Einstellungen

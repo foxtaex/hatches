@@ -115,3 +115,5 @@ No more app-hopping. Everything in one place, but still clean and simple.
 **Features:** Like GitLab — repo management, issues, merge requests, CI/CD pipelines, webhooks, SSH keys. Made in Germany, EU-compliant (GDPR, data privacy). Open APIs — no lock-in, other tools can integrate. Can sync with GitHub/GitLab (pull/push) or work standalone.
 
 **License:** Partially open source — self-hosted possible, full feature set requires server infrastructure.
+
+**Future:** Even Super Admins cannot read private data. Private data is encrypted (end-to-end encryption). Privacy by design, even from admins.
