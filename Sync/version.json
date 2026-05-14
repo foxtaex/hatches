@@ -3,14 +3,14 @@
     "name": "hatches",
     "description": "Self-hosted team workspace",
     "versioning": {
-      "scheme": "[Release].[Minor].[Patch](a,b,c,d,e)",
-      "explained": "Release = Major features, Minor = Updates/Upgrades, Patch = Bugfixes, (a-e) = Alpha patches"
+      "scheme": "[Release]-[Status(dev|alpha|beta|pre)].[Patch/Update].[Bugfix]",
+      "explained": "Release = Major.Minor.Patch, Status = dev/alpha/beta/pre + count, z.B. 1.0.0-dev.1 oder 1.3.0-alpha.2"
     }
   },
 
   "releases": {
     "1.0.0": {
-      "status": "current",
+      "status": "release",
       "description": "Base hatches — Kanban, Docs, Notes, Websites, Teams, Integrations",
       "features": [
         "Kanban Board (multi-board, drag & drop, cards, assignment)",
@@ -32,8 +32,8 @@
       ]
     },
 
-    "1.1.0": {
-      "status": "planned",
+    "1.1.0-dev.1": {
+      "status": "dev",
       "description": "Stability + UX improvements",
       "features": [
         "Dark/Light theme toggle",
@@ -45,8 +45,8 @@
       "tech": []
     },
 
-    "1.2.0": {
-      "status": "planned",
+    "1.2.0-dev.1": {
+      "status": "dev",
       "description": "Import/Export + Data portability",
       "features": [
         "Export all data as JSON/Zip",
@@ -57,8 +57,8 @@
       "tech": []
     },
 
-    "1.3.0": {
-      "status": "planned",
+    "1.3.0-dev.1": {
+      "status": "dev",
       "description": "Sync + E2E Encryption",
       "features": [
         "Local-first data storage (Dexie.js / IndexedDB)",
@@ -76,8 +76,8 @@
       ]
     },
 
-    "1.4.0": {
-      "status": "planned",
+    "1.4.0-dev.1": {
+      "status": "dev",
       "description": "Headless client + CLI",
       "features": [
         "hatches-headless (CLI-only client)",
@@ -90,8 +90,8 @@
       ]
     },
 
-    "1.5.0": {
-      "status": "planned",
+    "1.5.0-dev.1": {
+      "status": "dev",
       "description": "External editor support",
       "features": [
         "Open in Obsidian (future)",
@@ -102,8 +102,8 @@
       "tech": []
     },
 
-    "2.0.0": {
-      "status": "future",
+    "2.0.0-dev.1": {
+      "status": "dev",
       "description": "Agent API + Streaming Platform",
       "features": [
         "Agent SDK for AI developers",
