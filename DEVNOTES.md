@@ -102,3 +102,19 @@ not human babysitting AI. Creator Mode (Vibe-Coder/AI) vs Vision Mode (Non-Coder
 - **Action:** Finish first, then refactor. Don't optimize prematurely.
 - **Action:** USPs need to be defined and highlighted
 - **Action:** i18n / Config system for hardcoded strings
+
+---
+
+## Hatches 2.0 — Future Plans
+
+> **GitHatch** — Separate from Hatches, will be independent project.
+
+**GitHatch:** Git Repository Management Interface
+- Planned for Hatches 2.0
+- Independent of Hatches (standalone tool that integrates with Hatches)
+- GitHub/GitLab/Gitea repos verwalten
+- PR Reviews, Issues, Actions Dashboard
+- CI/CD pipelines überwachen
+- Code Search und Navigation
+
+> Note: GitHatch is a separate project from Hatches and will be developed independently.

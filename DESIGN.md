@@ -485,3 +485,22 @@ Trigger + Action für wiederkehrende Workflows:
 2. **Version bump:** Bei jedem Update `package.json` erhöhen
 3. **main:** Nur via PR von `dev` — keine direkten Commits
 4. **Modular:** Jedes Feature = eigener Component-Ordner + API-Gruppe
+
+---
+
+## Hatches 2.0 — Future Plans
+
+> **GitHatch** — Separate project, independent from Hatches.
+
+**GitHatch:** Git Repository Management Interface
+- Will be developed as standalone project that integrates with Hatches
+- GitHub/GitLab/Gitea Repos verwalten
+- PR Reviews, Issues, Actions Dashboard
+- CI/CD Pipelines überwachen
+- Code Search und Navigation
+
+**For Hatches 2.0:**
+- Integration mit GitHatch (AI kann Repos durchsuchen, Issues erstellen)
+- Better AI Collaboration Features
+- Enhanced Vibecoding Interface
+- Performance Optimizations
