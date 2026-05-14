@@ -7,67 +7,61 @@
   "versioning": {
     "internal": {
       "scheme": "[Major].[Minor].[Patch].[YYMMDD]-[Stage].[BugfixCount][MiniUpdateCount][WeekTag]",
-      "example": "0.0.5.14.23-dev.4g",
-      "parts": {
-        "major": "Major Versionszähler",
-        "minor": "Feature-Minor",
-        "patch": "Patch-Level",
-        "date": "Datum (YYMMDD)",
-        "stage": "Stage (dev/a/b/pre/stable)",
-        "bugfix": "Bugfix-Zähler an diesem Tag",
-        "mini": "Mini-Update-Zähler",
-        "weektag": "Wochentag (a-m = So-Sa = 0-6)"
-      }
+      "example": "0.0.5.14.23-dev.4g"
     },
     "display": {
-      "scheme_dev": "[Major].[Minor].[YYMMDD]-[Stage].[BugfixCount][WeekTag]",
-      "scheme_stable": "[Major].[Minor]-[Stage]",
+      "scheme": "[Feature].[Patch].[YYMMDD]-[Stage].[BugfixCount][WeekTag]",
       "example_dev": "5.14.23-dev.4g",
-      "example_stable": "5-beta",
-      "example_full_dev": "1.2.5.14.23-dev.4g → 1.2.5-b.0a"
+      "example_beta": "1.2.5-b.0a",
+      "note": "Major.Minor werden aus Display entfernt oder simplified"
     },
     "weektag": {
-      "range": "a-m",
+      "values": "a-m",
       "count": 13,
-      "meaning": "Wochentag-Tracking: a=So, b=Mo, c=Di, d=Mi, e=Do, f=Fr, g=Sa",
-      "note": "Nur bei Mini-Fixes relevant"
+      "meaning": "Week-Tag: Woche im Quartal (1-13), nur bei Mini-Fixes",
+      "days": "So-Sa = 0-6",
+      "weektag_meaning": "Day of week (Wochentag: Sonntag=0 bis Samstag=6)"
     },
-    "stage_order": ["dev", "a", "b", "pre", "stable"]
+    "stages": ["dev", "a", "b", "pre", "stable"]
   },
 
   "version_types": {
+    "week": {
+      "meaning": "Wochen-Tag a-m = 13 Wochen im Quartal",
+      "note": "Nur relevant bei Mini-Fixes",
+      "values": "a=1, b=2, c=3, d=4, e=5, f=6, g=7, h=8, i=9, j=10, k=11, l=12, m=13"
+    },
+    "weektag": {
+      "meaning": "Wochentag So-Sa = 0-6",
+      "values": "a=So, b=Mo, c=Di, d=Mi, e=Do, f=Fr, g=Sa"
+    },
     "bugfix": {
-      "trigger": "Kleine Fixes",
-      "what_changes": "BugfixCount hoch",
-      "display": "gleiche Anzeige, nur Count ändert sich",
+      "trigger": "Bugfix am selben Tag",
+      "counter": "BugfixCount",
       "example": "dev.1g → dev.2g"
     },
     "mini_update": {
-      "trigger": "Mini-Update ohne neue Features",
-      "what_changes": "MiniUpdateCount hoch",
-      "display": "WeekTag bleibt, Mini hoch",
-      "example": "dev.1g → dev.1h (gleiche Woche, neuer Mini-Fix)"
+      "trigger": "Mini-Update",
+      "counter": "MiniUpdateCount",
+      "note": "Zählt Mini-Updates seit letztem Bugfix",
+      "example": "dev.1g → dev.1h"
     },
     "update": {
       "trigger": "Neue Features",
-      "what_changes": "Minor hoch, Bugfix/Mini/WeekTag reset",
-      "display": "Anzeige: Minor hoch",
-      "example": "5.14.23-dev.4g → 5.15.01-dev.1a"
+      "counter": "Update-Zähler in Minor",
+      "example": "5.14 → 5.15"
     },
     "release": {
       "trigger": "Stable-Release",
-      "what_changes": "Stable-Format, stark vereinfacht",
-      "display": "Anzeige: nur noch [Major].[Minor]",
-      "example": "5.14-dev → 5.0"
+      "display": "Stable-Format",
+      "example": "1.2.5-b.0a → 1.2.5"
     }
   },
 
   "releases": {
     "0.0.5.14.23-dev.4g": {
       "display": "5.14.23-dev.4g",
-      "display_short": "5.14-dev",
       "stage": "dev",
-      "type": "update",
       "status": "current",
       "description": "Base hatches — Kanban, Docs, Notes, Websites, Teams, Integrations",
       "features": [
@@ -88,56 +82,9 @@
         "dnd-kit",
         "@uiw/react-md-editor"
       ]
-    },
-
-    "0.5.14.23-a.4g": {
-      "display": "5.14.23-alpha",
-      "stage": "a",
-      "type": "update",
-      "status": "planned"
-    },
-
-    "0.0.5-b.14a": {
-      "display": "5-beta",
-      "stage": "b",
-      "type": "bugfix",
-      "status": "planned"
-    },
-
-    "0.0.0-pre.5a": {
-      "display": "pre",
-      "stage": "pre",
-      "type": "release",
-      "status": "planned"
-    },
-
-    "0.0.05a": {
-      "display": "5.0",
-      "stage": "stable",
-      "type": "release",
-      "status": "future",
-      "description": "First stable release"
     }
   },
 
-  "roadmap": {
-    "next": [
-      { "version": "0.5.14.23-a.4g", "name": "5.14.23-alpha", "stage": "a", "type": "update" },
-      { "version": "0.0.5-b.14a", "name": "5-beta", "stage": "b", "type": "bugfix" },
-      { "version": "0.0.0-pre.5a", "name": "pre", "stage": "pre", "type": "release" },
-      { "version": "0.0.05a", "name": "5.0", "stage": "stable", "type": "release" }
-    ],
-    "future": [
-      { "version": "0.5.15.01-dev.1a", "name": "5.15.01-dev.1a", "stage": "dev", "type": "update", "description": "UX + Stability" },
-      { "version": "0.6.0.01-dev.1a", "name": "6.0.01-dev.1a", "stage": "dev", "type": "update", "description": "Import/Export" },
-      { "version": "0.6.1.01-dev.1a", "name": "6.1.01-dev.1a", "stage": "dev", "type": "update", "description": "Sync + E2E" },
-      { "version": "0.6.2.01-dev.1a", "name": "6.2.01-dev.1a", "stage": "dev", "type": "update", "description": "Headless CLI" },
-      { "version": "0.6.3.01-dev.1a", "name": "6.3.01-dev.1a", "stage": "dev", "type": "update", "description": "External Editor" },
-      { "version": "0.7.0.01-dev.1a", "name": "7.0.01-dev.1a", "stage": "dev", "type": "update", "description": "Agent API + Streaming" }
-    ]
-  },
-
   "current": "0.0.5.14.23-dev.4g",
-  "current_display": "5.14.23-dev.4g",
-  "current_display_short": "5.14-dev"
+  "current_display": "5.14.23-dev.4g"
 }

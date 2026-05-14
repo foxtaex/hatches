@@ -1,74 +1,91 @@
 # hatches Versionierung
 
-## Überblick
+## Vollformat (intern)
 
-hatches nutzt ein **inkrementelles Release-System** mit Stages. Je näher eine Version an `stable` ist, desto simpler wird die angezeigte Versionsnummer.
-
----
-
-## Format
-
-### Vollformat (intern)
 ```
 [Major].[Minor].[Patch].[YYMMDD]-[Stage].[BugfixCount][MiniUpdateCount][WeekTag]
 0.0.5.14.23-dev.4g
 └┘└┘└──┘└────┘ └──┘ └──┘ └──┘ └──┘
- │  │   │    │     │  │    │    │ └─ WeekTag (a-m = Wochentag So-Sa)
- │  │   │    │     │  │    │    └─ Mini-Update-Zähler
- │  │   │    │     │  │    └─ Bugfix-Zähler an diesem Tag
- │  │   │    │     │  └─ Stage (dev/a/b/pre)
- │  │   │    │     └─ Datum (YYMMDD kurz: 23)
+ │  │   │    │     │  │    │    │ └─ WeekTag = Wochentag So-Sa (0-6)
+ │  │   │    │     │  │    │    └─ MiniUpdateCount = wievieltes Mini-Update
+ │  │   │    │     │  │    └─ BugfixCount = wievielter Bugfix heute
+ │  │   │    │     │  └─ Stage (dev/a/b/pre/stable)
+ │  │   │    │     └─ Datum (YYMMDD kurz)
  │  │   │    └─ Patch-Level
  │  │   └─ Minor (Feature-Patch)
  │  └─ Minor
  └──┘└── Major
 ```
 
-### Anzeigeformate
+---
 
-| Stage | Vollformat | Angezeigt | Angezeigt (simplified) |
-|-------|-----------|-----------|--------|
-| **dev** | `1.2.5.14.23-dev.4g` | `1.2.5.14.23-dev.4g` | `5.14-dev` |
-| **alpha** | `0.5.14.23-a.4g` | `5.14.23-alpha` | `5.14-alpha` |
-| **beta** | `0.0.5-b.14a` | `5-beta` | `5-beta` |
-| **pre** | `0.0.0-pre.5a` | `pre` | `pre` |
-| **stable** | `0.0.05a` | `5.0` | `5.0` |
+## Anzeigeformat (öffentlich)
+
+| Stage | Intern | Angezeigt |
+|-------|--------|-----------|
+| **dev** | `0.0.5.14.23-dev.4g` | `5.14.23-dev.4g` |
+| **dev (full)** | `1.2.5.14.23-dev.4g` | `1.2.5.14.23-dev.4g` |
+| **beta** | `1.2.5.14.23-b.0a` | `1.2.5-b.0a` |
+| **pre** | `0.0.0-pre.5a` | `pre` |
+| **stable** | `1.2.5` | `1.2.5` |
+
+---
+
+## WeekTag = Wochentag (0-6)
+
+```
+a = Sonntag = 0
+b = Montag  = 1
+c = Dienstag = 2
+d = Mittwoch = 3
+e = Donnerstag = 4
+f = Freitag = 5
+g = Samstag = 6
+```
+
+---
+
+## Week = Woche im Quartal (a-m = 1-13)
+
+Nur relevant bei **Mini-Fixes** — zählt die Woche im Quartal:
+
+```
+a = Woche 1
+b = Woche 2
+c = Woche 3
+...
+m = Woche 13
+```
 
 ---
 
 ## Zähler-Erklärung
 
 ### BugfixCount
-Der erste Buchstabe nach dem Stage zählt die **Bugfixes an diesem Tag**:
+Wievielter Bugfix heute (gleicher Tag = gleicher BugfixCount):
 ```
-dev.1g = 1 Bugfix heute (g = Samstag)
-dev.2g = 2 Bugfixes heute
-dev.3g = 3 Bugfixes heute
+dev.1g = 1. Bugfix heute
+dev.2g = 2. Bugfix heute
+dev.3g = 3. Bugfix heute
 ```
 
 ### MiniUpdateCount
-Der zweite Buchstabe zählt die **Mini-Updates** (kleine Änderungen ohne neue Features):
+Wievieltes Mini-Update seit dem letzten Bugfix:
 ```
-dev.1g = 1 Mini-Update heute
-dev.1h = 2 Mini-Updates heute (neuer Tag, neuer Mini-Fix)
-```
-
-### WeekTag (a-m)
-Der WeekTag zeigt den **Wochentag** an und läuft **a-m = 13 Wochen**:
-
-```
-a = Sonntag     (Woche 1)
-b = Montag     (Woche 2)
-c = Dienstag   (Woche 3)
-d = Mittwoch   (Woche 4)
-e = Donnerstag (Woche 5)
-f = Freitag    (Woche 6)
-g = Samstag    (Woche 7)
-h = Sonntag     (Woche 8)
-... und so weiter bis Woche 13 (m)
+dev.1g = 1. Mini-Update heute
+dev.1h = 2. Mini-Update (h = neuer Tag oder neuer Mini-Fix)
 ```
 
-Der WeekTag ist vor allem für **Mini-Fixes** relevant und wird nur hochgezählt wenn ein Fix an einem neuen Tag stattfindet.
+---
+
+## Version-Typen
+
+| Typ | Wann | Zähler |
+|-----|------|--------|
+| **Bugfix** | Kleine Fixes | BugfixCount `1→2→3` |
+| **Mini-Update** | Kleine Änderungen ohne neue Features | MiniUpdateCount hoch |
+| **Update** | Neue Features | Minor hoch, alle Zähler reset |
+| **Release** | Stable | Stark vereinfacht |
 
 ---
 
@@ -77,23 +94,12 @@ Der WeekTag ist vor allem für **Mini-Fixes** relevant und wird nur hochgezählt
 ```
 dev → a → b → pre → stable
  │    │   │   │      │
- │    │   │   │      └── Erste stabile Version (z.B. 5.0)
- │    │   │   └── Pre-Release (letzte Tests vor stable)
- │    │   └── Beta (Feature-Set steht, Bugfixing)
- │    └── Alpha (Features locked, am härten)
- └── Development (aktive Entwicklung)
+ │    │   │   │      └── Erste stabile Version
+ │    │   │   └── Pre-Release
+ │    │   └── Beta (Bugfixing)
+ │    └── Alpha (Härtung)
+ └── Development
 ```
-
----
-
-## Version-Typen
-
-| Typ | Wann | Was passiert |
-|-----|------|------------|
-| **Bugfix** | Kleine Fixes, Hotfixes | BugfixCount hoch, Mini+WeekTag bleiben |
-| **Mini-Update** | Kleine Änderungen ohne neue Features | BugfixCount reset, MiniUpdateCount hoch |
-| **Update** | Neue Features | Minor hoch, alle Zähler reset |
-| **Release** | Geplant, stable | Stable-Format, stark vereinfacht |
 
 ---
 
@@ -101,76 +107,42 @@ dev → a → b → pre → stable
 
 ### Bugfix am selben Tag
 ```
-0.0.5.14.23-dev.1g  →  0.0.5.14.23-dev.2g  →  0.0.5.14.23-dev.3g
+0.0.5.14.23-dev.1g → 0.0.5.14.23-dev.2g → 0.0.5.14.23-dev.3g
      (1. Bugfix)          (2. Bugfix)           (3. Bugfix)
 ```
 
-### Mini-Update ( neuer Fix aber kleiner)
+### Mini-Update (neuer Tag)
 ```
-0.0.5.14.23-dev.1g  →  0.0.5.14.23-dev.1h
-                            Bugfix = 1, Mini neu (h = neuer Tag aber Mini-Fix)
-```
-
-### Neuer Tag = neuer WeekTag
-```
-0.0.5.14.23-dev.4g  →  0.0.5.14.24-dev.1a
-                            (24 = neuer Tag, a = Sonntag)
+0.0.5.14.23-dev.1g → 0.0.5.14.24-dev.1a
+                          (neuer Tag = 24, BugfixCount reset)
 ```
 
-### Major-Update (neue Features)
+### Neue Feature (Minor hoch)
 ```
-0.0.5.14.23-dev.4g  →  0.0.5.15.01-dev.1a
-                         Minor hoch, alle Zähler reset
+0.0.5.14.23-dev.4g → 0.0.5.15.01-dev.1a
+                         Minor hoch, alles reset
 ```
 
-### Aufstieg in Stage
+### Aufstieg in Stage (dev → beta)
 ```
-dev → alpha:
-0.0.5.14.23-dev.4g  →  0.5.14.23-a.4g
-                         Format ändert sich! (kein Datum vorne)
+0.0.5.14.23-dev.4g → 1.2.5-b.0a
+                        Format ändert sich!
 ```
 
 ### Stable Release
 ```
-0.0.0-pre.5a  →  0.0.05a  →  5.0
-                    (vereinfacht)
+1.2.5-b.0a → 1.2.5
 ```
 
 ---
 
 ## Versionierungsregeln
 
-1. **Bugfix**: BugfixCount `1→2→3` — bleibt in der Woche gleich
-2. **Neuer Tag**: WeekTag ändert sich (a→b→c...), BugfixCount reset zu `1`
-3. **Mini-Update**: MiniUpdateCount hoch (1→2→3...)
-4. **Neue Feature**: Minor hoch, alle Zähler reset → `5.14→5.15`
-5. **Stage-Wechsel**: Format ändert sich, erkennbar an der Stage
-
----
-
-## Warum so detailliert?
-
-- **Intern**: Präzises Tracking: welcher Bugfix, wann, wie oft, welcher Tag
-- **Display**: User sehen einfache Versionen (`5.14-dev`)
-- **Automatisierbar**: CI/CD kann aus `0.0.5.14.23-dev.4g` direkt den nächsten Build berechnen
-- **Historisch**: Jede Version ist eindeutig identifizierbar
-
----
-
-## Changelog-Vorlage
-
-```markdown
-## [5.14.23] - [Datum] - dev
-### Bugfixes
-- #1 Fix: ...
-- #2 Fix: ...
-
-## [5.15.01] - [Datum] - dev
-### Features
-- Neue Funktion: ...
-### Bugfixes
-- Fix: ...
-```
+1. **Bugfix**: BugfixCount `1→2→3`, MiniUpdateCount bleibt
+2. **Neuer Tag**: BugfixCount reset, WeekTag ändert sich (a→b→c...)
+3. **Mini-Update**: MiniUpdateCount hoch (a→b→c... für neue Mini-Fixes)
+4. **Neue Feature**: Minor hoch, alle Zähler reset
+5. **Stage-Wechsel**: Format wird simpler (dev → beta → pre → stable)
 
 ---
 
