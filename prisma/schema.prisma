@@ -36,8 +36,21 @@ model Card {
   assigneeId    Int?
   assignee      User?          @relation(fields: [assigneeId], references: [id])
   externalIssue ExternalIssue?
+  isArchived    Boolean        @default(false)
+  archivedAt    DateTime?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  archive       Archive?
+}
+
+model Archive {
+  id           Int       @id @default(autoincrement())
+  cardId       Int       @unique
+  card         Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  archivedById Int?
+  archivedBy   User?     @relation(fields: [archivedById], references: [id])
+  reason       String?
+  archivedAt   DateTime  @default(now())
 }
 
 model Doc {
@@ -90,6 +103,7 @@ model User {
   sessions     Session[]
   memberships  TeamMembership[]
   cards        Card[]
+  archives     Archive[]
   ownedBoards  Board[]          @relation("BoardOwner")
   ownedDocs    Doc[]            @relation("DocOwner")
   ownedNotes   Note[]           @relation("NoteOwner")

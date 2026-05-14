@@ -7,9 +7,11 @@ import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus, faXmark, faPen, faCheck, faTableColumns,
-  faArrowRightArrowLeft, faTrash, faLock, faUsers,
+  faArrowRightArrowLeft, faTrash, faLock, faUsers, faBoxArchive,
+  
 } from "@fortawesome/free-solid-svg-icons";
 import { KanbanColumn } from "./KanbanColumn";
+import { ArchivePanel } from "./ArchivePanel";
 import type { Board, Card, Column } from "./types";
 
 interface TeamOption { id: number; name: string; color: string }
@@ -40,6 +42,10 @@ export function KanbanBoard() {
   // Column add state
   const [addingCol, setAddingCol] = useState(false);
   const [newColTitle, setNewColTitle] = useState("");
+
+  // Archive panel state
+  const [showArchive, setShowArchive] = useState(false);
+  const [archivedCards, setArchivedCards] = useState<Card[]>([]);
 
   // Double-submit guards
   const creatingBoardRef = useRef(false);
@@ -78,6 +84,35 @@ export function KanbanBoard() {
   async function loadUserTeams() {
     const res = await fetch("/api/user/teams");
     if (res.ok) setUserTeams(await res.json());
+  }
+
+  async function loadArchive() {
+    const res = await fetch(`/api/board/archive?boardId=${activeBoardId}`);
+    if (res.ok) setArchivedCards(await res.json());
+  }
+
+  function openArchive() {
+    loadArchive();
+    setShowArchive(true);
+  }
+
+  async function restoreCard(cardId: number) {
+    await fetch("/api/board/archive", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cardId }),
+    });
+    loadArchive();
+    if (activeBoardId) loadBoard(activeBoardId);
+  }
+
+  async function deleteArchivedCard(cardId: number) {
+    await fetch("/api/board/cards", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: cardId }),
+    });
+    loadArchive();
   }
 
   // ── Board CRUD ───────────────────────────────────────────
@@ -300,6 +335,9 @@ export function KanbanBoard() {
             className="text-zinc-600 hover:text-zinc-300 transition-colors" title="Board erstellen">
             <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
           </button>
+          <button onClick={openArchive} className="text-zinc-600 hover:text-yellow-500 transition-colors" title="Archiv">
+            <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {addingBoard && (
@@ -429,64 +467,11 @@ export function KanbanBoard() {
           </DragOverlay>
         </DndContext>
       )}
+
+      {showArchive && (
+        <ArchivePanel boardId={activeBoardId} onClose={() => setShowArchive(false)} />
+      )}
     </div>
   );
 }
 
-// ── BoardItem helper ─────────────────────────────────────
-function BoardItem({ b, active, renamingId, renameValue, onSelect, onRename, onRenameChange, onRenameSubmit, onRenameCancel, onDelete }: {
-  b: { id: number; name: string };
-  active: boolean;
-  renamingId: number | null;
-  renameValue: string;
-  onSelect: () => void;
-  onRename: () => void;
-  onRenameChange: (v: string) => void;
-  onRenameSubmit: (id: number, name: string) => void;
-  onRenameCancel: () => void;
-  onDelete: (id: number) => void;
-}) {
-  return (
-    <div
-      onClick={onSelect}
-      className="group flex items-center gap-2 cursor-pointer"
-      style={{
-        padding: "10px 14px",
-        margin: "0 8px",
-        fontSize: 15,
-        borderRadius: 10,
-        width: "calc(100% - 16px)",
-        transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
-        background: active ? "rgba(255,255,255,0.12)" : "transparent",
-        color: active ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.6)",
-        boxShadow: active ? "0 2px 8px rgba(0,0,0,0.15)" : "none",
-      }}
-    >
-      <FontAwesomeIcon icon={faTableColumns} className="w-3 h-3 flex-shrink-0 opacity-60" />
-      {renamingId === b.id ? (
-        <input
-          autoFocus
-          value={renameValue}
-          onChange={(e) => onRenameChange(e.target.value)}
-          onBlur={() => onRenameSubmit(b.id, renameValue || b.name)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") onRenameSubmit(b.id, renameValue || b.name);
-            if (e.key === "Escape") onRenameCancel();
-          }}
-          onClick={(e) => e.stopPropagation()}
-          className="flex-1 bg-zinc-700 text-zinc-100 text-xs rounded px-1 py-0.5 outline-none border border-zinc-500 min-w-0"
-        />
-      ) : (
-        <span className="flex-1 text-xs truncate">{b.name}</span>
-      )}
-      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onRename} className="hover:text-zinc-200 transition-colors" title="Umbenennen">
-          <FontAwesomeIcon icon={faPen} className="w-2.5 h-2.5" />
-        </button>
-        <button onClick={() => onDelete(b.id)} className="hover:text-red-400 transition-colors" title="Löschen">
-          <FontAwesomeIcon icon={faTrash} className="w-2.5 h-2.5" />
-        </button>
-      </div>
-    </div>
-  );
-}

@@ -1,7 +1,7 @@
 import MDEditor from "@uiw/react-md-editor";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faXmark, faLock, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faXmark, faLock, faCheck, faFileImport, faFileExport, faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 interface TeamOption { id: number; name: string; color: string }
 interface Doc {
@@ -26,6 +26,9 @@ export function DocsEditor() {
   const [createTitle, setCreateTitle] = useState("");
   const [createTeamId, setCreateTeamId] = useState<string>("");
   const createRef = useRef(false);
+  const [importing, setImporting] = useState(false);
+  const [importTeamId, setImportTeamId] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -110,6 +113,22 @@ export function DocsEditor() {
     }
   }
 
+  async function importMarkdown(file: File, teamId: string | null) {
+    const fd = new FormData();
+    fd.append("file", file);
+    if (teamId) fd.append("teamId", teamId);
+    const res = await fetch("/api/docs/import", { method: "POST", body: fd });
+    if (!res.ok) { alert("Import fehlgeschlagen"); return; }
+    const doc: Doc = await res.json();
+    setDocs((prev) => [doc, ...prev]);
+    openDoc(doc);
+    setImporting(false);
+  }
+
+  function exportMarkdown(id: number, docTitle: string) {
+    window.open(`/api/docs/${id}/export`, "_blank");
+  }
+
   // Grouping
   const privateDocs = docs.filter((d) => !d.teamId);
   const teamGroups = userTeams
@@ -124,7 +143,24 @@ export function DocsEditor() {
     <div className="flex-1 flex overflow-hidden" data-color-mode="dark">
       {/* Sidebar — Glassmorphism */}
       <aside style={{ width: 280, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.08)", background: "rgba(18,18,18,0.6)", backdropFilter: "blur(30px) saturate(180%)", WebkitBackdropFilter: "blur(30px) saturate(180%)", display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* Import modal */}
+          {importing && (
+            <div className="flex flex-col gap-2 bg-zinc-800 rounded-lg p-3 border border-zinc-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-zinc-300">Markdown importieren</span>
+                <button onClick={() => setImporting(false)} className="text-zinc-600 hover:text-zinc-400">
+                  <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+                </button>
+              </div>
+              <input ref={fileInputRef} type="file" accept=".md,.markdown,.txt" onChange={(e) => { const f = e.target.files?.[0]; if (f) importMarkdown(f, importTeamId || null); }} className="text-xs text-zinc-400 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-zinc-700 file:text-zinc-300" />
+              <select value={importTeamId} onChange={(e) => setImportTeamId(e.target.value)} className="bg-zinc-700 border border-zinc-600 text-zinc-300 text-xs rounded px-2 py-1 outline-none">
+                <option value="">🔒 Privat</option>
+                {userTeams.map((t) => <option key={t.id} value={t.id}>👥 {t.name}</option>)}
+              </select>
+            </div>
+          )}
+          {/* Create button */}
           {creating ? (
             <div className="flex flex-col gap-1.5">
               <input
@@ -153,12 +189,14 @@ export function DocsEditor() {
               </div>
             </div>
           ) : (
-            <button
-              onClick={() => { createRef.current = false; setCreating(true); }}
-              className="w-full flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded px-3 py-1.5 text-left transition-colors"
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-3 h-3" /> Neues Dokument
-            </button>
+            <div className="flex gap-1">
+              <button onClick={() => { createRef.current = false; setCreating(true); }} className="flex-1 flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded px-3 py-1.5 text-left transition-colors">
+                <FontAwesomeIcon icon={faPlus} className="w-3 h-3" /> Neu
+              </button>
+              <button onClick={() => { setImporting(true); }} className="text-zinc-600 hover:text-zinc-300 px-1.5 py-1.5 rounded hover:bg-zinc-800 transition-colors" title="Markdown hochladen">
+                <FontAwesomeIcon icon={faFileImport} className="w-3.5 h-3.5" />
+              </button>
+            </div>
           )}
         </div>
 
@@ -227,6 +265,9 @@ export function DocsEditor() {
                 <FontAwesomeIcon icon={faLock} className="w-2.5 h-2.5" /> Privat
               </span>
             )}
+            <button onClick={() => activeId && exportMarkdown(activeId, title)} className="text-zinc-500 hover:text-zinc-300 transition-colors flex-shrink-0" title="Als .md herunterladen">
+              <FontAwesomeIcon icon={faFileExport} className="w-3.5 h-3.5" />
+            </button>
           </div>
           <div className="flex-1 overflow-hidden">
             <MDEditor value={content} onChange={handleContentChange} height="100%" preview="live" className="h-full" />

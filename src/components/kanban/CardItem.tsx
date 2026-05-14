@@ -2,7 +2,7 @@
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGripVertical, faPen, faXmark, faUser, faArrowRightArrowLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faGripVertical, faPen, faXmark, faUser, faArrowRightArrowLeft, faChevronRight, faArchive, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import type { Card } from "./types";
 
 interface BoardWithCols { id: number; name: string; columns: { id: number; title: string }[] }
@@ -116,6 +116,9 @@ export function CardItem({ card, users, allBoards, onUpdate, onDelete, onMoveToB
         <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
           <button onClick={() => setShowDesc(!showDesc)} className="text-zinc-500 hover:text-zinc-300 transition-colors" title="Beschreibung">
             <FontAwesomeIcon icon={faPen} className="w-3 h-3" />
+          </button>
+          <button onClick={() => { onUpdate(card.id, { isArchived: true }); }} className="text-zinc-600 hover:text-yellow-500 transition-colors" title="Archivieren">
+            <FontAwesomeIcon icon={faArchive} className="w-3 h-3" />
           </button>
           {allBoards.length > 0 && (
             <button onClick={() => setShowMovePicker(!showMovePicker)} className="text-zinc-500 hover:text-blue-400 transition-colors" title="Zu anderem Board verschieben">

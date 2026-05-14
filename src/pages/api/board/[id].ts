@@ -2,8 +2,11 @@
 import { prisma } from "../../../lib/db";
 
 // GET /api/board/[id] — full board with columns + cards
-export const GET: APIRoute = async ({ params }) => {
+// Query params: ?includeArchived=1 to also show archived cards
+export const GET: APIRoute = async ({ params, request }) => {
   const id = Number(params.id);
+  const includeArchived = new URL(request.url).searchParams.get("includeArchived") === "1";
+
   const board = await prisma.board.findUnique({
     where: { id },
     include: {
@@ -11,6 +14,7 @@ export const GET: APIRoute = async ({ params }) => {
         orderBy: { position: "asc" },
         include: {
           cards: {
+            where: includeArchived ? {} : { isArchived: false },
             orderBy: { position: "asc" },
             include: {
               assignee: { select: { id: true, displayName: true, username: true } },
