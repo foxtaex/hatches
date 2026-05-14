@@ -4,13 +4,13 @@
     "description": "Self-hosted team workspace",
     "versioning": {
       "scheme": "[Release].[Patch]-[Stage].[Count][Tag]",
-      "explained": "Format: 1.0.0-dev.1a = Major.Minor.Patch-Stage.CountStageTag. Stage order: dev → b → a → pre → stable. Examples: 0.0.0-dev.1a, 0.0.0-b.1a, 0.0.0-a.1a, 0.0.0-pre.1, 1.0.0",
-      "stages_order": ["dev", "b", "a", "pre"],
+      "explained": "Format: 1.0.0-dev.1a = Major.Minor.Patch-Stage.CountStageTag. Stage order: dev → a → b → pre → stable. Examples: 0.0.0-dev.1a, 0.0.0-a.1a, 0.0.0-b.1a, 0.0.0-pre.1, 1.0.0",
+      "stages_order": ["dev", "a", "b", "pre"],
       "stages_meaning": {
-        "dev": "Development — active development, unstable API",
-        "b": "Beta — feature set defined, bug fixing",
-        "a": "Alpha — feature complete, hardening",
-        "pre": "Pre-release — near stable, final hardening"
+        "dev": "Development — active development, API changing",
+        "a": "Alpha — development stabilizing, major features locked",
+        "b": "Beta — feature complete, bug fixing mode",
+        "pre": "Pre-release — near stable, final polish"
       }
     }
   },
@@ -21,14 +21,14 @@
       "description": "Initial development build"
     },
 
-    "0.0.0-b.1a": {
-      "status": "past",
-      "description": "Beta build"
-    },
-
     "0.0.0-a.1a": {
       "status": "past",
       "description": "Alpha build"
+    },
+
+    "0.0.0-b.1a": {
+      "status": "past",
+      "description": "Beta build"
     },
 
     "0.0.0-pre.1": {
@@ -44,21 +44,18 @@
 
   "roadmap": {
     "next": {
-      "1.0.0-dev.2a": {
-        "description": "Stability + UX improvements"
+      "1.0.0-a.1a": {
+        "description": "Alpha release — features locked, hardening starts"
       },
       "1.0.0-b.1a": {
-        "description": "Beta release candidate"
-      },
-      "1.0.0-a.1a": {
-        "description": "Alpha release candidate"
+        "description": "Beta release — bug fixing, no new features"
       },
       "1.0.0-pre.1": {
         "description": "Pre-stable release"
       },
       "1.0.0": {
         "status": "stable",
-        "description": "First stable release — 1.0.0"
+        "description": "First stable release"
       }
     },
     "future": {
