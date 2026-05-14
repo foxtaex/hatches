@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <defs>
+    <linearGradient id="gmb-m" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a3f33"/>
+      <stop offset="100%" stop-color="#0e2620"/>
+    </linearGradient>
+    <linearGradient id="gmb-l" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7CE3B3"/>
+      <stop offset="100%" stop-color="#3CC79A"/>
+    </linearGradient>
+    <filter id="gmb-f" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5.6"/>
+    </filter>
+  </defs>
+  <!-- Squircle background -->
+  <path d="M 64 20 Q 20 20 20 64 L 20 216 Q 20 260 64 260 L 216 260 Q 260 260 260 216 L 260 64 Q 260 20 216 20 Z" fill="url(#gmb-m)" stroke="#23574a" stroke-width="1"/>
+  <!-- Glowing H (blurred glow layer) -->
+  <g filter="url(#gmb-f)" opacity="0.85">
+    <rect x="74" y="66" width="32" height="148" rx="5" fill="#3CC79A"/>
+    <rect x="174" y="66" width="32" height="148" rx="5" fill="#3CC79A"/>
+    <polygon points="74,128 206,112 206,140 74,156" fill="#3CC79A"/>
+  </g>
+  <!-- Solid mint H -->
+  <g fill="#7CE3B3">
+    <rect x="74" y="66" width="32" height="148" rx="5"/>
+    <rect x="174" y="66" width="32" height="148" rx="5"/>
+  </g>
+  <!-- Crossbar shadow -->
+  <polygon points="74,158 206,142 206,150 74,168" fill="#000" opacity="0.35"/>
+  <!-- Crossbar -->
+  <polygon points="74,128 206,112 206,140 74,156" fill="url(#gmb-l)"/>
+  <!-- Top highlight -->
+  <polygon points="74,128 206,112 206,116 74,132" fill="#ffffff" opacity="0.25"/>
+</svg>
