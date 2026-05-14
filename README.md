@@ -1,20 +1,33 @@
 # Hatches
 
 <div align="center">
-  <img src="public/logo/mark-a.svg" width="120" alt="Hatches Logo" />
-  <br/><br/>
-  <strong>A lean, self-hosted team workspace</strong>
-  <br/>
-  <em>Your own private Notion alternative for developers</em>
-  <br/><br/>
-  <a href="https://github.com/foxtaex/hatches">[![License: MIT + Commons Clause](https://img.shields.io/badge/License-MIT%20+%20Commons%20Clause-blue.svg)](LICENSE)</a>
-  <img src="https://img.shields.io/badge/Astro-6-ff6b35?logo=astro" alt="Astro 6"/>
-  <img src="https://img.shields.io/badge/React-18-61dafb?logo=react" alt="React 18"/>
-  <img src="https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma" alt="Prisma 7"/>
-  <img src="https://img.shields.io/badge/Tailwind-4-06b6d4?logo=tailwindcss" alt="Tailwind CSS v4"/>
-  <br/>
-  <a href="https://github.com/foxtaex/hatches/stargazers">![Stars](https://img.shields.io/github/stars/foxtaex/hatches?style=flat-square)</a>
-  <a href="https://github.com/foxtaex/hatches/releases">![Version](https://img.shields.io/github/v/release/foxtaex/hatches?include_prereleases&label=version)</a>
+  
+```
+  ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+  ┃                                                 ┃
+  ┃   ╔═══╗   ╔═══╗       ╔═══════════════════╗     ┃
+  ┃   ║   ║   ║   ║       ║     hatches      ●   ║     ┃
+  ┃   ║ H ║   ║ H ║       ╚═══════════════════╝     ┃
+  ┃   ║   ║   ║   ║                                 ┃
+  ┃   ╚═══╝   ╚═══╝                                 ┃
+  ┃   Mint #3CC79A  ·  white H  ·  perspective       ┃
+  ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+```
+
+**A lean, self-hosted team workspace**
+<br/>
+<em>Your own private Notion alternative for developers</em>
+<br/><br/>
+
+[![License: MIT + Commons Clause](https://img.shields.io/badge/License-MIT%20+%20Commons%20Clause-blue.svg)](LICENSE)
+<img src="https://img.shields.io/badge/Astro-6-ff6b35?logo=astro" alt="Astro 6"/>
+<img src="https://img.shields.io/badge/React-18-61dafb?logo=react" alt="React 18"/>
+<img src="https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma" alt="Prisma 7"/>
+<img src="https://img.shields.io/badge/Tailwind-4-06b6d4?logo=tailwindcss" alt="Tailwind CSS v4"/>
+<br/>
+![Stars](https://img.shields.io/github/stars/foxtaex/hatches?style=flat-square)
+<img src="https://img.shields.io/github/v/release/foxtaex/hatches?include_prereleases&label=version" alt="Version"/>
+
 </div>
 
 > 🇩🇪 [Deutsche Version → README.de.md](README.de.md)
