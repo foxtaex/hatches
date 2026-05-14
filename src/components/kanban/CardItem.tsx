@@ -2,168 +2,160 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGripVertical, faPen, faXmark, faUser, faArrowRightArrowLeft, faChevronRight, faBoxArchive } from "@fortawesome/free-solid-svg-icons";
+import { faGripVertical, faXmark, faArrowRightArrowLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import type { Card } from "./types";
+import { parseLabels, parseChecklist, PRIORITY_CONFIG } from "./types";
 
 interface BoardWithCols { id: number; name: string; columns: { id: number; title: string }[] }
 
 interface Props {
   card: Card;
-  users: { id: number; displayName: string | null; username: string }[];
   allBoards: BoardWithCols[];
-  onUpdate: (id: number, data: Partial<Card>) => void;
-  onDelete: (id: number) => void;
-  onArchive: (id: number) => void;
+  onOpenCard: (id: number) => void;
   onMoveToBoard: (cardId: number, targetColumnId: number) => void;
 }
 
-export function CardItem({ card, users, allBoards, onUpdate, onDelete, onArchive, onMoveToBoard }: Props) {
-  const [editing, setEditing] = useState(false);
-  const [title, setTitle] = useState(card.title);
-  const [showDesc, setShowDesc] = useState(false);
-  const [desc, setDesc] = useState(card.description ?? "");
-  const [showAssignee, setShowAssignee] = useState(false);
+export function CardItem({ card, allBoards, onOpenCard, onMoveToBoard }: Props) {
   const [showMovePicker, setShowMovePicker] = useState(false);
   const [moveHoverBoard, setMoveHoverBoard] = useState<number | null>(null);
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: `card-${card.id}` });
 
-  // Keep dnd-kit transform inline — these are dynamic runtime values
+  // dnd-kit transform is a runtime value — must stay inline
   const dndStyle = {
     transform: CSS.Transform.toString(transform),
     transition: transition || "all 0.3s cubic-bezier(0.4,0,0.2,1)",
     opacity: isDragging ? 0.4 : 1,
   };
 
-  function saveTitle() {
-    const trimmed = title.trim();
-    if (!trimmed) { setTitle(card.title); setEditing(false); return; }
-    onUpdate(card.id, { title: trimmed });
-    setEditing(false);
-  }
+  const labels = parseLabels(card.labels);
+  const checklist = parseChecklist(card.checklist);
+  const doneCount = checklist.filter((i) => i.done).length;
+  const checkProgress = checklist.length > 0 ? Math.round((doneCount / checklist.length) * 100) : 0;
+  const dueDateObj = card.dueDate ? new Date(card.dueDate) : null;
+  const isOverdue = dueDateObj ? dueDateObj < new Date() : false;
+  const priorityCfg = card.priority
+    ? PRIORITY_CONFIG[card.priority as keyof typeof PRIORITY_CONFIG]
+    : null;
 
-  function saveDesc() {
-    onUpdate(card.id, { description: desc || null });
-    setShowDesc(false);
-  }
+  const hasMetaRow = priorityCfg || dueDateObj || checklist.length > 0 || card.assignee;
 
   return (
-    <div
-      ref={setNodeRef}
-      style={dndStyle}
-      className="group relative bg-[rgba(40,40,40,0.9)] rounded-xl p-[14px] border border-[rgba(255,255,255,0.12)] cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.15)] hover-lift"
-    >
-      <div className="flex items-start gap-2">
-        <div
-          {...attributes}
-          {...listeners}
-          className="mt-0.5 text-[rgba(255,255,255,0.25)] cursor-grab flex-shrink-0"
-        >
-          <FontAwesomeIcon icon={faGripVertical} className="text-xs" />
-        </div>
+    <div ref={setNodeRef} style={dndStyle} className="group relative rounded-xl overflow-hidden border border-[rgba(255,255,255,0.1)] shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover-lift">
 
-        <div className="flex-1 min-w-0">
-          {editing ? (
-            <input
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onBlur={saveTitle}
-              onKeyDown={(e) => { if (e.key === "Enter") saveTitle(); if (e.key === "Escape") { setTitle(card.title); setEditing(false); } }}
-              className="w-full bg-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.95)] text-[15px] rounded-md px-2 py-0.5 outline-none border border-[rgba(255,255,255,0.2)]"
-            />
-          ) : (
-            <p
-              className="text-[15px] font-medium text-[rgba(255,255,255,0.95)] mb-1.5 break-words leading-[1.4] cursor-pointer"
-              onClick={() => setEditing(true)}
-            >
-              {card.title}
-            </p>
-          )}
+      {/* Cover color strip — dynamic runtime value must stay inline */}
+      {card.coverColor && (
+        <div className="h-8 w-full" style={{ background: card.coverColor }} />
+      )}
 
-          {card.description && !showDesc && (
-            <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{card.description}</p>
-          )}
+      <div className="bg-[rgba(40,40,40,0.92)] px-3 pt-3 pb-2.5">
 
-          {showDesc && (
-            <div className="mt-2">
-              <textarea
-                autoFocus
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                onBlur={saveDesc}
-                rows={3}
-                placeholder="Beschreibung..."
-                className="w-full bg-zinc-700 text-zinc-200 text-xs rounded px-2 py-1.5 outline-none border border-zinc-500 resize-none"
-              />
-            </div>
-          )}
-
-          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-            {card.externalIssue && (
-              <span className="text-xs bg-zinc-700 text-zinc-400 rounded px-1.5 py-0.5">
-                {card.externalIssue.integration.type} #{card.externalIssue.externalId}
+        {/* Labels */}
+        {labels.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {labels.map((l) => (
+              <span
+                key={l.id}
+                className="text-[10px] font-semibold px-2 py-0.5 rounded-full leading-tight"
+                style={{ background: l.color + "30", color: l.color }}
+              >
+                {l.name}
               </span>
-            )}
-            {showAssignee ? (
-              <select
-                autoFocus
-                value={card.assigneeId ?? ""}
-                onChange={(e) => { onUpdate(card.id, { assigneeId: e.target.value ? Number(e.target.value) : null }); setShowAssignee(false); }}
-                onBlur={() => setShowAssignee(false)}
-                className="bg-zinc-700 text-zinc-200 text-xs rounded px-1.5 py-0.5 outline-none border border-zinc-500"
-              >
-                <option value="">— Niemand</option>
-                {users.map((u) => <option key={u.id} value={u.id}>{u.displayName || u.username}</option>)}
-              </select>
-            ) : (
-              <button
-                onClick={() => setShowAssignee(true)}
-                className="flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
-                title="Zuweisen"
-              >
-                <FontAwesomeIcon icon={faUser} className="w-2.5 h-2.5" />
-                {card.assignee
-                  ? <span className="bg-zinc-700 rounded px-1.5 py-0.5">{card.assignee.displayName || card.assignee.username}</span>
-                  : <span>zuweisen</span>}
-              </button>
-            )}
+            ))}
           </div>
-        </div>
+        )}
 
-        <div className="flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-          <button
-            onClick={() => setShowDesc(!showDesc)}
-            className="text-zinc-500 hover:text-zinc-300 transition-colors"
-            title="Beschreibung"
+        {/* Title + drag handle + move-board button */}
+        <div className="flex items-start gap-2">
+          <div
+            {...attributes}
+            {...listeners}
+            className="mt-0.5 text-[rgba(255,255,255,0.2)] cursor-grab flex-shrink-0 hover:text-[rgba(255,255,255,0.4)] transition-colors"
+            onClick={(e) => e.stopPropagation()}
           >
-            <FontAwesomeIcon icon={faPen} className="w-3 h-3" />
-          </button>
-          <button
-            onClick={() => onArchive(card.id)}
-            className="text-zinc-600 hover:text-yellow-500 transition-colors"
-            title="Archivieren"
+            <FontAwesomeIcon icon={faGripVertical} className="text-xs" />
+          </div>
+
+          <p
+            className="flex-1 text-[14px] font-medium text-[rgba(255,255,255,0.92)] break-words leading-[1.4] min-w-0 cursor-pointer"
+            onClick={() => onOpenCard(card.id)}
           >
-            <FontAwesomeIcon icon={faBoxArchive} className="w-3 h-3" />
-          </button>
+            {card.title}
+          </p>
+
           {allBoards.length > 0 && (
             <button
-              onClick={() => setShowMovePicker(!showMovePicker)}
-              className="text-zinc-500 hover:text-blue-400 transition-colors"
+              onClick={(e) => { e.stopPropagation(); setShowMovePicker(!showMovePicker); }}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-600 hover:text-blue-400 flex-shrink-0 mt-0.5"
               title="Zu anderem Board verschieben"
             >
               <FontAwesomeIcon icon={faArrowRightArrowLeft} className="w-3 h-3" />
             </button>
           )}
-          <button
-            onClick={() => onDelete(card.id)}
-            className="text-zinc-600 hover:text-red-400 transition-colors"
-            title="Loeschen"
-          >
-            <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
-          </button>
         </div>
+
+        {/* Description preview */}
+        {card.description && (
+          <p
+            className="text-[11px] text-white/35 mt-1.5 ml-5 line-clamp-2 leading-relaxed cursor-pointer"
+            onClick={() => onOpenCard(card.id)}
+          >
+            {card.description}
+          </p>
+        )}
+
+        {/* Meta row: priority · due date · checklist count · assignee avatar */}
+        {hasMetaRow && (
+          <div
+            className="flex items-center gap-2 mt-2.5 ml-5 flex-wrap cursor-pointer"
+            onClick={() => onOpenCard(card.id)}
+          >
+            {priorityCfg && (
+              <span
+                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md"
+                style={{ color: priorityCfg.color, background: priorityCfg.bg }}
+              >
+                {priorityCfg.label}
+              </span>
+            )}
+
+            {dueDateObj && (
+              <span className={`text-[10px] font-medium ${isOverdue ? "text-red-400" : "text-white/40"}`}>
+                {isOverdue ? "⚠ " : "📅 "}
+                {dueDateObj.toLocaleDateString("de-DE", { day: "2-digit", month: "short" })}
+              </span>
+            )}
+
+            {checklist.length > 0 && (
+              <span className={`text-[10px] font-medium ${checkProgress === 100 ? "text-[#3CC79A]" : "text-white/40"}`}>
+                ☑ {doneCount}/{checklist.length}
+              </span>
+            )}
+
+            {card.assignee && (
+              <span
+                className="ml-auto text-[10px] font-bold bg-zinc-700 text-zinc-300 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0"
+                title={card.assignee.displayName ?? card.assignee.username}
+              >
+                {(card.assignee.displayName ?? card.assignee.username)[0].toUpperCase()}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Checklist progress bar */}
+        {checklist.length > 0 && (
+          <div className="mt-2 ml-5 h-1 bg-[rgba(255,255,255,0.08)] rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{
+                width: `${checkProgress}%`,
+                background: checkProgress === 100 ? "#3CC79A" : "#6366f1",
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Cross-board move picker */}

@@ -141,7 +141,7 @@
     "0.5.7.14.27-dev.5d": {
       "display": "5.14.27-dev.5d",
       "stage": "dev",
-      "status": "current",
+      "status": "archived",
       "date": "2026-05-14",
       "description": "Globale Suche (Cmd+K) + Bugfixes + Settings Tailwind-Refactor",
       "changes": [
@@ -151,9 +151,29 @@
         "Fix: Planner und TemplateLibrary lasen Teams falsch aus (m.team → direktes Array)",
         "Refactor: settings.astro — alle Inline-Styles durch Tailwind ersetzt (CONTRIBUTING.md)"
       ]
+    },
+    "0.5.8.14.27-dev.6d": {
+      "display": "5.14.27-dev.6d",
+      "stage": "dev",
+      "status": "current",
+      "date": "2026-05-14",
+      "description": "Trello+Notion Kanban Cards — Detail Modal, Labels, Priority, Due Date, Checklist, Cover",
+      "changes": [
+        "Feat: CardDetailModal — Trello/Notion-style Karten-Detail-Ansicht (Titel, Beschreibung, Checkliste, Sidebar)",
+        "Feat: Card Labels — Farbige Labels pro Karte (JSON, Add/Remove im Modal)",
+        "Feat: Card Priority — Priorität (urgent/high/medium/low) mit farbigen Badges",
+        "Feat: Card Due Date — Fälligkeitsdatum mit Überfällig-Indikator (⚠ rot)",
+        "Feat: Card Checklist — Aufgaben-Liste mit Fortschrittsbalken, Toggle, Delete",
+        "Feat: Card Cover Color — Farbige Cover-Streifen oben auf der Karte",
+        "Feat: Assignee Avatar — Initialen-Avatar unten rechts auf der Karte",
+        "Refactor: CardItem.tsx komplett neu — visuelle Karte mit Cover, Labels, Meta-Row, Fortschrittsbalken",
+        "Refactor: KanbanColumn.tsx — users-Prop entfernt, onOpenCard-Prop hinzugefügt",
+        "Refactor: KanbanBoard.tsx — openCardId State + CardDetailModal eingebunden",
+        "Fix: /api/board/cards PATCH — explizites Field-Mapping, dueDate ISO→Date Konvertierung"
+      ]
     }
   },
 
-  "current": "0.5.7.14.27-dev.5d",
-  "current_display": "5.14.27-dev.5d"
+  "current": "0.5.8.14.27-dev.6d",
+  "current_display": "5.14.27-dev.6d"
 }

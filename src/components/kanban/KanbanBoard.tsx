@@ -11,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { KanbanColumn } from "./KanbanColumn";
 import { ArchivePanel } from "./ArchivePanel";
+import { CardDetailModal } from "./CardDetailModal";
 import type { Board, Card, Column } from "./types";
 
 interface TeamOption { id: number; name: string; color: string }
@@ -102,6 +103,9 @@ export function KanbanBoard() {
 
   // Archive panel state
   const [showArchive, setShowArchive] = useState(false);
+
+  // Card detail modal state
+  const [openCardId, setOpenCardId] = useState<number | null>(null);
 
   // Double-submit guards
   const creatingBoardRef = useRef(false);
@@ -198,6 +202,15 @@ export function KanbanBoard() {
 
   function findColumnById(colId: number): Column | null {
     return board?.columns.find((c) => c.id === colId) ?? null;
+  }
+
+  function findCardWithColumn(cardId: number): { card: Card; columnName: string } | null {
+    if (!board) return null;
+    for (const col of board.columns) {
+      const card = col.cards.find((c) => c.id === cardId);
+      if (card) return { card, columnName: col.title };
+    }
+    return null;
   }
 
   function handleDragStart({ active }: DragStartEvent) {
@@ -458,13 +471,10 @@ export function KanbanBoard() {
               <KanbanColumn
                 key={col.id}
                 column={col}
-                users={users}
                 allBoards={allBoards.filter((b) => b.id !== board.id)}
                 currentBoardId={board.id}
                 onAddCard={addCard}
-                onUpdateCard={updateCard}
-                onDeleteCard={deleteCard}
-                onArchiveCard={archiveCard}
+                onOpenCard={setOpenCardId}
                 onMoveCardToBoard={moveCardToBoard}
                 onRenameColumn={renameColumn}
                 onDeleteColumn={deleteColumn}
@@ -519,6 +529,22 @@ export function KanbanBoard() {
           onRestore={() => loadBoard(activeBoardId)}
         />
       )}
+
+      {openCardId !== null && (() => {
+        const found = findCardWithColumn(openCardId);
+        if (!found) return null;
+        return (
+          <CardDetailModal
+            card={found.card}
+            users={users}
+            columnName={found.columnName}
+            onClose={() => setOpenCardId(null)}
+            onUpdate={updateCard}
+            onDelete={(id) => { deleteCard(id); setOpenCardId(null); }}
+            onArchive={(id) => { archiveCard(id); setOpenCardId(null); }}
+          />
+        );
+      })()}
     </div>
   );
 }
