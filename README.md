@@ -1,9 +1,9 @@
 <div align="center">
-  <h1>hatches</h1> 
   <img src="public/logo/mark-b.svg" width="160" alt="Hatches Logo — Mark B (Subtle)" /> <br/>
-<br/>
+  <h1>hatches</h1> 
+</div>
 
-
+<div align="center">
 A lean, self-hosted team workspace
 <br/>
 <em>Your own private Notion alternative for developers</em>
