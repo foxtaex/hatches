@@ -5,19 +5,60 @@
   },
 
   "versioning": {
-    "scheme": "[Major].[Minor].[Patch].[Date]-[Stage].[Count][Tag]",
+    "scheme": {
+      "internal": "[Major].[Minor].[Patch].[YYMMDD]-[Stage].[Count][WeekTag]",
+      "display": "[Major].[Minor]-[Stage]",
+      "example": "0.0.5.14.23-dev.4g = 5.14-dev"
+    },
+    "weektag": {
+      "range": "a-m",
+      "count": 13,
+      "cycle": "Woche 1=a, Woche 2=b, ... Woche 13=m",
+      "note": "WeekTag läuft a-m (13 Wochen), nur bei Bugfixes/Mini-Fixes"
+    },
+    "count": {
+      "meaning": "Iterationszähler — wie oft diese Version gebaut/getestet wurde"
+    },
+    "date": {
+      "format": "YYMMDD (z.B. 23.05.14 = 23)",
+      "note": "Tagesdatum beim Bauen"
+    },
     "stage_order": ["dev", "a", "b", "pre", "stable"]
+  },
+
+  "version_types": {
+    "bugfix": {
+      "description": "Kleine Fixes, Mini-Updates",
+      "version_change": "Count oder WeekTag hoch",
+      "example": "dev.1g → dev.2g"
+    },
+    "mini_update": {
+      "description": "Kleine Änderungen ohne neue Features",
+      "version_change": "Count bleibt, WeekTag hoch",
+      "example": "dev.1g → dev.1h"
+    },
+    "update": {
+      "description": "Neue Features",
+      "version_change": "Minor hoch, Count+WeekTag reset",
+      "example": "5.14 → 5.15"
+    },
+    "release": {
+      "description": "Geplant, stable",
+      "version_change": "Stable-Format, simplified",
+      "example": "5.14-dev → 5.0"
+    }
   },
 
   "releases": {
     "0.0.5.14.23-dev.4g": {
       "display": "5.14-dev",
       "stage": "dev",
+      "type": "update",
       "status": "current",
       "description": "Base hatches — Kanban, Docs, Notes, Websites, Teams, Integrations",
       "features": [
         "Kanban Board (multi-board, drag & drop, cards, assignment)",
-        "Docs (Markdown editor with view mode toggle)",
+        "Docs (Markdown editor with view mode toggle: preview/edit/both)",
         "Notes (Quick personal notes)",
         "Websites (Internal URL & project registry)",
         "Teams & Roles (Permission system per section)",
@@ -38,24 +79,28 @@
     "0.5.14.23-a.4g": {
       "display": "5.14-alpha",
       "stage": "a",
+      "type": "update",
       "status": "planned"
     },
 
     "0.0.5-b.14a": {
       "display": "5-beta",
       "stage": "b",
+      "type": "bugfix",
       "status": "planned"
     },
 
     "0.0.0-pre.5a": {
       "display": "pre",
       "stage": "pre",
+      "type": "release",
       "status": "planned"
     },
 
     "0.0.05a": {
       "display": "5.0",
       "stage": "stable",
+      "type": "release",
       "status": "future",
       "description": "First stable release"
     }
@@ -63,18 +108,18 @@
 
   "roadmap": {
     "next": [
-      { "version": "0.5.14.23-a.4g", "name": "5.14-alpha", "stage": "a", "description": "Alpha — hardening, no new major features" },
-      { "version": "0.0.5-b.14a", "name": "5-beta", "stage": "b", "description": "Beta — bug fixing only" },
-      { "version": "0.0.0-pre.5a", "name": "pre", "stage": "pre", "description": "Pre-release" },
-      { "version": "0.0.05a", "name": "5.0", "stage": "stable", "description": "First stable release" }
+      { "version": "0.5.14.23-a.4g", "name": "5.14-alpha", "stage": "a", "type": "update" },
+      { "version": "0.0.5-b.14a", "name": "5-beta", "stage": "b", "type": "bugfix" },
+      { "version": "0.0.0-pre.5a", "name": "pre", "stage": "pre", "type": "release" },
+      { "version": "0.0.05a", "name": "5.0", "stage": "stable", "type": "release" }
     ],
     "future": [
-      { "version": "0.5.15.XX-dev.Xg", "name": "5.15-dev", "stage": "dev", "description": "UX + Stability improvements" },
-      { "version": "0.6.0.XX-dev.Xg", "name": "6.0-dev", "stage": "dev", "description": "Import/Export" },
-      { "version": "0.6.1.XX-dev.Xg", "name": "6.1-dev", "stage": "dev", "description": "Sync + E2E Encryption" },
-      { "version": "0.6.2.XX-dev.Xg", "name": "6.2-dev", "stage": "dev", "description": "Headless CLI" },
-      { "version": "0.6.3.XX-dev.Xg", "name": "6.3-dev", "stage": "dev", "description": "External Editor (Obsidian/VSCode)" },
-      { "version": "0.7.0.XX-dev.Xg", "name": "7.0-dev", "stage": "dev", "description": "Agent API + Streaming" }
+      { "version": "0.5.15.01-dev.1a", "name": "5.15-dev", "stage": "dev", "type": "update", "description": "UX + Stability" },
+      { "version": "0.6.0.01-dev.1a", "name": "6.0-dev", "stage": "dev", "type": "update", "description": "Import/Export" },
+      { "version": "0.6.1.01-dev.1a", "name": "6.1-dev", "stage": "dev", "type": "update", "description": "Sync + E2E" },
+      { "version": "0.6.2.01-dev.1a", "name": "6.2-dev", "stage": "dev", "type": "update", "description": "Headless CLI" },
+      { "version": "0.6.3.01-dev.1a", "name": "6.3-dev", "stage": "dev", "type": "update", "description": "External Editor" },
+      { "version": "0.7.0.01-dev.1a", "name": "7.0-dev", "stage": "dev", "type": "update", "description": "Agent API + Streaming" }
     ]
   },
 

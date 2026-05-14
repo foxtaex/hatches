@@ -10,16 +10,17 @@ hatches nutzt ein **inkrementelles Release-System** mit Stages. Je näher eine V
 
 ### Vollformat (intern)
 ```
-[Major].[Minor].[Patch].[Date]-[Stage].[Count][Tag]
+[Major].[Minor].[Patch].[YYMMDD]-[Stage].[Count][WeekTag]
 0.0.5.14.23-dev.4g
 └┘└┘└──┘└────┘ └──┘ └┘ └┘ └┘
- │  │   │    │     │  │  │ └─ Tag (Buchstabe: a=1st, b=2nd...)
+ │  │   │    │     │  │  │ └─ WeekTag (a-m = 13 Wochen, nur bei Mini-Fixes)
  │  │   │    │     │  │  └─ Count (Iterationszähler)
- │  │   │    │     │  └─ Stage (dev/a/b/pre/stable)
- │  │   │    │     └─ Datum (YYMMDD)
+ │  │   │    │     │  └─ Stage (dev/a/b/pre)
+ │  │   │    │     └─ Datum (YYMMDD, kurz: YY oder 23)
  │  │   │    └─ Feature-Patch (Feature.MinorPatch)
- │  │   └─ Minor (Hauptversionsnummer)
- └──┘└──┘└── Minor (Major = 0 bis stable)
+ │  │   └─ Patch
+ │  └─ Minor (neue Features)
+ └──┘└── Major (0 = pre-stable, 1+ = stable)
 ```
 
 ### Anzeigeformat (öffentlich)
@@ -45,8 +46,36 @@ dev → a → b → pre → stable
  │    │   │   └── Pre-Release (letzte Tests vor stable)
  │    │   └── Beta (Feature-Set steht, Bugfixing)
  │    └── Alpha (Features locked, am härten)
- └── Development (aktive Entwicklung, API kann ändern)
+ └── Development (aktive Entwicklung)
 ```
+
+---
+
+## Count & WeekTag
+
+### Count
+Iterationszähler — wie oft diese Version gebaut/getestet wurde.
+
+### WeekTag (a-m)
+Der WeekTag läuft von **a bis m (13 Wochen)** — aber **nur bei Mini-Fixes** (Bugfix-Releases innerhalb einer Woche):
+
+```
+Woche 1:  a
+Woche 2:  b
+Woche 3:  c
+...
+Woche 13: m
+(Woche 14: zurück zu a)
+```
+
+Bei **Major-Updates** (neue Features) wird der WeekTag zurückgesetzt.
+
+---
+
+## Datums-Praxis
+
+Das Datum im Format ist das **Tagesdatum** beim Bauen:
+- `23` = YY (z.B. 2023) oder YYMMDD kurz (z.B. 23.05.14. → 23)
 
 ---
 
@@ -54,109 +83,83 @@ dev → a → b → pre → stable
 
 | Stage | Bedeutung |
 |-------|----------|
-| **dev** | Aktive Entwicklung. API und Features können sich jederzeit ändern. |
+| **dev** | Aktive Entwicklung. API und Features können sich ändern. |
 | **a (alpha)** | Feature-Set ist locked. Härtung und Stabilisierung. |
 | **b (beta)** | Keine neuen Features mehr. Nur noch Bugfixes. |
 | **pre** | Fast stable. Letzte Tests, finale Polierung. |
-| **stable** | Produktionsreif. Wird nur noch bei kritischen Bugs geupdated. |
+| **stable** | Produktionsreif. |
 
 ---
 
-## Count & Tag
+## Versions-Typen
 
-Der Count `[Count][Tag]` zählt die Iteration innerhalb einer Stage:
-
-- **Tag**: Buchstabe `a, b, c, d, e...` = 1., 2., 3., 4., 5. Iteration
-- **Count**: Zahl hinter dem Tag = wie oft der gleiche Tag wiederholt wurde
-
-```
-0.0.5.14.23-dev.4g
-                    └──┘
-                     Tag = g = 7. Iteration
-                     Count = 4 = 4. Mal der g-Tag verwendet
-```
-
-Beispiel-Aufstieg:
-```
-0.0.5.14.23-dev.1g  →  0.0.5.14.23-dev.2g  →  0.0.5.14.23-dev.3g
-                         (2. Mal g)              (3. Mal g)
-```
-
----
-
-## Major.Minor.Patch
-
-```
-0.0.5.14
-└┘└──┘└──┘
- │   │   └─ Patch (Bugfixes, kleine Änderungen)
- │   └─ Minor (neue Features)
- └─ Major (0 = pre-stable, 1+ = stable)
-```
-
-Bis zur ersten stable Version ist `Major = 0`. Erst wenn wir stable erreichen wird `Major` auf `1` (oder höher) gesetzt.
+| Typ | Wann | Beispiel |
+|-----|------|---------|
+| **Bugfix** | Kleine Fixes, Mini-Updates | `0.0.5.14.23-dev.4g` mit WeekTag a-m |
+| **Mini-Update** | Kleine Änderungen | `0.0.5.14.23-dev.4g` Count hoch |
+| **Update** | Neue Features | Minor hoch → `5.15` |
+| **Release** | Geplant, stable | Stable-Format → `5.0` |
 
 ---
 
 ## Praxis-Beispiele
 
-### Release einer neuen Feature-Version
+### Bugfix innerhalb einer Woche
 ```
-Aktuell:   0.0.5.14.23-dev.4g (5.14-dev)
-Ziel:      0.0.5.15.01-dev.1a (5.15-dev)
+Montag:     0.0.5.14.23-dev.1g    (1. Bugfix der Woche)
+Dienstag:   0.0.5.14.23-dev.2g    (2. Bugfix)
+Mittwoch:   0.0.5.14.23-dev.3g    (3. Bugfix)
+...
+(Same weekTag so lange in derselben Woche)
 ```
-Minor erhöht sich (5.14 → 5.15), Count+Tag resetten.
+
+### Mini-Update (ohne neue Features)
+```
+0.0.5.14.23-dev.1g  →  0.0.5.14.23-dev.1h
+                         Count gleich, WeekTag hoch (neuer Tag)
+```
+
+### Major-Update (neue Features)
+```
+0.0.5.14.23-dev.4g  →  0.0.5.15.01-dev.1a
+                         Minor hoch (5.14 → 5.15), Count+WeekTag reset
+```
 
 ### Aufstieg in Stage
 ```
 dev → alpha:
-Aktuell:   0.0.5.14.23-dev.4g  (5.14-dev)
-Alpha:     0.5.14.23-a.4g       (5.14-alpha)
+0.0.5.14.23-dev.4g  →  0.5.14.23-a.4g
+                         Format ändert sich!
 ```
-Stage ändert sich, Tag bleibt gleich.
-
-### Stable Release
-```
-Pre:       0.0.0-pre.5a  (pre)
-Stable:    0.0.05a       (5.0)
-```
-Das Format schrumpft drastisch — nur noch `[Major].[Minor]`.
 
 ---
 
-## Warum so komplex?
+## Versionierungregeln
 
-1. **Intern**: Präzises Tracking aller Iterationen, Datums, Stages
-2. **Extern**: Einfache, lesbare Versionen für User (`5.14-dev` statt `0.0.5.14.23-dev.4g`)
-3. **Automatisierbar**: Git tags, CI/CD, Changelogs können das volle Format nutzen
-4. **Historisch**: Jede Version ist eindeutig identifizierbar
-
----
-
-## Verwendung in Code
-
-```typescript
-// version.json auslesen
-const version = require('./version.json');
-
-// Display für User
-console.log(version.current_display); // "5.14-dev"
-
-// Intern für Vergleiche
-console.log(version.current); // "0.0.5.14.23-dev.4g"
-
-// Stage prüfen
-const stage = version.releases[version.current].stage; // "dev"
-```
+1. **Neue Feature-Version**: Minor hoch, Count+WeekTag reset → `5.14` → `5.15`
+2. **Bugfix im selben Minor**: Count oder WeekTag hoch
+3. **Stage-Wechsel**: Stage ändert sich, Rest bleibt wenn möglich
+4. **Stable Release**: Major hoch, alles andere minimal → `0.0.05a` → `5.0`
 
 ---
 
 ## Changelog-Regel
 
-- **Neue Feature-Minor**: Zähler hoch (`5.14` → `5.15`)
-- **Bugfix-Patch**: Patch hoch (`5.14.23` → `5.14.24`)
-- **Stage-Wechsel**: Tag bleibt, Stage ändert sich
-- **Stable**: Major hoch, alles andere reset
+```
+[Major.Minor.Patch] - [Datum] - [Stage]
+```
+
+Beispiel:
+```
+## [5.14] - 26.06.23 - dev
+### Features
+- Docs: View Mode Toggle
+### Bugfixes
+- Fix: Editor toggle funktioniert nicht
+
+## [5.13] - 20.06.23 - dev
+...
+```
 
 ---
 
