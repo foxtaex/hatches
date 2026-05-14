@@ -7,14 +7,71 @@ import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus, faXmark, faPen, faCheck, faTableColumns,
-  faArrowRightArrowLeft, faTrash, faLock, faUsers, faBoxArchive,
-  
+  faTrash, faLock, faUsers, faBoxArchive,
 } from "@fortawesome/free-solid-svg-icons";
 import { KanbanColumn } from "./KanbanColumn";
 import { ArchivePanel } from "./ArchivePanel";
 import type { Board, Card, Column } from "./types";
 
 interface TeamOption { id: number; name: string; color: string }
+
+interface BoardItemProps {
+  b: BoardMeta;
+  active: boolean;
+  renamingId: number | null;
+  renameValue: string;
+  onSelect: () => void;
+  onRename: () => void;
+  onRenameChange: (v: string) => void;
+  onRenameSubmit: (id: number, name: string) => void;
+  onRenameCancel: () => void;
+  onDelete: (id: number) => void;
+}
+
+function BoardItem({ b, active, renamingId, renameValue, onSelect, onRename, onRenameChange, onRenameSubmit, onRenameCancel, onDelete }: BoardItemProps) {
+  const isRenaming = renamingId === b.id;
+  return (
+    <div
+      className={`flex items-center group px-3 py-2 cursor-pointer transition-colors ${active ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300"}`}
+      onClick={!isRenaming ? onSelect : undefined}
+    >
+      <FontAwesomeIcon icon={faTableColumns} className="w-3 h-3 flex-shrink-0 mr-2 opacity-60" />
+      {isRenaming ? (
+        <input
+          autoFocus
+          value={renameValue}
+          onChange={(e) => onRenameChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onRenameSubmit(b.id, renameValue);
+            if (e.key === "Escape") onRenameCancel();
+          }}
+          onBlur={() => onRenameSubmit(b.id, renameValue)}
+          className="flex-1 bg-zinc-700 text-zinc-100 text-sm rounded px-1.5 py-0.5 outline-none border border-zinc-500 min-w-0"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : (
+        <span className="flex-1 text-sm truncate">{b.name}</span>
+      )}
+      {!isRenaming && (
+        <div className="hidden group-hover:flex items-center gap-0.5 ml-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); onRename(); }}
+            className="text-zinc-600 hover:text-zinc-300 p-0.5 transition-colors"
+          >
+            <FontAwesomeIcon icon={faPen} className="w-2.5 h-2.5" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(b.id); }}
+            className="text-zinc-600 hover:text-red-500 p-0.5 transition-colors"
+          >
+            <FontAwesomeIcon icon={faXmark} className="w-2.5 h-2.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface BoardMeta {
   id: number; name: string;
   teamId: number | null;
@@ -45,7 +102,6 @@ export function KanbanBoard() {
 
   // Archive panel state
   const [showArchive, setShowArchive] = useState(false);
-  const [archivedCards, setArchivedCards] = useState<Card[]>([]);
 
   // Double-submit guards
   const creatingBoardRef = useRef(false);
@@ -84,35 +140,6 @@ export function KanbanBoard() {
   async function loadUserTeams() {
     const res = await fetch("/api/user/teams");
     if (res.ok) setUserTeams(await res.json());
-  }
-
-  async function loadArchive() {
-    const res = await fetch(`/api/board/archive?boardId=${activeBoardId}`);
-    if (res.ok) setArchivedCards(await res.json());
-  }
-
-  function openArchive() {
-    loadArchive();
-    setShowArchive(true);
-  }
-
-  async function restoreCard(cardId: number) {
-    await fetch("/api/board/archive", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cardId }),
-    });
-    loadArchive();
-    if (activeBoardId) loadBoard(activeBoardId);
-  }
-
-  async function deleteArchivedCard(cardId: number) {
-    await fetch("/api/board/cards", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: cardId }),
-    });
-    loadArchive();
   }
 
   // ── Board CRUD ───────────────────────────────────────────
@@ -249,6 +276,19 @@ export function KanbanBoard() {
     });
   }
 
+  async function archiveCard(id: number) {
+    await fetch("/api/board/archive", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cardId: id }),
+    });
+    // Remove card from board view immediately
+    setBoard((prev) => {
+      if (!prev) return prev;
+      return { ...prev, columns: prev.columns.map((col) => ({ ...col, cards: col.cards.filter((c) => c.id !== id) })) };
+    });
+  }
+
   async function deleteCard(id: number) {
     await fetch("/api/board/cards", {
       method: "DELETE",
@@ -323,19 +363,21 @@ export function KanbanBoard() {
 
   return (
     <div className="flex-1 flex overflow-hidden">
-      {/* Board Sidebar — Glassmorphism */}
-      <aside className="flex-shrink-0 flex flex-col" style={{ width: 260, background: "rgba(18,18,18,0.6)", backdropFilter: "blur(30px) saturate(180%)", WebkitBackdropFilter: "blur(30px) saturate(180%)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
-        <div className="flex items-center justify-between" style={{ padding: "20px 20px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-          <span style={{ fontSize: 17, fontWeight: 600, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 8, letterSpacing: "-0.3px" }}>
-            <FontAwesomeIcon icon={faTableColumns} style={{ color: "rgba(255,255,255,0.5)", fontSize: 15 }} />
+      {/* Board Sidebar */}
+      <aside className="w-[260px] flex-shrink-0 flex flex-col bg-[rgba(18,18,18,0.6)] backdrop-blur-[30px] backdrop-saturate-[180%] border-r border-[rgba(255,255,255,0.08)]">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[rgba(255,255,255,0.08)]">
+          <span className="text-[17px] font-semibold text-[rgba(255,255,255,0.9)] flex items-center gap-2 tracking-[-0.3px]">
+            <FontAwesomeIcon icon={faTableColumns} className="text-[15px] text-[rgba(255,255,255,0.5)]" />
             Boards
           </span>
           <button
             onClick={() => { creatingBoardRef.current = false; setAddingBoard(true); }}
-            className="text-zinc-600 hover:text-zinc-300 transition-colors" title="Board erstellen">
+            className="text-zinc-600 hover:text-zinc-300 transition-colors"
+            title="Board erstellen"
+          >
             <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
           </button>
-          <button onClick={openArchive} className="text-zinc-600 hover:text-yellow-500 transition-colors" title="Archiv">
+          <button onClick={() => setShowArchive(true)} className="text-zinc-600 hover:text-yellow-500 transition-colors" title="Archiv">
             <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -387,6 +429,7 @@ export function KanbanBoard() {
           {teamBoardGroups.map(({ team, items }) => (
             <div key={team.id}>
               <div className="flex items-center gap-1.5 px-3 py-1 mt-1">
+                {/* team.color is a dynamic runtime value — must stay inline */}
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: team.color }} />
                 <span className="text-[10px] font-semibold uppercase tracking-wider truncate" style={{ color: team.color }}>{team.name}</span>
               </div>
@@ -421,6 +464,7 @@ export function KanbanBoard() {
                 onAddCard={addCard}
                 onUpdateCard={updateCard}
                 onDeleteCard={deleteCard}
+                onArchiveCard={archiveCard}
                 onMoveCardToBoard={moveCardToBoard}
                 onRenameColumn={renameColumn}
                 onDeleteColumn={deleteColumn}
@@ -428,9 +472,9 @@ export function KanbanBoard() {
             ))}
 
             {/* Add column */}
-            <div style={{ width: 320, flexShrink: 0 }}>
+            <div className="w-[320px] flex-shrink-0">
               {addingCol ? (
-                <div style={{ background: "rgba(28,28,28,0.7)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: 12 }} className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 bg-[rgba(28,28,28,0.7)] border border-[rgba(255,255,255,0.1)] rounded-2xl p-3">
                   <input
                     autoFocus
                     value={newColTitle}
@@ -449,7 +493,7 @@ export function KanbanBoard() {
               ) : (
                 <button
                   onClick={() => { addingColRef.current = false; setAddingCol(true); }}
-                  style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 14, color: "rgba(255,255,255,0.35)", background: "transparent", border: "1px dashed rgba(255,255,255,0.15)", borderRadius: 16, padding: 16, cursor: "pointer", transition: "border-color 200ms, color 200ms" }}
+                  className="w-full flex items-center justify-center gap-1.5 text-sm text-[rgba(255,255,255,0.35)] hover:text-[rgba(255,255,255,0.6)] bg-transparent border border-dashed border-[rgba(255,255,255,0.15)] hover:border-[rgba(255,255,255,0.3)] rounded-2xl p-4 cursor-pointer transition-[border-color,color] duration-200"
                 >
                   <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
                   Spalte hinzufügen
@@ -468,10 +512,13 @@ export function KanbanBoard() {
         </DndContext>
       )}
 
-      {showArchive && (
-        <ArchivePanel boardId={activeBoardId} onClose={() => setShowArchive(false)} />
+      {showArchive && activeBoardId !== null && (
+        <ArchivePanel
+          boardId={activeBoardId}
+          onClose={() => setShowArchive(false)}
+          onRestore={() => loadBoard(activeBoardId)}
+        />
       )}
     </div>
   );
 }
-

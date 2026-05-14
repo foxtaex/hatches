@@ -6,9 +6,10 @@ import type { Card } from "./types";
 interface ArchivePanelProps {
   boardId: number | null;
   onClose: () => void;
+  onRestore: () => void;
 }
 
-export function ArchivePanel({ boardId, onClose }: ArchivePanelProps) {
+export function ArchivePanel({ boardId, onClose, onRestore }: ArchivePanelProps) {
   const [archivedCards, setArchivedCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +31,7 @@ export function ArchivePanel({ boardId, onClose }: ArchivePanelProps) {
       body: JSON.stringify({ cardId }),
     });
     loadArchive();
+    onRestore();
   }
 
   async function deleteArchivedCard(cardId: number) {
@@ -42,34 +44,13 @@ export function ArchivePanel({ boardId, onClose }: ArchivePanelProps) {
   }
 
   return (
-    <div
-      className="flex-shrink-0 flex flex-col"
-      style={{
-        width: 320,
-        background: "rgba(18,18,18,0.95)",
-        backdropFilter: "blur(30px)",
-        borderLeft: "1px solid rgba(255,255,255,0.08)",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        className="flex items-center justify-between"
-        style={{ padding: "20px 20px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
-      >
-        <span
-          style={{
-            fontSize: 17,
-            fontWeight: 600,
-            color: "rgba(255,255,255,0.9)",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <FontAwesomeIcon icon={faBoxArchive} style={{ color: "rgba(255,255,255,0.5)", fontSize: 15 }} />
+    <div className="flex-shrink-0 flex flex-col w-[320px] bg-[rgba(18,18,18,0.95)] backdrop-blur-[30px] border-l border-[rgba(255,255,255,0.08)] overflow-hidden">
+      <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[rgba(255,255,255,0.08)]">
+        <span className="text-[17px] font-semibold text-[rgba(255,255,255,0.9)] flex items-center gap-2">
+          <FontAwesomeIcon icon={faBoxArchive} className="text-[15px] text-[rgba(255,255,255,0.5)]" />
           Archiv
         </span>
-        <button onClick={onClose} className="text-zinc-600 hover:text-zinc-300">
+        <button onClick={onClose} className="text-zinc-600 hover:text-zinc-300 transition-colors">
           <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
         </button>
       </div>
@@ -82,15 +63,9 @@ export function ArchivePanel({ boardId, onClose }: ArchivePanelProps) {
         {archivedCards.map((card) => (
           <div
             key={card.id}
-            style={{
-              background: "rgba(40,40,40,0.9)",
-              borderRadius: 12,
-              padding: 14,
-              border: "1px solid rgba(255,255,255,0.1)",
-            }}
-            className="group"
+            className="group bg-[rgba(40,40,40,0.9)] rounded-xl p-[14px] border border-[rgba(255,255,255,0.1)]"
           >
-            <p className="text-sm text-zinc-200 mb-1" style={{ wordBreak: "break-word" }}>
+            <p className="text-sm text-zinc-200 mb-1 break-words">
               {card.title}
             </p>
             <div className="flex items-center gap-1">

@@ -1,5 +1,7 @@
 ---
 import { SetupWizard } from "../components/setup/SetupWizard";
+import versionData from "../../Sync/version.json";
+const version: string = versionData.current_display;
 
 // Determine which step to start on:
 //  "db"    → tables don't exist yet (fresh install)
@@ -26,7 +28,8 @@ try {
     <title>Setup — Hatches</title>
     <link rel="stylesheet" href="/src/styles/global.css" />
   </head>
-  <body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center">
+  <body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col items-center justify-center">
     <SetupWizard initialStep={initialStep} client:only="react" />
+    <p class="mt-8 text-[11px] text-white/20 tracking-[0.02em]">HATCHES · SELF-HOSTED · v{version}</p>
   </body>
 </html>
