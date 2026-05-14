@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <defs>
+    <linearGradient id="gm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3CC79A"/>
+      <stop offset="100%" stop-color="#138A6E"/>
+    </linearGradient>
+    <linearGradient id="gl" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#aef0d2"/>
+      <stop offset="100%" stop-color="#3CC79A"/>
+    </linearGradient>
+  </defs>
+  <!-- Squircle background -->
+  <path d="M 64 20 Q 20 20 20 64 L 20 216 Q 20 260 64 260 L 216 260 Q 260 260 260 216 L 260 64 Q 260 20 216 20 Z" fill="url(#gm)"/>
+  <!-- H pillars -->
+  <rect x="74" y="66" width="32" height="148" rx="5" fill="#fff"/>
+  <rect x="174" y="66" width="32" height="148" rx="5" fill="#fff"/>
+  <!-- Crossbar shadow -->
+  <polygon points="74,158 206,142 206,150 74,168" fill="#0a3b2e" opacity="0.18"/>
+  <!-- Crossbar (perspective hatch lid) -->
+  <polygon points="74,128 206,112 206,140 74,156" fill="url(#gl)"/>
+  <!-- Top highlight -->
+  <polygon points="74,128 206,112 206,116 74,132" fill="#ffffff" opacity="0.35"/>
+</svg>

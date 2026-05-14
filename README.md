@@ -1,5 +1,7 @@
 # Hatches
 
+<img src="https://raw.githubusercontent.com/foxtaex/hatches/main/public/logo.svg" width="80" align="left" alt="Hatches Logo"/>
+
 [![License: MIT + Commons Clause](https://img.shields.io/badge/License-MIT%20+%20Commons%20Clause-blue.svg)](LICENSE)
 [![Astro](https://img.shields.io/badge/Astro-6-orange)](https://astro.build)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748)](https://prisma.io)
