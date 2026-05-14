@@ -5,100 +5,83 @@ if (!user) return Astro.redirect("/login");
 ---
 
 <Layout title="Einstellungen — Hatches" active="settings">
-  <div style="flex:1; overflow:auto; background:#000;">
-    <div style="max-width:800px; margin:0 auto; padding:48px 32px;">
+  <div class="flex-1 overflow-auto bg-black">
+    <div class="max-w-2xl mx-auto px-8 py-12 flex flex-col gap-6">
 
-      <!-- Profile card -->
-      <div style="background:rgba(24,24,27,0.8); border-radius:12px; border:1px solid rgba(255,255,255,0.08); padding:32px; margin-bottom:24px;">
-        <div style="display:flex; gap:24px; align-items:flex-start;">
-          <!-- Avatar -->
-          <div style="width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg, #3CC79A 0%, #138A6E 100%); display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:700; color:#fff; border:3px solid rgba(255,255,255,0.08); box-shadow:0 4px 20px rgba(60,199,154,0.3);">
+      <!-- Profil-Header -->
+      <div class="bg-[rgba(24,24,27,0.8)] border border-[rgba(255,255,255,0.08)] rounded-2xl p-8">
+        <div class="flex gap-6 items-center">
+          <div class="w-20 h-20 rounded-full flex-shrink-0 flex items-center justify-center text-3xl font-bold text-white"
+            style="background:linear-gradient(135deg,#3CC79A,#138A6E); box-shadow:0 4px 20px rgba(60,199,154,0.3);">
             {(user.displayName || user.username).charAt(0).toUpperCase()}
           </div>
-          <div style="flex:1;">
-            <h1 style="font-size:32px; font-weight:700; margin:0 0 4px 0; color:rgba(244,244,245,0.95);">
+          <div>
+            <h1 class="text-2xl font-bold text-white/95 leading-tight">
               {user.displayName || user.username}
             </h1>
-            <p style="font-size:16px; color:rgba(113,113,122,0.9); margin:0 0 20px 0;">
-              @{user.username}
-            </p>
-            <p style="font-size:14px; color:rgba(161,161,170,0.8); margin:0;">
-              {user.email}
-            </p>
+            <p class="text-sm text-zinc-500 mt-0.5">@{user.username}</p>
+            <p class="text-sm text-zinc-400 mt-1">{user.email}</p>
           </div>
         </div>
       </div>
 
-      <!-- Account settings card -->
-      <div style="background:rgba(24,24,27,0.8); border-radius:12px; border:1px solid rgba(255,255,255,0.08); padding:24px; margin-bottom:24px;">
-        <h2 style="font-size:20px; font-weight:600; margin:0 0 20px 0; color:rgba(244,244,245,0.95);">
-          Account-Einstellungen
-        </h2>
-        <div style="display:grid; gap:20px;">
-          <div>
-            <label style="display:block; font-size:13px; font-weight:600; color:rgba(212,212,216,0.9); margin-bottom:8px;">
-              Anzeigename
-            </label>
-            <input id="displayName" type="text"
-              value={user.displayName ?? ""}
-              placeholder={user.username}
-              style="width:100%; background:rgba(39,39,42,0.8); border:1px solid rgba(255,255,255,0.1); color:rgba(244,244,245,0.95); border-radius:8px; padding:10px 12px; font-size:14px; outline:none; font-family:inherit; transition:border-color 0.2s;"
-              onfocus="this.style.borderColor='rgba(60,199,154,0.5)'"
-              onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
-          </div>
-          <div>
-            <label style="display:block; font-size:13px; font-weight:600; color:rgba(212,212,216,0.9); margin-bottom:8px;">
-              E-Mail
-            </label>
-            <input type="email" disabled
-              value={user.email}
-              style="width:100%; background:rgba(24,24,27,0.8); border:1px solid rgba(255,255,255,0.06); color:rgba(161,161,170,0.8); border-radius:8px; padding:10px 12px; font-size:14px; outline:none; font-family:inherit; cursor:not-allowed;" />
-          </div>
+      <!-- Anzeigename -->
+      <div class="bg-[rgba(24,24,27,0.8)] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 flex flex-col gap-5">
+        <h2 class="text-base font-semibold text-white/90">Account-Einstellungen</h2>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-white/60 uppercase tracking-wider">Anzeigename</label>
+          <input id="displayName" type="text"
+            value={user.displayName ?? ""}
+            placeholder={user.username}
+            class="w-full bg-[rgba(39,39,42,0.8)] border border-[rgba(255,255,255,0.1)] text-white/95 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors focus:border-[rgba(60,199,154,0.5)] font-[inherit]" />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-white/60 uppercase tracking-wider">E-Mail</label>
+          <input type="email" disabled value={user.email}
+            class="w-full bg-[rgba(24,24,27,0.8)] border border-[rgba(255,255,255,0.06)] text-zinc-500 rounded-xl px-4 py-2.5 text-sm outline-none cursor-not-allowed" />
+        </div>
+
+        <div class="flex items-center gap-3">
           <button id="saveDisplayName"
-            style="background:linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color:white; border:none; border-radius:12px; padding:12px 24px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(59,130,246,0.4); transition:all 200ms; width:fit-content; font-family:inherit;">
+            class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-[#3CC79A] hover:bg-[#34b389] transition-colors">
             Speichern
           </button>
-          <p id="displayNameMsg" style="font-size:13px; display:none;"></p>
+          <p id="displayNameMsg" class="text-sm hidden"></p>
         </div>
       </div>
 
-      <!-- Password card -->
-      <div style="background:rgba(24,24,27,0.8); border-radius:12px; border:1px solid rgba(255,255,255,0.08); padding:24px;">
-        <h2 style="font-size:20px; font-weight:600; margin:0 0 20px 0; color:rgba(244,244,245,0.95);">
-          Passwort ändern
-        </h2>
-        <div style="display:grid; gap:20px;">
-          <div>
-            <label style="display:block; font-size:13px; font-weight:600; color:rgba(212,212,216,0.9); margin-bottom:8px;">
-              Aktuelles Passwort
-            </label>
-            <input id="currentPw" type="password" placeholder="••••••••"
-              style="width:100%; background:rgba(39,39,42,0.8); border:1px solid rgba(255,255,255,0.1); color:rgba(244,244,245,0.95); border-radius:8px; padding:10px 12px; font-size:14px; outline:none; font-family:inherit; transition:border-color 0.2s;"
-              onfocus="this.style.borderColor='rgba(60,199,154,0.5)'"
-              onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
-          </div>
-          <div>
-            <label style="display:block; font-size:13px; font-weight:600; color:rgba(212,212,216,0.9); margin-bottom:8px;">
-              Neues Passwort
-            </label>
-            <input id="newPw" type="password" placeholder="min. 6 Zeichen"
-              style="width:100%; background:rgba(39,39,42,0.8); border:1px solid rgba(255,255,255,0.1); color:rgba(244,244,245,0.95); border-radius:8px; padding:10px 12px; font-size:14px; outline:none; font-family:inherit; transition:border-color 0.2s;"
-              onfocus="this.style.borderColor='rgba(60,199,154,0.5)'"
-              onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
-          </div>
-          <p id="pwMsg" style="font-size:13px; display:none;"></p>
+      <!-- Passwort -->
+      <div class="bg-[rgba(24,24,27,0.8)] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 flex flex-col gap-5">
+        <h2 class="text-base font-semibold text-white/90">Passwort ändern</h2>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-white/60 uppercase tracking-wider">Aktuelles Passwort</label>
+          <input id="currentPw" type="password" placeholder="••••••••"
+            class="w-full bg-[rgba(39,39,42,0.8)] border border-[rgba(255,255,255,0.1)] text-white/95 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors focus:border-[rgba(60,199,154,0.5)] font-[inherit]" />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-white/60 uppercase tracking-wider">Neues Passwort</label>
+          <input id="newPw" type="password" placeholder="min. 6 Zeichen"
+            class="w-full bg-[rgba(39,39,42,0.8)] border border-[rgba(255,255,255,0.1)] text-white/95 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors focus:border-[rgba(60,199,154,0.5)] font-[inherit]" />
+        </div>
+
+        <div class="flex items-center gap-3">
           <button id="changePw"
-            style="background:linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color:white; border:none; border-radius:12px; padding:12px 24px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(59,130,246,0.4); transition:all 200ms; width:fit-content; font-family:inherit;">
+            class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-[#3CC79A] hover:bg-[#34b389] transition-colors">
             Passwort ändern
           </button>
+          <p id="pwMsg" class="text-sm hidden"></p>
         </div>
       </div>
+
     </div>
   </div>
 </Layout>
 
 <script>
-  // Display name
   document.getElementById("saveDisplayName")?.addEventListener("click", async () => {
     const msg = document.getElementById("displayNameMsg")!;
     const val = (document.getElementById("displayName") as HTMLInputElement).value;
@@ -108,12 +91,11 @@ if (!user) return Astro.redirect("/login");
       body: JSON.stringify({ displayName: val }),
     });
     const data = await res.json();
-    msg.textContent = data.ok ? "Gespeichert" : (data.error ?? "Fehler");
-    msg.style.color = data.ok ? "rgb(74 222 128)" : "rgb(248 113 113)";
-    msg.style.display = "block";
+    msg.textContent = data.ok ? "✓ Gespeichert" : (data.error ?? "Fehler");
+    msg.className = `text-sm ${data.ok ? "text-[#3CC79A]" : "text-red-400"}`;
+    msg.classList.remove("hidden");
   });
 
-  // Password
   document.getElementById("changePw")?.addEventListener("click", async () => {
     const msg = document.getElementById("pwMsg")!;
     const current = (document.getElementById("currentPw") as HTMLInputElement).value;
@@ -124,9 +106,9 @@ if (!user) return Astro.redirect("/login");
       body: JSON.stringify({ current, next }),
     });
     const data = await res.json();
-    msg.textContent = data.ok ? "Passwort geändert" : (data.error ?? "Fehler");
-    msg.style.color = data.ok ? "rgb(74 222 128)" : "rgb(248 113 113)";
-    msg.style.display = "block";
+    msg.textContent = data.ok ? "✓ Passwort geändert" : (data.error ?? "Fehler");
+    msg.className = `text-sm ${data.ok ? "text-[#3CC79A]" : "text-red-400"}`;
+    msg.classList.remove("hidden");
     if (data.ok) {
       (document.getElementById("currentPw") as HTMLInputElement).value = "";
       (document.getElementById("newPw") as HTMLInputElement).value = "";

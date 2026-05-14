@@ -73,7 +73,7 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
 
   useEffect(() => {
     fetch("/api/user/teams").then(r => r.json()).then(d => {
-      setTeams(Array.isArray(d) ? d.map((m: any) => m.team) : []);
+      setTeams(Array.isArray(d) ? d : []);
     }).catch(() => {});
   }, []);
 

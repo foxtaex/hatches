@@ -114,7 +114,7 @@ export function Planner() {
     try {
       const res = await fetch("/api/user/teams");
       const data = await res.json();
-      setTeams(Array.isArray(data) ? data.map((m: any) => m.team) : []);
+      setTeams(Array.isArray(data) ? data : []);
     } catch {}
   }, []);
 
