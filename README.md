@@ -1,5 +1,11 @@
 # Hatches
 
+<p float="left">
+  <img src="public/logo/mark-a.svg" width="100" alt="Hatches Logo A — Vivid" />
+  <img src="public/logo/mark-b.svg" width="100" alt="Hatches Logo B — Subtle" />
+  <img src="public/logo/mark-c.svg" width="100" alt="Hatches Logo C — Outline" />
+</p>
+
 [![License: MIT + Commons Clause](https://img.shields.io/badge/License-MIT%20+%20Commons%20Clause-blue.svg)](LICENSE)
 [![Astro](https://img.shields.io/badge/Astro-6-orange)](https://astro.build)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748)](https://prisma.io)
