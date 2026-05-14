@@ -500,6 +500,11 @@ Trigger + Action für wiederkehrende Workflows:
 
 ## Hatches 2.0 — Future Plans
 
+**Native Client Apps (1.0):**
+- Mac OS, Linux, iOS, Android (native apps)
+- Same features as web, offline-capable
+- Sync via same backend API
+
 **AI Events:**
 - AI plant automatisch Meetings basierend auf Verfügbarkeit
 - Erstellt Erinnerungen und benachrichtigt das Team

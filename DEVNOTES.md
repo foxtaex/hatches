@@ -35,6 +35,15 @@ src/pages/api/<feature>/
 - **dnd-kit** for drag & drop
 - **@uiw/react-md-editor** for markdown editing
 
+### Native Clients (v1.0)
+
+- **Mac OS** — Swift/SwiftUI (native)
+- **Linux** — Rust/GTK or Electron (native)
+- **iOS** — Swift/SwiftUI (native)
+- **Android** — Kotlin/Jetpack Compose (native)
+- All clients share same backend API
+- Offline-first with sync on reconnect
+
 ### Design System
 
 See **`DESIGN.md`** for complete design specification, color tokens, typography,
@@ -102,13 +111,21 @@ No more app-hopping. Everything in one place, but still clean and simple.
 
 ## Hatches 2.0 — Future Plans
 
+**Native Client Apps (1.0):**
+- Mac OS (native)
+- Linux (native)
+- iOS (native)
+- Android (native)
+- Same features as web, offline-capable
+- Sync via same backend API
+
 **AI Events:**
 - AI plant automatisch Meetings basierend auf Verfügbarkeit
 - Erstellt Erinnerungen und benachrichtigt das Team
 - AI Event Intelligence: "Finde einen Slot für alle Team-Members diese Woche"
 - Automatische Timezone-Anpassung
 
-**GitHatch:** EU-made Git Repository Management Interface (like GitLab) — independent project, not in this repo.
+**GitHatch:** EU-made Git Repository Management Interface — independent project, not in this repo.
 
 **Tech Stack:** Rust + Axum (if still relevant at time of development)
 
