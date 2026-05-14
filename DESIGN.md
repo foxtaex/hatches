@@ -340,7 +340,7 @@ Jedes Feature ist ein **eigenständiger, modularer Baustein**:
 
 ---
 
-## AI Features (CoreForAi Integration)
+## AI Features
 
 ### AI Provider (Beliebig)
 Jeder API-Key verwendbar:
@@ -349,16 +349,13 @@ Jeder API-Key verwendbar:
 - **Anthropic** — Claude 3.5/3.7/4 Sonnet, Claude 3 Opus
 - **Google** — Gemini 2.0/2.5 Flash, Gemini 2.5 Pro
 - **DeepSeek** — V3, R1
-- **MiniMax** — MiniMax-M2, MiniMax-M2.7 (Text + Vision + Audio)
-  - Music Generation — AI generierte Musik für Podcasts/Meetings
-  - Voice Synthesis — Meeting-Notes als MP3/WAV
-  - Image Generation — Cover-Images für Pages generieren
+- **MiniMax** — MiniMax-M2, MiniMax-M2.7 (beliebig verwendbar via API-Key)
 - **Ollama** — Lokale Models (llama3, mistral, etc.)
 - **Custom Endpoint** — OpenAI-kompatible API
 
 **Konfiguration:** API-Key, Base URL, Model pro Task, Temperature, Max Tokens, Budget-Limits
 
-### CoreForAi Harness
+### Harness Agent
 AI Agent der konfiguriert wird und oben drauf sitzt:
 
 - Aufgaben aus Konversationen erkennt und automatisch zuweist
