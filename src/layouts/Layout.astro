@@ -187,6 +187,105 @@ const nav = [
         await fetch("/api/auth/logout", { method: "POST" });
         window.location.href = "/login";
       });
+
+      // ── Suche ────────────────────────────────────────────────────
+      const searchModal  = document.getElementById("search-modal")!;
+      const searchInput  = document.getElementById("search-input") as HTMLInputElement | null;
+      const searchResults= document.getElementById("search-results")!;
+      const searchEmpty  = document.getElementById("search-empty")!;
+
+      function openSearch() {
+        if (!searchModal) return;
+        searchModal.style.display = "flex";
+        searchInput?.focus();
+      }
+      function closeSearch() {
+        if (!searchModal) return;
+        searchModal.style.display = "none";
+        if (searchInput) searchInput.value = "";
+        if (searchResults) searchResults.innerHTML = "";
+        if (searchEmpty) { searchEmpty.style.display = "block"; searchEmpty.textContent = "Mindestens 2 Zeichen eingeben"; }
+      }
+
+      document.getElementById("search-btn")?.addEventListener("click", openSearch);
+      searchModal?.addEventListener("click", (e) => { if (e.target === searchModal) closeSearch(); });
+
+      // Cmd+K / Ctrl+K
+      document.addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); openSearch(); }
+        if (e.key === "Escape") closeSearch();
+      });
+
+      // Debounce search
+      let searchTimer: ReturnType<typeof setTimeout>;
+      searchInput?.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(runSearch, 220);
+      });
+
+      const ICONS: Record<string, string> = {
+        cards: "fa-solid fa-table-columns",
+        docs:  "fa-solid fa-file-lines",
+        notes: "fa-solid fa-note-sticky",
+        boards:"fa-solid fa-layer-group",
+      };
+      const LABELS: Record<string, string> = {
+        cards: "Board-Karte",
+        docs:  "Dokument",
+        notes: "Notiz",
+        boards:"Board",
+      };
+      const HREFS: Record<string, (r: Record<string, unknown>) => string> = {
+        cards:  (r) => `/board`,
+        docs:   (r) => `/docs`,
+        notes:  (r) => `/notes`,
+        boards: (r) => `/board`,
+      };
+
+      async function runSearch() {
+        const q = searchInput?.value.trim() ?? "";
+        if (q.length < 2) {
+          searchResults.innerHTML = "";
+          searchEmpty.style.display = "block";
+          searchEmpty.textContent = "Mindestens 2 Zeichen eingeben";
+          return;
+        }
+        searchEmpty.style.display = "none";
+        searchResults.innerHTML = `<div style="padding:16px 12px; color:rgba(255,255,255,0.3); font-size:13px;">Suche…</div>`;
+
+        const res  = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json() as Record<string, Record<string, unknown>[]>;
+
+        const total = Object.values(data).flat().length;
+        if (total === 0) {
+          searchResults.innerHTML = `<div style="padding:32px; text-align:center; color:rgba(255,255,255,0.25); font-size:13px;">Keine Ergebnisse für „${q}"</div>`;
+          return;
+        }
+
+        let html = "";
+        for (const [type, items] of Object.entries(data)) {
+          if (!items.length) continue;
+          html += `<div style="padding:6px 10px 2px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.3);">${LABELS[type] ?? type}</div>`;
+          for (const item of items) {
+            const title = (item.title ?? item.name ?? "") as string;
+            const sub   = (item.description ?? item.content ?? "") as string;
+            const href  = HREFS[type]?.(item) ?? "/";
+            const icon  = ICONS[type] ?? "fa-solid fa-circle";
+            const hi    = title.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`, "gi"), `<mark style="background:rgba(60,199,154,0.25);color:#3CC79A;border-radius:2px;">$1</mark>`);
+            html += `
+              <a href="${href}" onclick="setTimeout(()=>{ document.getElementById('search-modal').style.display='none'; },50)"
+                style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; text-decoration:none; transition:background 0.15s; cursor:pointer;"
+                onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">
+                <i class="${icon}" style="width:14px; text-align:center; color:rgba(255,255,255,0.35); font-size:13px; flex-shrink:0;"></i>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13px; font-weight:500; color:rgba(255,255,255,0.88); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${hi}</div>
+                  ${sub ? `<div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sub.slice(0,80)}</div>` : ""}
+                </div>
+              </a>`;
+          }
+        }
+        searchResults.innerHTML = html;
+      }
     </script>
   </body>
 </html>
