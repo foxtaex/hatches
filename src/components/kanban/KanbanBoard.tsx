@@ -7,11 +7,13 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus, faXmark, faPen, faCheck, faTableColumns,
-  faTrash, faLock, faUsers, faBoxArchive, faFilter, faMagnifyingGlass,
+  faTrash, faLock, faUsers, faBoxArchive, faFilter, faMagnifyingGlass, faLayerGroup, faRobot,
 } from "@fortawesome/free-solid-svg-icons";
 import { KanbanColumn } from "./KanbanColumn";
 import { ArchivePanel } from "./ArchivePanel";
 import { CardDetailModal } from "./CardDetailModal";
+import { TemplateModal } from "../templates/TemplateModal";
+import { AiAssistant } from "../ai/AiAssistant";
 import type { Board, Card, Column } from "./types";
 import { parseLabels, PRIORITY_CONFIG } from "./types";
 
@@ -105,6 +107,12 @@ export function KanbanBoard() {
 
   // Archive panel state
   const [showArchive, setShowArchive] = useState(false);
+
+  // Template modal state
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+
+  // AI panel state
+  const [showAi, setShowAi] = useState(false);
 
   // Card detail modal state
   const [openCardId, setOpenCardId] = useState<number | null>(null);
@@ -467,6 +475,16 @@ export function KanbanBoard() {
           <button onClick={() => setShowArchive(true)} className="text-zinc-600 hover:text-yellow-500 transition-colors" title="Archiv">
             <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
           </button>
+          <button onClick={() => setShowTemplateModal(true)} className="text-zinc-600 hover:text-[#3CC79A] transition-colors" title="Templates">
+            <FontAwesomeIcon icon={faLayerGroup} className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setShowAi(v => !v)}
+            className={showAi ? "text-[#3CC79A]" : "text-zinc-600 hover:text-[#3CC79A] transition-colors"}
+            title="KI-Assistent"
+          >
+            <FontAwesomeIcon icon={faRobot} className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {addingBoard && (
@@ -775,6 +793,35 @@ export function KanbanBoard() {
           />
         );
       })()}
+
+      {showTemplateModal && (
+        <TemplateModal
+          context="board"
+          onClose={() => setShowTemplateModal(false)}
+          onApply={(redirect) => {
+            setShowTemplateModal(false);
+            if (redirect) {
+              window.location.href = redirect;
+            } else {
+              loadBoards();
+            }
+          }}
+        />
+      )}
+
+      {/* KI Panel — fixed right edge overlay */}
+      {showAi && (
+        <div
+          className="fixed top-[72px] right-0 bottom-0 z-[500] flex flex-col overflow-hidden"
+          style={{ boxShadow: "-4px 0 32px rgba(0,0,0,0.5)" }}
+        >
+          <AiAssistant
+            context="board"
+            contextData={{ title: board?.name ?? activeBoardId?.toString() }}
+            onClose={() => setShowAi(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

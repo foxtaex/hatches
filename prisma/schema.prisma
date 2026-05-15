@@ -270,6 +270,7 @@ model Template {
   name        String
   description String?
   category    String   @default("general") // "software"|"project"|"marketing"|"hr"|"general"
+  type        String   @default("general") // "doc"|"board"|"general"
   icon        String   @default("📋")
   content     String   @default("{}") // JSON: { boards?, docs?, notes? }
   isPublic    Boolean  @default(true)

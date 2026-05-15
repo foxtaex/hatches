@@ -175,7 +175,7 @@
     "0.5.9.14.27-dev.7d": {
     "display": "5.14.27-dev.7d",
     "stage": "dev",
-    "status": "current",
+    "status": "archived",
     "date": "2026-05-14",
     "description": "Rollen-System überarbeitet — Websites/Integrationen raus, Planner/Templates rein",
     "changes": [
@@ -190,7 +190,7 @@
   "0.5.10.14.27-dev.8d": {
     "display": "5.14.27-dev.8d",
     "stage": "dev",
-    "status": "current",
+    "status": "archived",
     "date": "2026-05-14",
     "description": "Kommentare auf Karten — Trello-Style Kommentar-Thread im Card-Modal",
     "changes": [
@@ -206,7 +206,7 @@
   "0.5.11.14.27-dev.9d": {
     "display": "5.14.27-dev.9d",
     "stage": "dev",
-    "status": "current",
+    "status": "archived",
     "date": "2026-05-14",
     "description": "Repo-Review Bugfixes — Totes Duplikat entfernt, Suche navigiert zu echten Items",
     "changes": [
@@ -373,7 +373,7 @@
   "0.5.22.14.27-dev.20d": {
     "display": "5.14.27-dev.20d",
     "stage": "dev",
-    "status": "current",
+    "status": "archived",
     "date": "2026-05-14",
     "description": "Notes Tags — #Hashtag-Extraktion, Tag-Filter-Chips, Tag-Badges in der Sidebar",
     "changes": [
@@ -383,9 +383,96 @@
       "Feat: NoteItem — zeigt bis zu 4 Tags als kleine Chips unter dem Titel",
       "Feat: 'Keine Treffer' → 'Filter entfernen'-Link wenn Tag-Filter aktiv ist"
     ]
+  },
+  "0.5.22.14.15-dev.1f": {
+    "display": "5.14.15-dev.1f",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-15",
+    "time": "17:16",
+    "description": "Bugfix — esbuild settings.astro Script-Fehler & FontAwesome CSS-Pipeline",
+    "changes": [
+      "Fix: settings.astro — {JSON.stringify(sessionId)} durch define:vars={{ sessionId }} ersetzt (esbuild CJS-Fehler behoben)",
+      "Fix: FontAwesome 7 CSS — Import aus global.css entfernt, direkt in Layout.astro importiert (Lightning CSS Pipeline umgangen)",
+      "Fix: Nav-Icons renderern korrekt (FA7 CSS Custom Properties)"
+    ]
+  },
+  "0.5.23.14.15-dev.2f": {
+    "display": "5.14.15-dev.2f",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-15",
+    "time": "17:30",
+    "description": "Admin/User Settings trennung — Workspace, App-Info als eigene Tabs; Admin-Sidebar neu geordnet",
+    "changes": [
+      "Refactor: AdminPanel — SettingsTab aufgeteilt in WorkspaceTab (Name, DB-Config) und AppInfoTab (Runtime + Version History)",
+      "Refactor: Admin-Sidebar Gruppen: Berechtigungen | Module (inkl. KI) | Admin (Workspace, App-Info)",
+      "Feat: AppInfoTab zeigt Version History neuste zuerst (reversed)",
+      "Feat: AppInfoTab Runtime-Tabelle: Version, Node.js, Uptime, DB-Provider, DB-URL",
+      "Refactor: fullWidthTabs-Array ersetzt hardcodierte Prüfung (websites | integrations)",
+      "Fix: settings.astro Seitentitel 'Mein Account' statt 'Einstellungen'"
+    ]
+  },
+  "0.5.24.14.15-dev.3f": {
+    "display": "5.14.15-dev.3f",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-15",
+    "time": "17:45",
+    "description": "Version History — time-Feld als Metadaten, Datum + Uhrzeit in ReleaseCard",
+    "changes": [
+      "Feat: version.json — optionales time-Feld (HH:MM) pro Eintrag als Metadaten",
+      "Feat: ReleaseCard — formatReleaseDate() zeigt 'TT.MM.JJJJ · HH:MM Uhr' wenn time vorhanden, sonst nur Datum",
+      "Feat: API app-info.ts — time-Feld wird durchgegeben",
+      "Fix: version.json JSON-Struktur repariert (0.5.23-Eintrag war außerhalb releases-Objekt)",
+      "Fix: ReleaseCard 'current' Badge auf Deutsch 'aktuell'"
+    ]
+  },
+  "0.5.24.15.15-dev.1f": {
+    "display": "5.15.15-dev.1f",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-05-15",
+    "time": "19:30",
+    "description": "Templates als Modal, i18n Foundation, Planung-Docs Komplettierung",
+    "changes": [
+      "Feat: Templates — aus Nav entfernt, jetzt als kontextsensitives Modal in Docs + Board",
+      "Feat: TemplateModal.tsx — neues Modal mit Glassmorphism, Kontext-Filterung (docs/board)",
+      "Feat: TemplateLibrary — mode='browse'/'manage', context='docs'/'board', type-Filter",
+      "Feat: Template-Typ-Feld — 'doc' | 'board' | 'general' (Prisma + API + UI)",
+      "Feat: AdminPanel — neuer Templates-Tab (manage mode, volle CRUD)",
+      "Feat: DocsEditor — Templates-Button im Header",
+      "Feat: KanbanBoard — Templates-Button in Sidebar-Actions",
+      "Feat: i18n Foundation — src/lib/i18n/ (de.ts, en.ts, index.ts + useTranslation Hook)",
+      "Docs: docs/planung/konventionen.md — vollständige Namens- und Code-Konventionen",
+      "Docs: docs/planung/features/templates-modal.md — Feature-Plan",
+      "Docs: docs/planung/features/i18n.md — Feature-Plan Mehrsprachigkeit",
+      "Docs: docs/planung/komponenten.md — Komplette Komponenten-Registry (16 Komponenten)"
+    ]
+  },
+  "0.5.24.16.15-dev.1f": {
+    "display": "5.16.15-dev.1f",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-05-15",
+    "time": "20:10",
+    "description": "KI: Kontextueller Assistent in Docs, Notizen, Board — kein separater Tab mehr",
+    "changes": [
+      "Feat: AiAssistant.tsx — neue Komponente, ersetzt AiChat als einbettbares Panel (320px Slide-in)",
+      "Feat: AiAssistant — Kontext-spezifische Quick-Actions (Docs / Notizen / Board)",
+      "Feat: AiAssistant — 'In Editor einfügen'-Button bei KI-Antworten",
+      "Feat: /api/ai/chat — context + contextData Parameter, kontext-spezifische System-Prompts",
+      "Feat: /api/ai/chat — Anthropic: system-Feld korrekt getrennt von messages",
+      "Feat: DocsEditor — KI-Button im Header, AiAssistant-Panel rechts, onInsertText-Callback",
+      "Feat: NotesView — KI-Button im Header, AiAssistant-Panel rechts, onInsertText-Callback",
+      "Feat: KanbanBoard — KI-Button in Sidebar-Actions, AiAssistant als Fixed-Panel rechts",
+      "Change: AdminPanel — KI-Tab von 'Module' nach 'Admin' verschoben (als 'KI-Provider')",
+      "Remove: KI aus Haupt-Navigation entfernt",
+      "Docs: docs/planung/features/ai-contextual.md — Feature-Plan Kontextuelle KI"
+    ]
   }
 },
 
-"current": "0.5.22.14.27-dev.20d",
-"current_display": "5.14.27-dev.20d"
+"current": "0.5.24.16.15-dev.1f",
+"current_display": "5.16.15-dev.1f"
 }

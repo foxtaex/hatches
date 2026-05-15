@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faXmark, faLock, faCheck, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faXmark, faLock, faCheck, faMagnifyingGlass, faRobot } from "@fortawesome/free-solid-svg-icons";
 import { MarkdownEditor } from "../docs/MarkdownEditor";
+import { AiAssistant } from "../ai/AiAssistant";
 
 interface TeamOption { id: number; name: string; color: string }
 interface Note {
@@ -28,6 +29,8 @@ export function NotesView() {
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTag, setActiveTag] = useState<string | null>(null);
+
+  const [showAi, setShowAi] = useState(false);
 
   // Create form state
   const [creating, setCreating] = useState(false);
@@ -316,6 +319,18 @@ export function NotesView() {
                 <FontAwesomeIcon icon={faLock} className="w-2.5 h-2.5" /> Privat
               </span>
             )}
+            <button
+              onClick={() => setShowAi(v => !v)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex-shrink-0 ${
+                showAi
+                  ? "bg-[rgba(60,199,154,0.15)] text-[#3CC79A]"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+              }`}
+              title="KI-Assistent"
+            >
+              <FontAwesomeIcon icon={faRobot} className="w-3 h-3" />
+              KI
+            </button>
           </div>
           <div className="flex-1 overflow-hidden">
             <MarkdownEditor
@@ -329,6 +344,26 @@ export function NotesView() {
         <div className="flex-1 flex items-center justify-center text-zinc-700">
           Keine Notiz geöffnet
         </div>
+      )}
+
+      {/* KI Panel */}
+      {showAi && (
+        <AiAssistant
+          context="notes"
+          contextData={{ title, content: content.slice(0, 2000) }}
+          onInsertText={(text) => {
+            const newContent = content ? content + "\n\n" + text : text;
+            setContent(newContent);
+            if (activeId !== null) {
+              fetch(`/api/notes/${activeId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: newContent }),
+              });
+            }
+          }}
+          onClose={() => setShowAi(false)}
+        />
       )}
     </div>
   );

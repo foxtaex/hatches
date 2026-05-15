@@ -5,7 +5,7 @@ const sessionId = (Astro.locals as any).sessionId as string | undefined;
 if (!user) return Astro.redirect("/login");
 ---
 
-<Layout title="Einstellungen — Hatches" active="settings">
+<Layout title="Mein Account — Hatches" active="settings">
   <div class="flex-1 overflow-auto bg-black">
     <div class="max-w-2xl mx-auto px-8 py-12 flex flex-col gap-6">
 
@@ -104,7 +104,7 @@ if (!user) return Astro.redirect("/login");
   </div>
 </Layout>
 
-<script>
+<script define:vars={{ sessionId }}>
   document.getElementById("saveDisplayName")?.addEventListener("click", async () => {
     const msg = document.getElementById("displayNameMsg")!;
     const displayName = (document.getElementById("displayName") as HTMLInputElement).value;
@@ -140,7 +140,7 @@ if (!user) return Astro.redirect("/login");
   });
 
   // ── Sitzungen ────────────────────────────────────────────
-  const CURRENT_SESSION_ID = {JSON.stringify(sessionId)};
+  const CURRENT_SESSION_ID = sessionId;
 
   function formatDate(iso: string) {
     return new Date(iso).toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short" });

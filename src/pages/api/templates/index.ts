@@ -4,8 +4,17 @@ import { prisma } from "../../../lib/db";
 export const GET: APIRoute = async ({ locals, url }) => {
   if (!(locals as any).user) return Response.json({ error: "Nicht angemeldet" }, { status: 401 });
   const category = url.searchParams.get("category");
+  const type = url.searchParams.get("type");
   const where: Record<string, unknown> = { isPublic: true };
   if (category && category !== "all") where.category = category;
+  if (type && type !== "all") {
+    // "doc" context shows doc + general; "board" context shows board + general
+    if (type === "doc" || type === "board") {
+      where.type = { in: [type, "general"] };
+    } else {
+      where.type = type;
+    }
+  }
 
   const templates = await prisma.template.findMany({
     where,
@@ -20,13 +29,14 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
 export const POST: APIRoute = async ({ locals, request }) => {
   if (!(locals as any).user) return Response.json({ error: "Nicht angemeldet" }, { status: 401 });
-  const { name, description, category, icon, content, isPublic, teamId } = await request.json();
+  const { name, description, category, type, icon, content, isPublic, teamId } = await request.json();
   if (!name?.trim()) return Response.json({ error: "Name erforderlich" }, { status: 400 });
   const template = await prisma.template.create({
     data: {
       name: name.trim(),
       description: description ?? null,
       category: category ?? "general",
+      type: type ?? "general",
       icon: icon ?? "📋",
       content: typeof content === "string" ? content : JSON.stringify(content ?? {}),
       isPublic: isPublic ?? true,

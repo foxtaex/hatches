@@ -4,12 +4,13 @@ import { prisma } from "../../../lib/db";
 export const PATCH: APIRoute = async ({ locals, request, params }) => {
   if (!(locals as any).user) return Response.json({ error: "Nicht angemeldet" }, { status: 401 });
   const id = Number(params.id);
-  const { name, description, category, icon, content, isPublic, teamId } = await request.json();
+  const { name, description, category, type, icon, content, isPublic, teamId } = await request.json();
 
   const data: Record<string, unknown> = {};
   if (name !== undefined) data.name = name.trim();
   if (description !== undefined) data.description = description;
   if (category !== undefined) data.category = category;
+  if (type !== undefined) data.type = type;
   if (icon !== undefined) data.icon = icon;
   if (content !== undefined) data.content = typeof content === "string" ? content : JSON.stringify(content);
   if (isPublic !== undefined) data.isPublic = isPublic;
