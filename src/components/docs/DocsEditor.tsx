@@ -1,7 +1,9 @@
 import { MarkdownEditor } from "./MarkdownEditor";
+import { TemplateModal } from "../templates/TemplateModal";
+import { AiAssistant } from "../ai/AiAssistant";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faXmark, faLock, faCheck, faFileImport, faFileExport, faEye, faPenToSquare, faCode } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faXmark, faLock, faCheck, faFileImport, faFileExport, faEye, faPenToSquare, faCode, faLayerGroup, faRobot } from "@fortawesome/free-solid-svg-icons";
 
 interface TeamOption { id: number; name: string; color: string }
 interface Doc {
@@ -28,6 +30,8 @@ export function DocsEditor() {
   const [createTeamId, setCreateTeamId] = useState<string>("");
   const createRef = useRef(false);
   const [importing, setImporting] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showAi, setShowAi] = useState(false);
   const [importTeamId, setImportTeamId] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,7 +43,10 @@ export function DocsEditor() {
     const res = await fetch("/api/docs");
     const data: Doc[] = await res.json();
     setDocs(data);
-    if (data.length > 0 && activeId === null) openDoc(data[0]);
+    if (data.length === 0) return;
+    const urlId = Number(new URLSearchParams(window.location.search).get("id"));
+    const target = (urlId && data.find((d) => d.id === urlId)) || data[0];
+    openDoc(target);
   }
 
   async function loadUserTeams() {
@@ -295,6 +302,28 @@ export function DocsEditor() {
             >
               <FontAwesomeIcon icon={faFileExport} className="w-3.5 h-3.5" />
             </button>
+            {/* Templates Button */}
+            <button
+              onClick={() => setShowTemplateModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors flex-shrink-0"
+              title="Templates"
+            >
+              <FontAwesomeIcon icon={faLayerGroup} className="w-3 h-3" />
+              Templates
+            </button>
+            {/* KI Button */}
+            <button
+              onClick={() => setShowAi(v => !v)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex-shrink-0 ${
+                showAi
+                  ? "bg-[rgba(60,199,154,0.15)] text-[#3CC79A]"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+              }`}
+              title="KI-Assistent"
+            >
+              <FontAwesomeIcon icon={faRobot} className="w-3 h-3" />
+              KI
+            </button>
             {/* View Mode Toggle */}
             <div className="flex items-center gap-0.5 bg-zinc-800 rounded-lg p-0.5">
               <button
@@ -338,6 +367,42 @@ export function DocsEditor() {
         <div className="flex-1 flex items-center justify-center text-zinc-700">
           Kein Dokument geöffnet
         </div>
+      )}
+
+      {/* KI Panel */}
+      {showAi && (
+        <AiAssistant
+          context="docs"
+          contextData={{ title, content: content.slice(0, 2000) }}
+          onInsertText={(text) => {
+            const newContent = content ? content + "\n\n" + text : text;
+            setContent(newContent);
+            if (activeId !== null) {
+              fetch(`/api/docs/${activeId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: newContent }),
+              });
+            }
+          }}
+          onClose={() => setShowAi(false)}
+        />
+      )}
+
+      {/* Template Modal */}
+      {showTemplateModal && (
+        <TemplateModal
+          context="docs"
+          onClose={() => setShowTemplateModal(false)}
+          onApply={(redirect) => {
+            setShowTemplateModal(false);
+            if (redirect) {
+              window.location.href = redirect;
+            } else {
+              loadDocs();
+            }
+          }}
+        />
       )}
     </div>
   );

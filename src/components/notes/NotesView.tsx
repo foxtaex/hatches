@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faXmark, faLock, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faXmark, faLock, faCheck, faMagnifyingGlass, faRobot } from "@fortawesome/free-solid-svg-icons";
+import { MarkdownEditor } from "../docs/MarkdownEditor";
+import { AiAssistant } from "../ai/AiAssistant";
 
 interface TeamOption { id: number; name: string; color: string }
 interface Note {
@@ -12,6 +14,12 @@ interface Note {
   updatedAt: string;
 }
 
+function extractTags(content: string): string[] {
+  const matches = content.match(/#([a-zA-Z0-9_\-äöüÄÖÜß]+)/g);
+  if (!matches) return [];
+  return [...new Set(matches.map((t) => t.slice(1).toLowerCase()))];
+}
+
 export function NotesView() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -19,6 +27,10 @@ export function NotesView() {
   const [title, setTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+
+  const [showAi, setShowAi] = useState(false);
 
   // Create form state
   const [creating, setCreating] = useState(false);
@@ -34,7 +46,10 @@ export function NotesView() {
     const res = await fetch("/api/notes");
     const data: Note[] = await res.json();
     setNotes(data);
-    if (data.length > 0) openNote(data[0]);
+    if (data.length === 0) return;
+    const urlId = Number(new URLSearchParams(window.location.search).get("id"));
+    const target = (urlId && data.find((n) => n.id === urlId)) || data[0];
+    openNote(target);
   }
 
   async function loadUserTeams() {
@@ -62,10 +77,9 @@ export function NotesView() {
     }, 600);
   }
 
-  function handleContentChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const v = e.target.value;
-    setContent(v);
-    if (activeId !== null) scheduleSave(activeId, { content: v });
+  function handleContentChange(value: string) {
+    setContent(value);
+    if (activeId !== null) scheduleSave(activeId, { content: value });
   }
 
   function saveTitle() {
@@ -109,13 +123,39 @@ export function NotesView() {
     }
   }
 
-  // Grouping
-  const privateNotes = notes.filter((n) => !n.teamId);
+  // All unique tags across all notes
+  const allTags = useMemo(() => {
+    const tagMap = new Map<string, number>();
+    notes.forEach((n) => {
+      extractTags(n.content).forEach((t) => {
+        tagMap.set(t, (tagMap.get(t) ?? 0) + 1);
+      });
+    });
+    return [...tagMap.entries()].sort((a, b) => b[1] - a[1]);
+  }, [notes]);
+
+  // Filtered notes based on search query and active tag
+  const filteredNotes = useMemo(() => {
+    let result = notes;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((n) =>
+        n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
+      );
+    }
+    if (activeTag) {
+      result = result.filter((n) => extractTags(n.content).includes(activeTag));
+    }
+    return result;
+  }, [notes, searchQuery, activeTag]);
+
+  // Grouping (uses filtered set)
+  const privateNotes = filteredNotes.filter((n) => !n.teamId);
   const teamGroups = userTeams
-    .map((t) => ({ team: t, items: notes.filter((n) => n.teamId === t.id) }))
+    .map((t) => ({ team: t, items: filteredNotes.filter((n) => n.teamId === t.id) }))
     .filter((g) => g.items.length > 0);
   const knownTeamIds = new Set(userTeams.map((t) => t.id));
-  const otherNotes = notes.filter((n) => n.teamId && !knownTeamIds.has(n.teamId));
+  const otherNotes = filteredNotes.filter((n) => n.teamId && !knownTeamIds.has(n.teamId));
 
   const activeNote = notes.find((n) => n.id === activeId);
 
@@ -123,7 +163,7 @@ export function NotesView() {
     <div className="flex-1 flex overflow-hidden">
       {/* Sidebar */}
       <aside className="w-[280px] flex-shrink-0 flex flex-col border-r border-[rgba(255,255,255,0.08)] bg-[rgba(18,18,18,0.6)] backdrop-blur-[30px] backdrop-saturate-[180%]">
-        <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
+        <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)] flex flex-col gap-2">
           {creating ? (
             <div className="flex flex-col gap-1.5">
               <input
@@ -159,6 +199,45 @@ export function NotesView() {
               <FontAwesomeIcon icon={faPlus} className="w-3 h-3" /> Neue Notiz
             </button>
           )}
+
+          {/* Search */}
+          <div className="relative">
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-600 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Suchen..."
+              className="w-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded pl-7 pr-2 py-1.5 outline-none focus:border-zinc-600 placeholder-zinc-700"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400"
+              >
+                <FontAwesomeIcon icon={faXmark} className="w-2.5 h-2.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Tag filters */}
+          {allTags.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {allTags.slice(0, 12).map(([tag, count]) => (
+                <button
+                  key={tag}
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                  className={`text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors ${
+                    activeTag === tag
+                      ? "bg-[rgba(60,199,154,0.2)] text-[#3CC79A] border border-[rgba(60,199,154,0.4)]"
+                      : "bg-zinc-900 text-zinc-600 border border-zinc-800 hover:text-zinc-400 hover:border-zinc-700"
+                  }`}
+                >
+                  #{tag} <span className="opacity-60">{count}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <nav className="flex-1 overflow-y-auto py-1">
@@ -188,8 +267,17 @@ export function NotesView() {
           {/* Other */}
           {otherNotes.map((note) => <NoteItem key={note.id} note={note} active={activeId === note.id} onOpen={() => openNote(note)} onDelete={deleteNote} />)}
 
-          {notes.length === 0 && (
-            <p className="text-xs text-zinc-700 px-3 py-4 text-center">Keine Notizen</p>
+          {filteredNotes.length === 0 && (
+            <div className="px-3 py-4 text-center">
+              <p className="text-xs text-zinc-700">
+                {searchQuery || activeTag ? "Keine Treffer" : "Keine Notizen"}
+              </p>
+              {activeTag && (
+                <button onClick={() => setActiveTag(null)} className="text-[10px] text-zinc-600 hover:text-zinc-400 mt-1 underline">
+                  Filter entfernen
+                </button>
+              )}
+            </div>
           )}
         </nav>
       </aside>
@@ -231,36 +319,81 @@ export function NotesView() {
                 <FontAwesomeIcon icon={faLock} className="w-2.5 h-2.5" /> Privat
               </span>
             )}
+            <button
+              onClick={() => setShowAi(v => !v)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex-shrink-0 ${
+                showAi
+                  ? "bg-[rgba(60,199,154,0.15)] text-[#3CC79A]"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+              }`}
+              title="KI-Assistent"
+            >
+              <FontAwesomeIcon icon={faRobot} className="w-3 h-3" />
+              KI
+            </button>
           </div>
-          <textarea
-            value={content}
-            onChange={handleContentChange}
-            placeholder="Notiz schreiben..."
-            className="flex-1 bg-black text-[rgba(212,212,216,0.95)] text-sm font-mono p-6 outline-none resize-none leading-[1.6] border-none"
-          />
+          <div className="flex-1 overflow-hidden">
+            <MarkdownEditor
+              value={content}
+              onChange={handleContentChange}
+              placeholder="Notiz schreiben..."
+            />
+          </div>
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center text-zinc-700">
           Keine Notiz geöffnet
         </div>
       )}
+
+      {/* KI Panel */}
+      {showAi && (
+        <AiAssistant
+          context="notes"
+          contextData={{ title, content: content.slice(0, 2000) }}
+          onInsertText={(text) => {
+            const newContent = content ? content + "\n\n" + text : text;
+            setContent(newContent);
+            if (activeId !== null) {
+              fetch(`/api/notes/${activeId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: newContent }),
+              });
+            }
+          }}
+          onClose={() => setShowAi(false)}
+        />
+      )}
     </div>
   );
 }
 
 function NoteItem({ note, active, onOpen, onDelete }: { note: Note; active: boolean; onOpen: () => void; onDelete: (id: number) => void }) {
+  const tags = useMemo(() => extractTags(note.content).slice(0, 4), [note.content]);
   return (
     <div
-      className={`flex items-center group px-3 py-2 cursor-pointer transition-colors ${active ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300"}`}
+      className={`flex flex-col px-3 py-2 cursor-pointer transition-colors group ${active ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300"}`}
       onClick={onOpen}
     >
-      <span className="flex-1 text-sm truncate">{note.title}</span>
-      <button
-        onClick={(e) => { e.stopPropagation(); onDelete(note.id); }}
-        className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-500 transition-opacity ml-1"
-      >
-        <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
-      </button>
+      <div className="flex items-center">
+        <span className="flex-1 text-sm truncate">{note.title}</span>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(note.id); }}
+          className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-500 transition-opacity ml-1 flex-shrink-0"
+        >
+          <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+        </button>
+      </div>
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-0.5 mt-1">
+          {tags.map((tag) => (
+            <span key={tag} className="text-[9px] px-1.5 py-0 rounded-full bg-zinc-900 text-zinc-600 border border-zinc-800">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

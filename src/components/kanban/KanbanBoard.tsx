@@ -3,16 +3,19 @@ import {
   useSensor, useSensors,
   type DragEndEvent, type DragStartEvent,
 } from "@dnd-kit/core";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus, faXmark, faPen, faCheck, faTableColumns,
-  faTrash, faLock, faUsers, faBoxArchive,
+  faTrash, faLock, faUsers, faBoxArchive, faFilter, faMagnifyingGlass, faLayerGroup, faRobot,
 } from "@fortawesome/free-solid-svg-icons";
 import { KanbanColumn } from "./KanbanColumn";
 import { ArchivePanel } from "./ArchivePanel";
 import { CardDetailModal } from "./CardDetailModal";
+import { TemplateModal } from "../templates/TemplateModal";
+import { AiAssistant } from "../ai/AiAssistant";
 import type { Board, Card, Column } from "./types";
+import { parseLabels, PRIORITY_CONFIG } from "./types";
 
 interface TeamOption { id: number; name: string; color: string }
 
@@ -105,8 +108,75 @@ export function KanbanBoard() {
   // Archive panel state
   const [showArchive, setShowArchive] = useState(false);
 
+  // Template modal state
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+
+  // AI panel state
+  const [showAi, setShowAi] = useState(false);
+
   // Card detail modal state
   const [openCardId, setOpenCardId] = useState<number | null>(null);
+
+  // Filter state
+  interface BoardFilter {
+    assigneeId: number | null;
+    priority: string | null;
+    labelName: string | null;
+    due: "overdue" | "today" | "week" | null;
+    text: string;
+  }
+  const EMPTY_FILTER: BoardFilter = { assigneeId: null, priority: null, labelName: null, due: null, text: "" };
+  const [filter, setFilter] = useState<BoardFilter>(EMPTY_FILTER);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+
+  const isFiltered = filter.assigneeId !== null || filter.priority !== null ||
+    filter.labelName !== null || filter.due !== null || filter.text.trim() !== "";
+
+  // All unique labels across the current board (for filter UI)
+  const allLabels = useMemo(() => {
+    if (!board) return [] as { name: string; color: string }[];
+    const map = new Map<string, string>();
+    board.columns.forEach((col) =>
+      col.cards.forEach((card) =>
+        parseLabels(card.labels).forEach((l) => map.set(l.name, l.color))
+      )
+    );
+    return Array.from(map.entries()).map(([name, color]) => ({ name, color }));
+  }, [board]);
+
+  // Filtered view of the board (client-side, no extra API call)
+  const filteredBoard = useMemo((): Board | null => {
+    if (!board || !isFiltered) return board;
+    const now = new Date();
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const endOfWeek = new Date(now.getTime() + 7 * 86_400_000);
+    return {
+      ...board,
+      columns: board.columns.map((col) => ({
+        ...col,
+        cards: col.cards.filter((card) => {
+          if (filter.assigneeId !== null && card.assigneeId !== filter.assigneeId) return false;
+          if (filter.priority !== null && card.priority !== filter.priority) return false;
+          if (filter.labelName !== null) {
+            if (!parseLabels(card.labels).some((l) => l.name === filter.labelName)) return false;
+          }
+          if (filter.due !== null) {
+            const due = card.dueDate ? new Date(card.dueDate) : null;
+            if (!due) return false;
+            if (filter.due === "overdue" && due >= now) return false;
+            if (filter.due === "today" && (due < now || due > endOfToday)) return false;
+            if (filter.due === "week" && due > endOfWeek) return false;
+          }
+          if (filter.text.trim() !== "") {
+            const q = filter.text.toLowerCase();
+            if (!card.title.toLowerCase().includes(q) &&
+                !(card.description ?? "").toLowerCase().includes(q)) return false;
+          }
+          return true;
+        }),
+      })),
+    };
+  }, [board, filter, isFiltered]);
 
   // Double-submit guards
   const creatingBoardRef = useRef(false);
@@ -122,7 +192,13 @@ export function KanbanBoard() {
     const res = await fetch("/api/board");
     const data: BoardMeta[] = await res.json();
     setBoards(data);
-    if (data.length > 0) setActiveBoardId((prev) => prev ?? data[0].id);
+    if (data.length === 0) return;
+    const urlId = Number(new URLSearchParams(window.location.search).get("boardId"));
+    if (urlId && data.some((b) => b.id === urlId)) {
+      setActiveBoardId(urlId);
+    } else {
+      setActiveBoardId((prev) => prev ?? data[0].id);
+    }
   }
 
   async function loadBoard(id: number) {
@@ -399,6 +475,16 @@ export function KanbanBoard() {
           <button onClick={() => setShowArchive(true)} className="text-zinc-600 hover:text-yellow-500 transition-colors" title="Archiv">
             <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
           </button>
+          <button onClick={() => setShowTemplateModal(true)} className="text-zinc-600 hover:text-[#3CC79A] transition-colors" title="Templates">
+            <FontAwesomeIcon icon={faLayerGroup} className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setShowAi(v => !v)}
+            className={showAi ? "text-[#3CC79A]" : "text-zinc-600 hover:text-[#3CC79A] transition-colors"}
+            title="KI-Assistent"
+          >
+            <FontAwesomeIcon icon={faRobot} className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {addingBoard && (
@@ -472,8 +558,162 @@ export function KanbanBoard() {
         </div>
       ) : (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="flex-1 flex gap-4 overflow-x-auto p-6 items-start">
-            {board.columns.map((col) => (
+          <div className="flex-1 flex flex-col overflow-hidden">
+
+            {/* ── Filter Bar ─────────────────────────────── */}
+            <div className="flex items-center gap-2 px-6 pt-4 pb-2 flex-shrink-0 flex-wrap">
+              {/* Text search */}
+              <div className="relative">
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/25 pointer-events-none" />
+                <input
+                  value={filter.text}
+                  onChange={(e) => setFilter((f) => ({ ...f, text: e.target.value }))}
+                  placeholder="Karten suchen…"
+                  className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-white/80 text-xs rounded-lg pl-7 pr-3 py-1.5 outline-none focus:border-[rgba(60,199,154,0.35)] w-44 placeholder:text-white/25 transition-colors"
+                />
+              </div>
+
+              {/* Filter dropdown button */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowFilterPanel((v) => !v)}
+                  className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors ${isFiltered ? "border-[rgba(60,199,154,0.5)] text-[#3CC79A] bg-[rgba(60,199,154,0.08)]" : "border-[rgba(255,255,255,0.08)] text-white/50 hover:text-white/80 hover:border-[rgba(255,255,255,0.15)]"}`}
+                >
+                  <FontAwesomeIcon icon={faFilter} className="w-2.5 h-2.5" />
+                  Filter
+                </button>
+
+                {/* Dropdown panel */}
+                {showFilterPanel && (
+                  <div className="absolute left-0 top-full mt-1 z-40 bg-[rgba(28,28,32,0.98)] border border-[rgba(255,255,255,0.1)] rounded-xl shadow-2xl p-4 w-64 flex flex-col gap-4">
+
+                    {/* Assignee */}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mb-1.5">Zugewiesen</p>
+                      <select
+                        value={filter.assigneeId ?? ""}
+                        onChange={(e) => setFilter((f) => ({ ...f, assigneeId: e.target.value ? Number(e.target.value) : null }))}
+                        className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-white/80 text-xs rounded-lg px-2.5 py-1.5 outline-none"
+                      >
+                        <option value="">Alle</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>{u.displayName || u.username}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Priority */}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mb-1.5">Priorität</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(Object.entries(PRIORITY_CONFIG) as [string, { label: string; color: string; bg: string }][]).map(([k, cfg]) => (
+                          <button
+                            key={k}
+                            onClick={() => setFilter((f) => ({ ...f, priority: f.priority === k ? null : k }))}
+                            className="text-[10px] font-semibold px-2 py-0.5 rounded-md transition-all"
+                            style={{
+                              color: cfg.color,
+                              background: filter.priority === k ? cfg.bg : "rgba(255,255,255,0.05)",
+                              border: `1px solid ${filter.priority === k ? cfg.color + "60" : "rgba(255,255,255,0.08)"}`,
+                            }}
+                          >
+                            {cfg.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Labels */}
+                    {allLabels.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mb-1.5">Label</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {allLabels.map((l) => (
+                            <button
+                              key={l.name}
+                              onClick={() => setFilter((f) => ({ ...f, labelName: f.labelName === l.name ? null : l.name }))}
+                              className="text-[10px] font-semibold px-2 py-0.5 rounded-full transition-all"
+                              style={{
+                                color: l.color,
+                                background: filter.labelName === l.name ? l.color + "30" : "rgba(255,255,255,0.05)",
+                                border: `1px solid ${filter.labelName === l.name ? l.color + "60" : "rgba(255,255,255,0.08)"}`,
+                              }}
+                            >
+                              {l.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Due date */}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mb-1.5">Fällig</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(["overdue", "today", "week"] as const).map((k) => {
+                          const labels = { overdue: "⚠ Überfällig", today: "Heute", week: "Diese Woche" };
+                          return (
+                            <button
+                              key={k}
+                              onClick={() => setFilter((f) => ({ ...f, due: f.due === k ? null : k }))}
+                              className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border transition-all ${filter.due === k ? "border-red-500/50 text-red-400 bg-red-500/10" : "border-[rgba(255,255,255,0.08)] text-white/50 hover:text-white/80"}`}
+                            >
+                              {labels[k]}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => { setFilter(EMPTY_FILTER); setShowFilterPanel(false); }}
+                      className="text-xs text-white/30 hover:text-white/60 transition-colors text-left"
+                    >
+                      Alle Filter entfernen
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Active filter chips */}
+              {filter.assigneeId !== null && (
+                <span className="flex items-center gap-1 text-[10px] bg-[rgba(255,255,255,0.08)] text-white/60 rounded-full px-2 py-0.5">
+                  👤 {users.find((u) => u.id === filter.assigneeId)?.displayName || users.find((u) => u.id === filter.assigneeId)?.username || "?"}
+                  <button onClick={() => setFilter((f) => ({ ...f, assigneeId: null }))} className="text-white/40 hover:text-white/80"><FontAwesomeIcon icon={faXmark} className="w-2 h-2" /></button>
+                </span>
+              )}
+              {filter.priority !== null && (
+                <span className="flex items-center gap-1 text-[10px] rounded-full px-2 py-0.5" style={{ background: PRIORITY_CONFIG[filter.priority as keyof typeof PRIORITY_CONFIG].bg, color: PRIORITY_CONFIG[filter.priority as keyof typeof PRIORITY_CONFIG].color }}>
+                  {PRIORITY_CONFIG[filter.priority as keyof typeof PRIORITY_CONFIG].label}
+                  <button onClick={() => setFilter((f) => ({ ...f, priority: null }))} className="opacity-60 hover:opacity-100"><FontAwesomeIcon icon={faXmark} className="w-2 h-2" /></button>
+                </span>
+              )}
+              {filter.labelName !== null && (
+                <span className="flex items-center gap-1 text-[10px] rounded-full px-2 py-0.5" style={{ background: (allLabels.find((l) => l.name === filter.labelName)?.color ?? "#888") + "30", color: allLabels.find((l) => l.name === filter.labelName)?.color ?? "#888" }}>
+                  🏷 {filter.labelName}
+                  <button onClick={() => setFilter((f) => ({ ...f, labelName: null }))} className="opacity-60 hover:opacity-100"><FontAwesomeIcon icon={faXmark} className="w-2 h-2" /></button>
+                </span>
+              )}
+              {filter.due !== null && (
+                <span className="flex items-center gap-1 text-[10px] bg-red-500/10 text-red-400 rounded-full px-2 py-0.5">
+                  {{ overdue: "⚠ Überfällig", today: "📅 Heute", week: "📅 Diese Woche" }[filter.due]}
+                  <button onClick={() => setFilter((f) => ({ ...f, due: null }))} className="opacity-60 hover:opacity-100"><FontAwesomeIcon icon={faXmark} className="w-2 h-2" /></button>
+                </span>
+              )}
+
+              {/* Hidden card count */}
+              {isFiltered && (() => {
+                const total = board.columns.reduce((s, c) => s + c.cards.length, 0);
+                const visible = (filteredBoard?.columns ?? []).reduce((s, c) => s + c.cards.length, 0);
+                const hidden = total - visible;
+                return hidden > 0 ? (
+                  <span className="text-[10px] text-white/30 ml-auto">{hidden} Karte{hidden !== 1 ? "n" : ""} ausgeblendet</span>
+                ) : null;
+              })()}
+            </div>
+
+          <div className="flex-1 flex gap-4 overflow-x-auto px-6 pb-6 items-start">
+            {(filteredBoard ?? board).columns.map((col) => (
               <KanbanColumn
                 key={col.id}
                 column={col}
@@ -525,6 +765,7 @@ export function KanbanBoard() {
               </div>
             )}
           </DragOverlay>
+          </div>{/* end flex-col wrapper */}
         </DndContext>
       )}
 
@@ -552,6 +793,35 @@ export function KanbanBoard() {
           />
         );
       })()}
+
+      {showTemplateModal && (
+        <TemplateModal
+          context="board"
+          onClose={() => setShowTemplateModal(false)}
+          onApply={(redirect) => {
+            setShowTemplateModal(false);
+            if (redirect) {
+              window.location.href = redirect;
+            } else {
+              loadBoards();
+            }
+          }}
+        />
+      )}
+
+      {/* KI Panel — fixed right edge overlay */}
+      {showAi && (
+        <div
+          className="fixed top-[72px] right-0 bottom-0 z-[500] flex flex-col overflow-hidden"
+          style={{ boxShadow: "-4px 0 32px rgba(0,0,0,0.5)" }}
+        >
+          <AiAssistant
+            context="board"
+            contextData={{ title: board?.name ?? activeBoardId?.toString() }}
+            onClose={() => setShowAi(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

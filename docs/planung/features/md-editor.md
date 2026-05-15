@@ -22,6 +22,7 @@ Eigener Markdown Editor mit Live Preview — inspiriert von iA Writer + Astro-ed
 |------|-------------|
 | **Edit** | Nur Text-Editor (Monaco-style) |
 | **Split** | Editor links, Preview rechts (50/50) |
+ **Editor-Preview** | Nur gerenderte Vorschau |
 | **Preview** | Nur gerenderte Vorschau |
 
 ### Toolbar
@@ -36,6 +37,9 @@ Numbered    → 1. item
 Link        → [text](url)
 Image       → ![alt](url)
 Code        → `code`
+Code-block  → ```[Sprache]    <- like discord
+              Code
+              ```
 Quote       → > text
 Divider     → ---
 Table       → | Header | → Generate table

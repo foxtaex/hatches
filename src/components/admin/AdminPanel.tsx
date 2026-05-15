@@ -4,11 +4,12 @@ import {
   faPlus, faXmark, faUser, faShield, faUsers, faGear,
   faChevronRight, faCheck, faTrash, faDatabase, faInfoCircle,
   faClockRotateLeft, faLayerGroup, faKey, faRobot, faPen,
-  faGlobe, faPuzzlePiece,
+  faGlobe, faPuzzlePiece, faRightFromBracket,
   type IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import { WebsiteManager } from "../websites/WebsiteManager";
 import { IntegrationManager } from "../integrations/IntegrationManager";
+import { TemplateLibrary } from "../templates/TemplateLibrary";
 
 // ── Types ────────────────────────────────────────────────
 type Section = "board" | "docs" | "notes" | "planner" | "templates" | "admin";
@@ -32,7 +33,7 @@ interface Permission { section: string; canView: boolean; canCreate: boolean; ca
 interface Role { id: number; name: string; description: string | null; color: string; isDefault: boolean; priority: number; permissions: Permission[]; _count: { memberships: number }; }
 interface TeamMember { user: { id: number; username: string; displayName: string | null }; role: { id: number; name: string; color: string }; }
 interface Team { id: number; name: string; description: string | null; color: string; memberships: TeamMember[]; }
-interface User { id: number; username: string; email: string; displayName: string | null; isAdmin: boolean; isActive: boolean; memberships: { team: { id: number; name: string; color: string }; role: { id: number; name: string; color: string } }[]; }
+interface User { id: number; username: string; email: string; displayName: string | null; isAdmin: boolean; isOga: boolean; isActive: boolean; memberships: { team: { id: number; name: string; color: string }; role: { id: number; name: string; color: string } }[]; }
 
 // ── Toggle Switch ────────────────────────────────────────
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
@@ -378,9 +379,12 @@ function TeamsTab({ teams, roles, users, onRefresh }: { teams: Team[]; roles: Ro
 }
 
 // ── Benutzer Tab ─────────────────────────────────────────
-function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promise<void> }) {
+function UsersTab({ users, currentUser, onRefresh }: { users: User[]; currentUser: { id: number; isOga: boolean } | null; onRefresh: () => Promise<void> }) {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ username: "", email: "", password: "", displayName: "" });
+  const [resetPwUserId, setResetPwUserId] = useState<number | null>(null);
+  const [resetPwValue, setResetPwValue] = useState("");
+  const [resetPwLoading, setResetPwLoading] = useState(false);
 
   async function createUser(e: React.FormEvent) {
     e.preventDefault();
@@ -406,6 +410,36 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
   async function deleteUser(id: number) {
     if (!confirm("Benutzer wirklich löschen?")) return;
     await fetch("/api/admin/users", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    await onRefresh();
+  }
+
+  async function resetPassword() {
+    if (!resetPwUserId || resetPwValue.trim().length < 6) return;
+    setResetPwLoading(true);
+    await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: resetPwUserId, password: resetPwValue }),
+    });
+    setResetPwUserId(null);
+    setResetPwValue("");
+    setResetPwLoading(false);
+  }
+
+  async function forceLogout(userId: number) {
+    await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: userId, invalidateSessions: true }),
+    });
+  }
+
+  async function toggleOga(user: User) {
+    await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: user.id, isOga: !user.isOga }),
+    });
     await onRefresh();
   }
 
@@ -441,33 +475,91 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
 
       <div className="flex flex-col gap-2">
         {users.map((user) => (
-          <div key={user.id} className={`flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 transition-opacity ${user.isActive ? "" : "opacity-50"}`}>
-            <div className="w-9 h-9 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-300 flex-shrink-0">
-              {(user.displayName || user.username).charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-medium text-zinc-200">{user.displayName || user.username}</span>
-                <span className="text-xs text-zinc-500">@{user.username}</span>
-                {user.isAdmin && <span className="text-xs bg-red-900/40 text-red-400 border border-red-800/40 rounded-full px-2 py-0.5">Admin</span>}
+          <div key={user.id} className={`bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden transition-opacity ${user.isActive ? "" : "opacity-60"}`}>
+            <div className="flex items-center gap-3 px-4 py-3">
+              <div className="w-9 h-9 rounded-full bg-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-300 flex-shrink-0">
+                {(user.displayName || user.username).charAt(0).toUpperCase()}
               </div>
-              <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                {user.memberships.map(({ team, role }) => (
-                  <span key={team.id} className="text-xs rounded-full px-2.5 py-0.5"
-                    style={{ background: team.color + "1a", color: team.color, border: `1px solid ${team.color}44` }}>
-                    {team.name} · <span style={{ color: role.color }}>{role.name}</span>
-                  </span>
-                ))}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-zinc-200">{user.displayName || user.username}</span>
+                  <span className="text-xs text-zinc-500">@{user.username}</span>
+                  {user.isOga && <span className="text-xs bg-yellow-900/40 text-yellow-400 border border-yellow-800/40 rounded-full px-2 py-0.5">Oga ★</span>}
+                  {user.isAdmin && <span className="text-xs bg-red-900/40 text-red-400 border border-red-800/40 rounded-full px-2 py-0.5">Admin</span>}
+                </div>
+                <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                  {user.memberships.map(({ team, role }) => (
+                    <span key={team.id} className="text-xs rounded-full px-2.5 py-0.5"
+                      style={{ background: team.color + "1a", color: team.color, border: `1px solid ${team.color}44` }}>
+                      {team.name} · <span style={{ color: role.color }}>{role.name}</span>
+                    </span>
+                  ))}
+                </div>
               </div>
+              <span className="text-xs text-zinc-600 hidden md:block shrink-0">{user.email}</span>
+              <button onClick={() => toggleActive(user)}
+                className={`text-xs rounded-full px-2.5 py-0.5 font-medium transition-colors flex-shrink-0 ${user.isActive ? "bg-green-900/30 text-green-400 hover:bg-red-900/30 hover:text-red-400" : "bg-red-900/30 text-red-400 hover:bg-green-900/30 hover:text-green-400"}`}>
+                {user.isActive ? "Aktiv" : "Inaktiv"}
+              </button>
+              <button
+                onClick={() => { setResetPwUserId(resetPwUserId === user.id ? null : user.id); setResetPwValue(""); }}
+                title="Passwort zurücksetzen"
+                className={`transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800 ${resetPwUserId === user.id ? "text-yellow-400" : "text-zinc-700 hover:text-yellow-400"}`}
+              >
+                <FontAwesomeIcon icon={faKey} className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => forceLogout(user.id)}
+                title="Alle Sitzungen beenden (Force Logout)"
+                className="text-zinc-700 hover:text-orange-400 transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800"
+              >
+                <FontAwesomeIcon icon={faRightFromBracket} className="w-3 h-3" />
+              </button>
+              {/* Oga toggle: visible to Oga on others, or bootstrap when no Oga exists yet */}
+              {(currentUser?.isOga
+                ? currentUser.id !== user.id
+                : !users.some((u) => u.isOga) && currentUser?.id === user.id
+              ) && (
+                <button
+                  onClick={() => toggleOga(user)}
+                  title={user.isOga ? "Oga-Status entziehen" : users.some((u) => u.isOga) ? "Oga-Status vergeben" : "Oga werden"}
+                  className={`transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800 text-xs font-bold ${user.isOga ? "text-yellow-500 hover:text-yellow-300" : "text-zinc-700 hover:text-yellow-500"}`}
+                >
+                  ★
+                </button>
+              )}
+              <button onClick={() => deleteUser(user.id)} className="text-zinc-700 hover:text-red-400 transition-colors flex-shrink-0 p-1.5 rounded hover:bg-zinc-800">
+                <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <span className="text-xs text-zinc-600 hidden md:block shrink-0">{user.email}</span>
-            <button onClick={() => toggleActive(user)}
-              className={`text-xs rounded-full px-2.5 py-0.5 font-medium transition-colors flex-shrink-0 ${user.isActive ? "bg-green-900/30 text-green-400 hover:bg-red-900/30 hover:text-red-400" : "bg-red-900/30 text-red-400 hover:bg-green-900/30 hover:text-green-400"}`}>
-              {user.isActive ? "Aktiv" : "Inaktiv"}
-            </button>
-            <button onClick={() => deleteUser(user.id)} className="text-zinc-700 hover:text-red-400 transition-colors flex-shrink-0">
-              <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
-            </button>
+
+            {resetPwUserId === user.id && (
+              <div className="border-t border-zinc-800 px-4 py-3 bg-zinc-900/50 flex items-center gap-2">
+                <FontAwesomeIcon icon={faKey} className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                <span className="text-xs text-zinc-500 flex-shrink-0">Neues Passwort:</span>
+                <input
+                  autoFocus
+                  type="password"
+                  value={resetPwValue}
+                  onChange={(e) => setResetPwValue(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") resetPassword(); if (e.key === "Escape") { setResetPwUserId(null); setResetPwValue(""); } }}
+                  placeholder="Min. 6 Zeichen"
+                  minLength={6}
+                  className="flex-1 bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs rounded-lg px-3 py-1.5 outline-none focus:border-yellow-600/50"
+                />
+                <button
+                  onClick={resetPassword}
+                  disabled={resetPwLoading || resetPwValue.trim().length < 6}
+                  className="bg-yellow-600 hover:bg-yellow-500 disabled:opacity-40 text-white text-xs rounded-lg px-3 py-1.5 transition-colors flex-shrink-0"
+                >
+                  {resetPwLoading ? "…" : "Speichern"}
+                </button>
+                <button onClick={() => { setResetPwUserId(null); setResetPwValue(""); }}
+                  className="text-zinc-600 hover:text-zinc-400 transition-colors flex-shrink-0">
+                  <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
         ))}
         {users.length === 0 && (
@@ -478,12 +570,13 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => Promis
   );
 }
 
-// ── Einstellungen Tab ────────────────────────────────────
+// ── App-Info Tab ─────────────────────────────────────────
 interface ReleaseEntry {
   key: string;
   display: string;
   stage: string;
   date: string;
+  time?: string;
   description: string;
   changes: string[];
   status: string;
@@ -507,8 +600,23 @@ function StageBadge({ stage }: { stage: string }) {
   );
 }
 
+function formatReleaseDate(date: string, time?: string): string {
+  if (!date) return "";
+  try {
+    const d = new Date(date + (time ? `T${time}:00` : "T00:00:00"));
+    const datePart = d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+    if (!time) return datePart;
+    const timePart = d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    return `${datePart} · ${timePart} Uhr`;
+  } catch {
+    return date;
+  }
+}
+
 function ReleaseCard({ r }: { r: ReleaseEntry }) {
   const [open, setOpen] = useState(r.isCurrent);
+  const dateLabel = formatReleaseDate(r.date, r.time);
+
   return (
     <div className={`rounded-xl border overflow-hidden transition-colors ${r.isCurrent ? "border-[rgba(60,199,154,0.3)] bg-[rgba(60,199,154,0.04)]" : "border-zinc-800 bg-zinc-900"}`}>
       <button
@@ -525,11 +633,13 @@ function ReleaseCard({ r }: { r: ReleaseEntry }) {
         <StageBadge stage={r.stage} />
         {r.isCurrent && (
           <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-[rgba(60,199,154,0.15)] text-[#3CC79A]">
-            current
+            aktuell
           </span>
         )}
         <span className="flex-1" />
-        {r.date && <span className="text-xs text-zinc-600 flex-shrink-0">{r.date}</span>}
+        {dateLabel && (
+          <span className="text-xs text-zinc-600 flex-shrink-0 tabular-nums">{dateLabel}</span>
+        )}
       </button>
 
       {open && (
@@ -540,7 +650,6 @@ function ReleaseCard({ r }: { r: ReleaseEntry }) {
           {r.changes.length > 0 && (
             <ul className="flex flex-col gap-1 mt-1">
               {r.changes.map((c, i) => {
-                // Bold the prefix (Fix:, Feat:, Refactor:, etc.)
                 const match = c.match(/^([A-Za-zÄÖÜäöü]+:)\s*(.*)/s);
                 return (
                   <li key={i} className="flex items-start gap-2 text-xs text-zinc-500">
@@ -561,21 +670,88 @@ function ReleaseCard({ r }: { r: ReleaseEntry }) {
   );
 }
 
-function SettingsTab() {
+// ── App-Info Tab (System → Info) ─────────────────────────
+function AppInfoTab() {
   const [info, setInfo] = useState<{ version: string; releases: ReleaseEntry[]; node: string; provider: string; url: string; uptime: number } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/app-info").then((r) => r.json()).then(setInfo);
+  }, []);
+
+  const uptime = info
+    ? `${Math.floor(info.uptime / 3600)}h ${Math.floor((info.uptime % 3600) / 60)}m`
+    : "—";
+
+  return (
+    <div className="flex flex-col gap-6 max-w-2xl">
+
+      {/* Runtime */}
+      <section className="flex flex-col gap-3">
+        <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+          <FontAwesomeIcon icon={faInfoCircle} className="w-3 h-3" /> Laufzeit
+        </h3>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+          {[
+            ["Version", info?.version ?? "—"],
+            ["Node.js", info?.node ?? "—"],
+            ["Uptime",  uptime],
+            ["DB",      info?.provider ?? "—"],
+            ["DB-URL",  info?.url ?? "—"],
+          ].map(([label, value]) => (
+            <div key={label} className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 last:border-0">
+              <span className="text-sm text-zinc-500">{label}</span>
+              <span className="text-sm text-zinc-300 font-mono truncate max-w-xs text-right">{value}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Version History */}
+      {info?.releases && info.releases.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+            <FontAwesomeIcon icon={faClockRotateLeft} className="w-3 h-3" /> Version History
+          </h3>
+          <div className="flex flex-col gap-2">
+            {[...info.releases].reverse().map((r) => <ReleaseCard key={r.key} r={r} />)}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+// ── Workspace Tab (Admin → Workspace) ────────────────────
+function WorkspaceTab() {
+  const [workspaceName, setWorkspaceName] = useState("Hatches");
+  const [wsMsg, setWsMsg]     = useState("");
+  const [wsLoading, setWsLoading] = useState(false);
   const [dbProvider, setDbProvider] = useState("sqlite");
-  const [dbUrl, setDbUrl] = useState("file:./dev.db");
-  const [dbMsg, setDbMsg] = useState("");
+  const [dbUrl, setDbUrl]     = useState("file:./dev.db");
+  const [dbMsg, setDbMsg]     = useState("");
   const [dbLoading, setDbLoading] = useState(false);
   const [showDbForm, setShowDbForm] = useState(false);
 
   useEffect(() => {
+    fetch("/api/admin/workspace").then((r) => r.json()).then((d) => {
+      setWorkspaceName(d.name ?? "Hatches");
+    });
     fetch("/api/admin/app-info").then((r) => r.json()).then((d) => {
-      setInfo(d);
       setDbProvider(d.provider ?? "sqlite");
       setDbUrl(d.url ?? "file:./dev.db");
     });
   }, []);
+
+  async function saveWorkspaceName() {
+    setWsLoading(true); setWsMsg("");
+    const res = await fetch("/api/admin/workspace", {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: workspaceName }),
+    });
+    const data = await res.json();
+    setWsMsg(data.ok ? "✓ Gespeichert" : (data.error ?? "Fehler"));
+    setWsLoading(false);
+  }
 
   async function saveDb() {
     setDbLoading(true); setDbMsg("");
@@ -589,41 +765,38 @@ function SettingsTab() {
     if (data.ok) setShowDbForm(false);
   }
 
-  const uptime = info ? `${Math.floor(info.uptime / 3600)}h ${Math.floor((info.uptime % 3600) / 60)}m` : "—";
-
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
 
-      {/* App Info */}
+      {/* Workspace Name */}
       <section className="flex flex-col gap-3">
         <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-600 flex items-center gap-2">
-          <FontAwesomeIcon icon={faInfoCircle} className="w-3 h-3" /> App-Info
+          <FontAwesomeIcon icon={faGear} className="w-3 h-3" /> Allgemein
         </h3>
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-          {[
-            ["Version", info?.version ?? "—"],
-            ["Node", info?.node ?? "—"],
-            ["Uptime", uptime],
-          ].map(([label, value]) => (
-            <div key={label} className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 last:border-0">
-              <span className="text-sm text-zinc-500">{label}</span>
-              <span className="text-sm text-zinc-300 font-mono">{value}</span>
-            </div>
-          ))}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Workspace-Name</label>
+            <input
+              value={workspaceName}
+              onChange={(e) => setWorkspaceName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") saveWorkspaceName(); }}
+              placeholder="z.B. Mein Unternehmen"
+              className="bg-zinc-800 border border-zinc-700 text-zinc-200 rounded-lg px-3 py-2 text-sm outline-none transition-colors focus:border-zinc-500"
+            />
+            <p className="text-xs text-zinc-600">Wird im Navigation-Header angezeigt</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={saveWorkspaceName}
+              disabled={wsLoading || !workspaceName.trim()}
+              className="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              style={{ background: "rgba(60,199,154,0.12)", color: "#3CC79A", border: "1px solid rgba(60,199,154,0.2)" }}>
+              {wsLoading ? "…" : "Speichern"}
+            </button>
+            {wsMsg && <p className={`text-xs ${wsMsg.startsWith("✓") ? "text-green-400" : "text-red-400"}`}>{wsMsg}</p>}
+          </div>
         </div>
       </section>
-
-      {/* Version History */}
-      {info?.releases && info.releases.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-600 flex items-center gap-2">
-            <FontAwesomeIcon icon={faClockRotateLeft} className="w-3 h-3" /> Version History
-          </h3>
-          <div className="flex flex-col gap-2">
-            {info.releases.map((r) => <ReleaseCard key={r.key} r={r} />)}
-          </div>
-        </section>
-      )}
 
       {/* Database */}
       <section className="flex flex-col gap-3">
@@ -633,11 +806,11 @@ function SettingsTab() {
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
             <span className="text-sm text-zinc-500">Provider</span>
-            <span className="text-sm text-zinc-300 font-mono">{info?.provider ?? "—"}</span>
+            <span className="text-sm text-zinc-300 font-mono">{dbProvider}</span>
           </div>
           <div className="flex items-center justify-between px-4 py-3">
             <span className="text-sm text-zinc-500">URL</span>
-            <span className="text-sm text-zinc-400 font-mono truncate max-w-[240px]">{info?.url ?? "—"}</span>
+            <span className="text-sm text-zinc-400 font-mono truncate max-w-[240px]">{dbUrl}</span>
           </div>
         </div>
         {!showDbForm ? (
@@ -1247,13 +1420,23 @@ function AiConfigTab() {
 
 // ── Hauptkomponente ───────────────────────────────────────
 export function AdminPanel() {
-  type TabKey = "roles" | "teams" | "users" | "global-perms" | "org-groups" | "ai" | "websites" | "integrations" | "settings";
+  type TabKey = "roles" | "teams" | "users" | "global-perms" | "org-groups" | "websites" | "integrations" | "ai" | "templates" | "workspace" | "info";
   const [tab, setTab] = useState<TabKey>("roles");
   const [roles, setRoles] = useState<Role[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<{ id: number; isOga: boolean } | null>(null);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    fetch("/api/admin/users").then((r) => r.json()).then((list: User[]) => {
+      // currentUser is already loaded via load() but we need isOga — get from profile
+      fetch("/api/user/profile").then((r) => r.json()).then((p: { id: number }) => {
+        const me = Array.isArray(list) ? list.find((u) => u.id === p.id) : null;
+        if (me) setCurrentUser({ id: me.id, isOga: me.isOga });
+      });
+    });
+  }, []);
 
   async function load() {
     const [r, t, u] = await Promise.all([
@@ -1263,26 +1446,38 @@ export function AdminPanel() {
     ]);
     setRoles(Array.isArray(r) ? r : []);
     setTeams(Array.isArray(t) ? t : []);
-    setUsers(Array.isArray(u) ? u : []);
+    if (Array.isArray(u)) {
+      setUsers(u);
+      // Update currentUser.isOga if it changed
+      setCurrentUser((prev) => {
+        if (!prev) return prev;
+        const me = u.find((x: User) => x.id === prev.id);
+        return me ? { id: me.id, isOga: me.isOga } : prev;
+      });
+    }
   }
 
-  const tabs: { key: TabKey; label: string; icon: IconDefinition; group?: string }[] = [
-    { key: "roles",        label: "Rollen",         icon: faShield,      group: "Berechtigungen" },
-    { key: "teams",        label: "Teams",          icon: faUsers,       group: "Berechtigungen" },
-    { key: "users",        label: "Benutzer",       icon: faUser,        group: "Berechtigungen" },
-    { key: "global-perms", label: "Globalrechte",   icon: faKey,         group: "Berechtigungen" },
-    { key: "org-groups",   label: "Org-Gruppen",    icon: faLayerGroup,  group: "Berechtigungen" },
-    { key: "websites",     label: "Websites",       icon: faGlobe,       group: "Module" },
-    { key: "integrations", label: "Integrationen",  icon: faPuzzlePiece, group: "Module" },
-    { key: "ai",           label: "KI",             icon: faRobot,       group: "System" },
-    { key: "settings",     label: "Einstellungen",  icon: faGear,        group: "System" },
+  const tabs: { key: TabKey; label: string; icon: IconDefinition; group: string }[] = [
+    { key: "roles",        label: "Rollen",        icon: faShield,           group: "Berechtigungen" },
+    { key: "teams",        label: "Teams",          icon: faUsers,            group: "Berechtigungen" },
+    { key: "users",        label: "Benutzer",       icon: faUser,             group: "Berechtigungen" },
+    { key: "global-perms", label: "Globalrechte",   icon: faKey,              group: "Berechtigungen" },
+    { key: "org-groups",   label: "Org-Gruppen",    icon: faLayerGroup,       group: "Berechtigungen" },
+    { key: "websites",     label: "Websites",       icon: faGlobe,            group: "Module" },
+    { key: "integrations", label: "Integrationen",  icon: faPuzzlePiece,      group: "Module" },
+    { key: "templates",    label: "Templates",      icon: faLayerGroup,       group: "Module" },
+    { key: "ai",           label: "KI-Provider",    icon: faRobot,            group: "Admin" },
+    { key: "workspace",    label: "Workspace",      icon: faGear,             group: "Admin" },
+    { key: "info",         label: "App-Info",       icon: faInfoCircle,       group: "Admin" },
   ];
+
+  const fullWidthTabs: TabKey[] = ["websites", "integrations", "templates"];
 
   return (
     <div className="flex-1 flex overflow-hidden">
       {/* Sidebar Navigation */}
       <div className="w-48 flex-shrink-0 border-r border-zinc-800 bg-zinc-950 flex flex-col py-4 overflow-y-auto">
-        {(["Berechtigungen", "Module", "System"] as const).map((group) => (
+        {(["Berechtigungen", "Module", "Admin"] as const).map((group) => (
           <div key={group} className="mb-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-700 px-4 pb-1.5 pt-3">{group}</p>
             {tabs.filter((t) => t.group === group).map(({ key, label, icon }) => (
@@ -1304,17 +1499,19 @@ export function AdminPanel() {
       </div>
 
       {/* Content Area */}
-      <div className={`flex-1 overflow-y-auto ${tab === "websites" || tab === "integrations" ? "" : "p-8"}`}>
-        <div className={tab === "websites" || tab === "integrations" ? "h-full" : "max-w-4xl"}>
+      <div className={`flex-1 overflow-y-auto ${fullWidthTabs.includes(tab) ? "" : "p-8"}`}>
+        <div className={fullWidthTabs.includes(tab) ? "h-full" : "max-w-4xl"}>
           {tab === "roles"        && <RolesTab roles={roles} onRefresh={load} />}
           {tab === "teams"        && <TeamsTab teams={teams} roles={roles} users={users} onRefresh={load} />}
-          {tab === "users"        && <UsersTab users={users} onRefresh={load} />}
+          {tab === "users"        && <UsersTab users={users} currentUser={currentUser} onRefresh={load} />}
           {tab === "global-perms" && <GlobalPermissionsTab users={users} />}
           {tab === "org-groups"   && <OrgGroupsTab users={users} />}
           {tab === "websites"     && <WebsiteManager />}
           {tab === "integrations" && <IntegrationManager />}
           {tab === "ai"           && <AiConfigTab />}
-          {tab === "settings"     && <SettingsTab />}
+          {tab === "templates"    && <TemplateLibrary mode="manage" />}
+          {tab === "workspace"    && <WorkspaceTab />}
+          {tab === "info"         && <AppInfoTab />}
         </div>
       </div>
     </div>

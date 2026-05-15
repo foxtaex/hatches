@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faXmark, faUser, faCalendar, faTag, faFlag,
   faPlus, faTrash, faBoxArchive, faCheck, faPen,
-  faCircleCheck, faDroplet,
+  faCircleCheck, faDroplet, faMessage,
 } from "@fortawesome/free-solid-svg-icons";
 import type { Card, CardLabel, ChecklistItem } from "./types";
 import {
@@ -49,12 +49,62 @@ export function CardDetailModal({ card, users, columnName, currentUserId, onClos
   const [saving, setSaving] = useState(false);
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
+  // Comments
+  interface Comment {
+    id: number;
+    content: string;
+    createdAt: string;
+    author: { id: number; username: string; displayName: string | null };
+  }
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
+
   // Close on Escape
   useEffect(() => {
     const fn = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
   }, [onClose]);
+
+  // Load comments on mount
+  useEffect(() => {
+    fetch(`/api/board/comments?cardId=${card.id}`)
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setComments(data); });
+  }, [card.id]);
+
+  async function submitComment() {
+    const text = newComment.trim();
+    if (!text || submittingComment) return;
+    setSubmittingComment(true);
+    const res = await fetch("/api/board/comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cardId: card.id, content: text }),
+    });
+    if (res.ok) {
+      const created: Comment = await res.json();
+      setComments((prev) => [...prev, created]);
+      setNewComment("");
+    }
+    setSubmittingComment(false);
+  }
+
+  async function deleteComment(id: number) {
+    const res = await fetch("/api/board/comments", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) setComments((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  function formatCommentDate(iso: string) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("de-DE", { day: "2-digit", month: "short" }) +
+      " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+  }
 
   function patch(data: Partial<Card>) {
     onUpdate(card.id, data);
@@ -300,6 +350,77 @@ export function CardDetailModal({ card, users, columnName, currentUserId, onClos
                   Aufgabe hinzufügen
                 </button>
               )}
+            </div>
+
+            {/* Comments */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <FontAwesomeIcon icon={faMessage} className="w-3 h-3 text-white/30" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-white/40">
+                  Kommentare
+                </span>
+                {comments.length > 0 && (
+                  <span className="text-xs text-white/30">{comments.length}</span>
+                )}
+              </div>
+
+              {/* Comment list */}
+              {comments.length > 0 && (
+                <div className="flex flex-col gap-3 mb-4">
+                  {comments.map((c) => (
+                    <div key={c.id} className="group flex gap-2.5">
+                      {/* Avatar */}
+                      <span className="w-6 h-6 rounded-full bg-zinc-700 text-zinc-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                        {(c.author.displayName ?? c.author.username)[0].toUpperCase()}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-2 mb-0.5">
+                          <span className="text-xs font-semibold text-white/70">
+                            {c.author.displayName ?? c.author.username}
+                          </span>
+                          <span className="text-[10px] text-white/25">
+                            {formatCommentDate(c.createdAt)}
+                          </span>
+                          {currentUserId === c.author.id && (
+                            <button
+                              onClick={() => deleteComment(c.id)}
+                              className="opacity-0 group-hover:opacity-100 ml-auto text-white/20 hover:text-red-400 transition-all flex-shrink-0"
+                              title="Löschen"
+                            >
+                              <FontAwesomeIcon icon={faXmark} className="w-2.5 h-2.5" />
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-sm text-white/65 leading-relaxed whitespace-pre-wrap break-words">
+                          {c.content}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* New comment input */}
+              <div className="flex gap-2 items-end">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitComment(); }
+                  }}
+                  placeholder="Kommentar schreiben… (Enter zum Senden)"
+                  rows={2}
+                  className="flex-1 bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.08)] focus:border-[rgba(60,199,154,0.35)] text-white/80 text-sm rounded-xl px-3 py-2.5 outline-none resize-none placeholder:text-white/20 transition-colors"
+                />
+                <button
+                  onClick={submitComment}
+                  disabled={!newComment.trim() || submittingComment}
+                  className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#3CC79A] hover:bg-[#34b389] disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
+                  title="Senden"
+                >
+                  <FontAwesomeIcon icon={faCheck} className="w-3 h-3" />
+                </button>
+              </div>
             </div>
           </div>
 

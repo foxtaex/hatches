@@ -15,12 +15,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
   if (q.length < 2) {
     return new Response(
-      JSON.stringify({ cards: [], docs: [], notes: [], boards: [] }),
+      JSON.stringify({ cards: [], docs: [], notes: [], boards: [], events: [], templates: [] }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   }
 
-  const [cards, docs, notes, boards] = await Promise.all([
+  const [cards, docs, notes, boards, events, templates] = await Promise.all([
     prisma.card.findMany({
       where: {
         isArchived: false,
@@ -37,12 +37,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
         isArchived: true,
         column: {
           select: {
-            board: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
+            board: { select: { id: true, name: true } },
           },
         },
       },
@@ -56,15 +51,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
         ],
       },
       select: {
-        id: true,
-        title: true,
-        teamId: true,
-        team: {
-          select: {
-            name: true,
-            color: true,
-          },
-        },
+        id: true, title: true, teamId: true,
+        team: { select: { name: true, color: true } },
       },
       take: 5,
     }),
@@ -76,31 +64,43 @@ export const GET: APIRoute = async ({ request, locals }) => {
         ],
       },
       select: {
-        id: true,
-        title: true,
-        teamId: true,
-        team: {
-          select: {
-            name: true,
-            color: true,
-          },
-        },
+        id: true, title: true, teamId: true,
+        team: { select: { name: true, color: true } },
       },
       take: 5,
     }),
     prisma.board.findMany({
+      where: { name: { contains: q, mode: "insensitive" } },
+      select: { id: true, name: true },
+      take: 5,
+    }),
+    prisma.event.findMany({
       where: {
-        name: { contains: q, mode: "insensitive" },
+        OR: [
+          { title: { contains: q, mode: "insensitive" } },
+          { description: { contains: q, mode: "insensitive" } },
+        ],
       },
       select: {
-        id: true,
-        name: true,
+        id: true, title: true, start: true, color: true,
+        team: { select: { name: true, color: true } },
       },
+      take: 5,
+    }),
+    prisma.template.findMany({
+      where: {
+        isPublic: true,
+        OR: [
+          { name: { contains: q, mode: "insensitive" } },
+          { description: { contains: q, mode: "insensitive" } },
+        ],
+      },
+      select: { id: true, name: true, icon: true, category: true },
       take: 5,
     }),
   ]);
 
-  return new Response(JSON.stringify({ cards, docs, notes, boards }), {
+  return new Response(JSON.stringify({ cards, docs, notes, boards, events, templates }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });

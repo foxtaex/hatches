@@ -7,6 +7,7 @@ interface ReleaseEntry {
   display: string;
   stage: string;
   date: string;
+  time?: string;
   description: string;
   changes: string[];
   status: string;
@@ -29,13 +30,14 @@ export const GET: APIRoute = async ({ locals }) => {
     releases = Object.entries(vJson.releases ?? {})
       .map(([key, v]: [string, any]) => ({
         key,
-        display: v.display ?? key,
-        stage: v.stage ?? "dev",
-        date: v.date ?? "",
+        display:     v.display ?? key,
+        stage:       v.stage ?? "dev",
+        date:        v.date ?? "",
+        time:        v.time as string | undefined,
         description: v.description ?? "",
-        changes: (v.changes ?? []) as string[],
-        status: v.status ?? "",
-        isCurrent: key === current,
+        changes:     (v.changes ?? []) as string[],
+        status:      v.status ?? "",
+        isCurrent:   key === current,
       }))
       // Newest first: current on top, then sort by date desc, then key desc
       .sort((a, b) => {

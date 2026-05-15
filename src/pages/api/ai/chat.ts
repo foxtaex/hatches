@@ -1,11 +1,46 @@
 import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
+type AiContext = "board" | "docs" | "notes" | "general";
+
+interface ContextData {
+  title?: string;
+  content?: string;
+}
+
+function buildSystemPrompt(context: AiContext, data?: ContextData): string {
+  const title = data?.title ? `"${data.title}"` : "Unbekannt";
+  const contentHint = data?.content
+    ? `\n\nAktueller Inhalt (Auszug):\n${data.content.slice(0, 2000)}`
+    : "";
+
+  switch (context) {
+    case "board":
+      return `Du bist ein KI-Assistent für Hatches, ein selbst gehosteter Team-Workspace.\nDer Nutzer arbeitet am Kanban-Board ${title}.\nHilf bei: Sprint-Planung, Aufgaben-Breakdown, Projekt-Management, Karten-Texten und Team-Koordination.\nAntworte auf Deutsch (oder der Sprache des Nutzers). Formatiere als Markdown.`;
+
+    case "docs":
+      return `Du bist ein KI-Schreibassistent für Hatches.\nDer Nutzer bearbeitet das Dokument ${title}.${contentHint}\nHilf beim Schreiben, Verbessern, Zusammenfassen und Übersetzen von Inhalten.\nAntworte in sauberem Markdown-Format ohne zusätzliche Erklärungen, wenn konkrete Textgenerierung gefragt ist.`;
+
+    case "notes":
+      return `Du bist ein KI-Assistent für Notizen in Hatches.\nDer Nutzer bearbeitet die Notiz ${title}.${contentHint}\nHilf beim Strukturieren, Zusammenfassen, Extrahieren von Aktionspunkten und Ausarbeiten von Ideen.\nAntworte in sauberem Markdown-Format.`;
+
+    default:
+      return `Du bist ein hilfreicher KI-Assistent für Hatches, einen selbst gehosteten Team-Workspace.\nAntworte hilfreich, präzise und auf Deutsch (oder der Sprache des Nutzers).`;
+  }
+}
+
 export const POST: APIRoute = async ({ locals, request }) => {
   if (!(locals as any).user) return Response.json({ error: "Nicht angemeldet" }, { status: 401 });
 
-  const { messages, configId } = await request.json();
+  const { messages, configId, context, contextData } = await request.json();
   if (!messages?.length) return Response.json({ error: "Keine Nachrichten" }, { status: 400 });
+
+  // Prepend system message for context-aware responses
+  const systemPrompt = buildSystemPrompt(context ?? "general", contextData);
+  const messagesWithSystem = [
+    { role: "system" as const, content: systemPrompt },
+    ...messages,
+  ];
 
   // Load active config (or specified config)
   const config = configId
@@ -29,12 +64,14 @@ export const POST: APIRoute = async ({ locals, request }) => {
     let endpoint: string;
 
     if (config.provider === "anthropic") {
+      // Anthropic uses a separate `system` field, not a system role in messages
       endpoint = `${baseUrl}/v1/messages`;
       body = {
         model: config.model ?? "claude-3-5-haiku-20241022",
         max_tokens: config.maxTokens,
         temperature: config.temperature,
-        messages,
+        system: systemPrompt,
+        messages: messages.filter((m: { role: string }) => m.role !== "system"),
       };
     } else {
       // OpenAI-compatible (openai, deepseek, minimax, ollama, custom)
@@ -43,7 +80,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
         model: config.model ?? "gpt-4o-mini",
         temperature: config.temperature,
         max_tokens: config.maxTokens,
-        messages,
+        messages: messagesWithSystem,
       };
     }
 

@@ -1,14 +1,22 @@
 ---
 import "../styles/global.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import { HatchesLogo } from "../components/brand/HatchesLogo";
+import { prisma } from "../lib/db";
 
 export interface Props {
   title?: string;
-  active?: "board" | "docs" | "notes" | "planner" | "admin" | "settings";
+  active?: "board" | "docs" | "notes" | "planner" | "templates" | "ai" | "admin" | "settings";
 }
 
 const { title = "Hatches", active } = Astro.props;
 const user = (Astro.locals as any).user;
+
+let workspaceName = "Hatches";
+try {
+  const ws = await prisma.workspaceConfig.findUnique({ where: { id: 1 } });
+  if (ws?.name) workspaceName = ws.name;
+} catch { /* DB not ready yet — use default */ }
 
 const nav = [
   { href: "/board",   label: "Board",   key: "board",   icon: "fa-solid fa-table-columns" },
@@ -41,7 +49,7 @@ const nav = [
 
         <!-- Logo lockup -->
         <a href="/board" class="flex items-center flex-shrink-0" style="text-decoration:none; margin-right:48px;">
-          <HatchesLogo size={28} wordmark={true} wordmarkSize={20} client:load />
+          <HatchesLogo size={28} wordmark={true} wordmarkSize={20} label={workspaceName.toLowerCase()} client:load />
         </a>
 
         <!-- Nav links -->
@@ -72,7 +80,7 @@ const nav = [
               }`}
             >
               <i class="fa-solid fa-gear" style="width:16px; text-align:center; font-size:14px;"></i>
-              Admin
+              Einstellungen
             </a>
           )}
         </div>
@@ -153,7 +161,7 @@ const nav = [
           <input
             id="search-input"
             type="text"
-            placeholder="Suchen in Board, Docs, Notizen…"
+            placeholder="Suchen in Board, Docs, Notizen, Planner…"
             style="flex:1; background:transparent; border:none; outline:none; color:rgba(255,255,255,0.9); font-size:15px; font-family:inherit;"
             autocomplete="off"
           />
@@ -225,22 +233,28 @@ const nav = [
       });
 
       const ICONS: Record<string, string> = {
-        cards: "fa-solid fa-table-columns",
-        docs:  "fa-solid fa-file-lines",
-        notes: "fa-solid fa-note-sticky",
-        boards:"fa-solid fa-layer-group",
+        cards:     "fa-solid fa-table-columns",
+        docs:      "fa-solid fa-file-lines",
+        notes:     "fa-solid fa-note-sticky",
+        boards:    "fa-solid fa-layer-group",
+        events:    "fa-solid fa-calendar-days",
+        templates: "fa-solid fa-clipboard",
       };
       const LABELS: Record<string, string> = {
-        cards: "Board-Karte",
-        docs:  "Dokument",
-        notes: "Notiz",
-        boards:"Board",
+        cards:     "Board-Karte",
+        docs:      "Dokument",
+        notes:     "Notiz",
+        boards:    "Board",
+        events:    "Termin",
+        templates: "Template",
       };
       const HREFS: Record<string, (r: Record<string, unknown>) => string> = {
-        cards:  (r) => `/board`,
-        docs:   (r) => `/docs`,
-        notes:  (r) => `/notes`,
-        boards: (r) => `/board`,
+        cards:     (r) => { const boardId = (r.column as any)?.board?.id; return boardId ? `/board?boardId=${boardId}` : `/board`; },
+        docs:      (r) => `/docs?id=${r.id}`,
+        notes:     (r) => `/notes?id=${r.id}`,
+        boards:    (r) => `/board?boardId=${r.id}`,
+        events:    (_r) => `/planner`,
+        templates: (_r) => `/templates`,
       };
 
       async function runSearch() {
@@ -272,12 +286,15 @@ const nav = [
             const sub   = (item.description ?? item.content ?? "") as string;
             const href  = HREFS[type]?.(item) ?? "/";
             const icon  = ICONS[type] ?? "fa-solid fa-circle";
+            // For events use their color, for templates use icon emoji
+            const iconColor = type === "events" && item.color ? item.color as string : "rgba(255,255,255,0.35)";
+            const prefixEmoji = type === "templates" && item.icon ? `<span style="font-size:14px;margin-right:2px;">${item.icon}</span>` : "";
             const hi    = title.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`, "gi"), `<mark style="background:rgba(60,199,154,0.25);color:#3CC79A;border-radius:2px;">$1</mark>`);
             html += `
               <a href="${href}" onclick="setTimeout(()=>{ document.getElementById('search-modal').style.display='none'; },50)"
                 style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; text-decoration:none; transition:background 0.15s; cursor:pointer;"
                 onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">
-                <i class="${icon}" style="width:14px; text-align:center; color:rgba(255,255,255,0.35); font-size:13px; flex-shrink:0;"></i>
+                ${prefixEmoji || `<i class="${icon}" style="width:14px; text-align:center; color:${iconColor}; font-size:13px; flex-shrink:0;"></i>`}
                 <div style="flex:1; min-width:0;">
                   <div style="font-size:13px; font-weight:500; color:rgba(255,255,255,0.88); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${hi}</div>
                   ${sub ? `<div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sub.slice(0,80)}</div>` : ""}

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPlus, faXmark, faMagnifyingGlass, faTrash, faPen, faArrowRight
+  faPlus, faXmark, faMagnifyingGlass, faTrash, faPen, faArrowRight,
+  faSpinner, faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
 interface Team {
@@ -21,6 +22,7 @@ interface Template {
   name: string;
   description: string | null;
   category: string;
+  type: string;  // "doc" | "board" | "general"
   icon: string;
   content: string;
   isPublic: boolean;
@@ -40,34 +42,58 @@ const CATEGORIES = [
   { key: "general",    label: "Allgemein" },
 ];
 
+const TEMPLATE_TYPES = [
+  { key: "general", label: "Allgemein" },
+  { key: "doc",     label: "Dokument" },
+  { key: "board",   label: "Board" },
+];
+
 const ICONS = ["📋", "🚀", "💼", "🎯", "📊", "🛠️", "📱", "🌐", "🎨", "📝", "⚡", "🔧"];
 
 interface Props {
-  onApply?: (template: Template) => void;
-  showApply?: boolean;
+  /** "browse" = nur anwenden (für Modal), "manage" = volle CRUD (für AdminPanel) */
+  mode?: "browse" | "manage";
+  /** Filtert Templates nach Kontext: "docs" zeigt doc+general, "board" zeigt board+general */
+  context?: "docs" | "board";
+  /** Callback wenn Template angewendet wird (erhält redirect URL oder null) */
+  onApply?: (redirect: string | null) => void;
 }
 
-export function TemplateLibrary({ onApply, showApply = false }: Props) {
+export function TemplateLibrary({ mode = "manage", context, onApply }: Props) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("all");
   const [search, setSearch] = useState("");
+
+  // Create/Edit form state (manage mode only)
   const [showModal, setShowModal] = useState(false);
   const [editTemplate, setEditTemplate] = useState<Template | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", category: "general", icon: "📋", isPublic: true, teamId: "" });
+  const [form, setForm] = useState({
+    name: "", description: "", category: "general", type: "general",
+    icon: "📋", isPublic: true, teamId: "",
+  });
   const [saving, setSaving] = useState(false);
+
+  // Apply modal state
+  const [applyTemplate, setApplyTemplate] = useState<Template | null>(null);
+  const [applyTeamId, setApplyTeamId] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [applyDone, setApplyDone] = useState<string | null | false>(false); // false = not done yet
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/templates?category=${activeCategory}`);
+      const params = new URLSearchParams();
+      params.set("category", activeCategory);
+      if (context) params.set("type", context);
+      const res = await fetch(`/api/templates?${params}`);
       const data = await res.json();
       setTemplates(Array.isArray(data) ? data : []);
     } finally {
       setLoading(false);
     }
-  }, [activeCategory]);
+  }, [activeCategory, context]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -84,7 +110,7 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
 
   function openCreate() {
     setEditTemplate(null);
-    setForm({ name: "", description: "", category: "general", icon: "📋", isPublic: true, teamId: "" });
+    setForm({ name: "", description: "", category: "general", type: context === "docs" ? "doc" : context === "board" ? "board" : "general", icon: "📋", isPublic: true, teamId: "" });
     setShowModal(true);
   }
 
@@ -94,6 +120,7 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
       name: t.name,
       description: t.description ?? "",
       category: t.category,
+      type: t.type ?? "general",
       icon: t.icon,
       isPublic: t.isPublic,
       teamId: t.teamId ? String(t.teamId) : "",
@@ -109,6 +136,7 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
         name: form.name.trim(),
         description: form.description || null,
         category: form.category,
+        type: form.type,
         icon: form.icon,
         isPublic: form.isPublic,
         teamId: form.teamId ? Number(form.teamId) : null,
@@ -139,32 +167,59 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
     setShowModal(false);
   }
 
+  function openApply(t: Template) {
+    setApplyTemplate(t);
+    setApplyTeamId("");
+    setApplyDone(false);
+  }
+
+  async function applyNow() {
+    if (!applyTemplate) return;
+    setApplying(true);
+    try {
+      const res = await fetch(`/api/templates/${applyTemplate.id}/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teamId: applyTeamId ? Number(applyTeamId) : null }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setApplyDone(data.redirect ?? null);
+        onApply?.(data.redirect ?? null);
+      }
+    } finally {
+      setApplying(false);
+    }
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-5 border-b border-[rgba(255,255,255,0.08)]">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="flex items-center gap-3">
           <div className="relative">
             <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
             <input
-              className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl pl-9 pr-4 py-2 text-sm text-white/80 outline-none focus:border-[rgba(60,199,154,0.4)] placeholder:text-white/25 transition-colors w-56"
+              className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl pl-9 pr-4 py-2 text-sm text-white/80 outline-none focus:border-[rgba(60,199,154,0.4)] placeholder:text-white/25 transition-colors w-52"
               placeholder="Template suchen…"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
           </div>
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-[#3CC79A] hover:bg-[#34b389] text-white transition-colors"
-        >
-          <FontAwesomeIcon icon={faPlus} className="w-3.5 h-3.5" />
-          Neues Template
-        </button>
+        {mode === "manage" && (
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-[#3CC79A] hover:bg-[#34b389] text-white transition-colors"
+          >
+            <FontAwesomeIcon icon={faPlus} className="w-3.5 h-3.5" />
+            Neues Template
+          </button>
+        )}
       </div>
 
       {/* Category tabs */}
-      <div className="flex gap-1.5 px-8 py-3 border-b border-[rgba(255,255,255,0.06)]">
+      <div className="flex gap-1.5 px-6 py-3 border-b border-[rgba(255,255,255,0.06)]">
         {CATEGORIES.map(c => (
           <button
             key={c.key}
@@ -181,9 +236,12 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-6">
         {loading ? (
-          <div className="flex items-center justify-center py-20 text-white/30 text-sm">Laden…</div>
+          <div className="flex items-center justify-center py-20 text-white/30 text-sm">
+            <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin mr-2" />
+            Laden…
+          </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <span className="text-4xl opacity-30">📋</span>
@@ -195,15 +253,26 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
               <div
                 key={t.id}
                 className="group relative bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.14)] rounded-2xl p-5 cursor-pointer transition-all"
-                onClick={() => showApply && onApply ? onApply(t) : openEdit(t)}
+                onClick={() => mode === "manage" ? openEdit(t) : openApply(t)}
               >
                 <div className="flex items-start gap-3 mb-3">
                   <span className="text-3xl leading-none">{t.icon}</span>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-white/90 text-sm truncate">{t.name}</h3>
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-[rgba(255,255,255,0.08)] text-white/40 uppercase tracking-wider">
-                      {t.category}
-                    </span>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-medium bg-[rgba(255,255,255,0.08)] text-white/40 uppercase tracking-wider">
+                        {t.category}
+                      </span>
+                      {t.type && t.type !== "general" && (
+                        <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-medium uppercase tracking-wider ${
+                          t.type === "doc"
+                            ? "bg-[rgba(99,102,241,0.15)] text-[#818cf8]"
+                            : "bg-[rgba(60,199,154,0.1)] text-[#3CC79A]"
+                        }`}>
+                          {t.type === "doc" ? "Doc" : "Board"}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {t.description && (
@@ -215,22 +284,35 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
                     <span className="text-xs text-white/35">{t.team.name}</span>
                   </div>
                 )}
+
                 {/* Action buttons overlay */}
                 <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={e => { e.stopPropagation(); openEdit(t); }}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.18)] text-white/60 hover:text-white/90 transition-colors"
-                  >
-                    <FontAwesomeIcon icon={faPen} className="w-2.5 h-2.5" />
-                  </button>
-                  {showApply && onApply && (
+                  {mode === "manage" && (
                     <button
-                      onClick={e => { e.stopPropagation(); onApply(t); }}
-                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-[rgba(60,199,154,0.15)] hover:bg-[rgba(60,199,154,0.25)] text-[#3CC79A] transition-colors"
+                      onClick={e => { e.stopPropagation(); openEdit(t); }}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.18)] text-white/60 hover:text-white/90 transition-colors"
+                      title="Bearbeiten"
                     >
-                      <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5" />
+                      <FontAwesomeIcon icon={faPen} className="w-2.5 h-2.5" />
                     </button>
                   )}
+                  <button
+                    onClick={e => { e.stopPropagation(); openApply(t); }}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-[rgba(60,199,154,0.15)] hover:bg-[rgba(60,199,154,0.25)] text-[#3CC79A] transition-colors"
+                    title="Template anwenden"
+                  >
+                    <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+
+                {/* Apply button at bottom */}
+                <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)] opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={e => { e.stopPropagation(); openApply(t); }}
+                    className="w-full text-xs text-[#3CC79A] hover:text-white bg-[rgba(60,199,154,0.08)] hover:bg-[rgba(60,199,154,0.18)] rounded-lg py-1.5 transition-colors"
+                  >
+                    Anwenden →
+                  </button>
                 </div>
               </div>
             ))}
@@ -238,10 +320,88 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
         )}
       </div>
 
-      {/* Modal */}
-      {showModal && (
+      {/* ── Apply Modal ──────────────────────────────────── */}
+      {applyTemplate && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => !applying && setApplyTemplate(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-[rgba(22,22,24,0.98)] border border-[rgba(255,255,255,0.1)] rounded-2xl shadow-2xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[rgba(255,255,255,0.08)]">
+              <div>
+                <h2 className="text-base font-semibold text-white/90">Template anwenden</h2>
+                <p className="text-xs text-white/40 mt-0.5">{applyTemplate.icon} {applyTemplate.name}</p>
+              </div>
+              {!applying && (
+                <button onClick={() => setApplyTemplate(null)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[rgba(255,255,255,0.08)] text-white/50 hover:text-white/80 transition-colors">
+                  <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="p-6 flex flex-col gap-4">
+              {applyDone !== false ? (
+                <div className="flex flex-col items-center gap-3 py-4">
+                  <div className="w-12 h-12 rounded-full bg-[rgba(60,199,154,0.15)] flex items-center justify-center">
+                    <FontAwesomeIcon icon={faCheck} className="w-6 h-6 text-[#3CC79A]" />
+                  </div>
+                  <p className="text-sm text-white/80 font-medium">Template erfolgreich angewendet!</p>
+                  {applyDone && (
+                    <a href={applyDone} className="text-sm text-[#3CC79A] hover:underline">
+                      Zum erstellten Inhalt →
+                    </a>
+                  )}
+                  <button onClick={() => setApplyTemplate(null)} className="text-sm text-white/40 hover:text-white/60 transition-colors mt-1">
+                    Schließen
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="text-xs text-white/40 mb-2 block">Team (optional)</label>
+                    <select
+                      value={applyTeamId}
+                      onChange={e => setApplyTeamId(e.target.value)}
+                      className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl px-3 py-2 text-sm text-white/90 outline-none focus:border-[rgba(60,199,154,0.5)] transition-colors"
+                    >
+                      <option value="">🔒 Privat (kein Team)</option>
+                      {teams.map(t => <option key={t.id} value={String(t.id)}>👥 {t.name}</option>)}
+                    </select>
+                  </div>
+
+                  {applyTemplate.description && (
+                    <p className="text-xs text-white/40 bg-[rgba(255,255,255,0.03)] rounded-xl px-3 py-2.5">
+                      {applyTemplate.description}
+                    </p>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button onClick={() => setApplyTemplate(null)} className="flex-1 px-4 py-2 rounded-xl text-sm bg-[rgba(255,255,255,0.06)] text-white/60 hover:text-white/90 transition-colors">
+                      Abbrechen
+                    </button>
+                    <button
+                      onClick={applyNow}
+                      disabled={applying}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-[#3CC79A] hover:bg-[#34b389] text-white transition-colors disabled:opacity-60"
+                    >
+                      {applying ? <FontAwesomeIcon icon={faSpinner} className="w-3.5 h-3.5 animate-spin" /> : <FontAwesomeIcon icon={faArrowRight} className="w-3.5 h-3.5" />}
+                      {applying ? "Erstelle…" : "Anwenden"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit/Create Modal (manage mode only) ────────── */}
+      {showModal && mode === "manage" && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
           onClick={() => setShowModal(false)}
         >
           <div
@@ -291,7 +451,19 @@ export function TemplateLibrary({ onApply, showApply = false }: Props) {
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               />
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-white/40 mb-1 block">Typ</label>
+                  <select
+                    className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl px-3 py-2 text-sm text-white/90 outline-none focus:border-[rgba(60,199,154,0.5)] transition-colors"
+                    value={form.type}
+                    onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
+                  >
+                    {TEMPLATE_TYPES.map(tt => (
+                      <option key={tt.key} value={tt.key}>{tt.label}</option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="text-xs text-white/40 mb-1 block">Kategorie</label>
                   <select

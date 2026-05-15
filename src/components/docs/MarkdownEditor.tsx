@@ -18,13 +18,13 @@ interface ToolbarButton {
 }
 
 const TOOLBAR: ToolbarButton[] = [
-  { icon: faBold, label: "Bold", action: "bold", prefix: "**", suffix: "**" },
-  { icon: faItalic, label: "Italic", action: "italic", prefix: "_", suffix: "_" },
-  { icon: faStrikethrough, label: "Strikethrough", action: "strike", prefix: "~~", suffix: "~~" },
+  { icon: faBold, label: "Fett (Ctrl+B)", action: "bold", prefix: "**", suffix: "**" },
+  { icon: faItalic, label: "Kursiv (Ctrl+I)", action: "italic", prefix: "_", suffix: "_" },
+  { icon: faStrikethrough, label: "Durchgestrichen", action: "strike", prefix: "~~", suffix: "~~" },
   { icon: faHeading, label: "Heading", action: "heading", prefix: "## ", suffix: "", block: true },
   { icon: faListUl, label: "Bullet List", action: "ul", prefix: "- ", suffix: "", block: true },
   { icon: faListOl, label: "Numbered List", action: "ol", prefix: "1. ", suffix: "", block: true },
-  { icon: faLink, label: "Link", action: "link", prefix: "[", suffix: "](url)" },
+  { icon: faLink, label: "Link (Ctrl+K)", action: "link", prefix: "[", suffix: "](url)" },
   { icon: faImage, label: "Image", action: "image", prefix: "![", suffix: "](url)" },
   { icon: faCode, label: "Inline Code", action: "code", prefix: "`", suffix: "`" },
   { icon: faQuoteRight, label: "Quote", action: "quote", prefix: "> ", suffix: "", block: true },
@@ -140,6 +140,14 @@ export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdo
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    const ctrl = e.ctrlKey || e.metaKey;
+
+    // Keyboard shortcuts
+    if (ctrl && e.key === "b") { e.preventDefault(); insertFormat("bold"); return; }
+    if (ctrl && e.key === "i") { e.preventDefault(); insertFormat("italic"); return; }
+    if (ctrl && e.key === "k") { e.preventDefault(); insertFormat("link"); return; }
+    if (ctrl && e.shiftKey && e.key === "X") { e.preventDefault(); insertFormat("strike"); return; }
+
     // Tab key → insert 2 spaces
     if (e.key === "Tab") {
       e.preventDefault();
