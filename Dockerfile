@@ -3,13 +3,15 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies first (layer cache)
+# Prisma's postinstall hook generates the client during npm ci, so the schema
+# and Prisma config must already be available in this layer.
 COPY package*.json ./
+COPY prisma/schema.prisma ./prisma/schema.prisma
+COPY prisma.config.ts ./prisma.config.ts
 RUN npm ci
 
 # Copy source and build
 COPY . .
-RUN npx prisma generate
 RUN npm run build
 
 # ── Stage 2: Production ───────────────────────────────────────────────────────
