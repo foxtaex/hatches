@@ -453,7 +453,7 @@
   "0.5.24.16.15-dev.1f": {
     "display": "5.16.15-dev.1f",
     "stage": "dev",
-    "status": "current",
+    "status": "archived",
     "date": "2026-05-15",
     "time": "20:10",
     "description": "KI: Kontextueller Assistent in Docs, Notizen, Board — kein separater Tab mehr",
@@ -470,9 +470,56 @@
       "Remove: KI aus Haupt-Navigation entfernt",
       "Docs: docs/planung/features/ai-contextual.md — Feature-Plan Kontextuelle KI"
     ]
+  },
+  "0.5.25.17.22-dev.1d": {
+    "display": "5.17.22-dev.1d",
+    "stage": "dev",
+    "status": "archived",
+    "date": "2026-07-22",
+    "time": "09:23",
+    "description": "Docs-Editor überarbeitet, Navbar stabilisiert und eigenständiges Notes-Modul entfernt",
+    "changes": [
+      "Fix: Prisma Client wird nach npm install automatisch generiert",
+      "Fix: Font-Awesome-Icons in der Navbar werden nicht mehr von der globalen Inter-Schrift überschrieben",
+      "Feat: Markdown-Vorschau ist direkt als WYSIWYG-Oberfläche bearbeitbar",
+      "Feat: HTML-Änderungen werden mit GFM-Unterstützung zurück zu Markdown konvertiert",
+      "Feat: Umgekehrte Split-Ansicht mit Vorschau links und Markdown rechts",
+      "Fix: Docs-Ansichtssteuerung synchronisiert und doppelte Umschalter entfernt",
+      "Fix: App-Info zeigt die aktuelle Version immer als obersten Eintrag",
+      "Fix: Fehlgeschlagene Board-Erstellung blockiert keine weiteren Erstellversuche mehr",
+      "Fix: Board-Erstellung zeigt verständliche API- und Berechtigungsfehler im Formular",
+      "Fix: Vollständige Reader-Styles für Überschriften, Listen, Tabellen, Zitate, Links und Code",
+      "Remove: Notes aus Navigation, Suche, Berechtigungen, KI-Kontext, UI und APIs entfernt",
+      "Data: Bestehende Note-Daten bleiben erhalten; alte Template-Notes werden als Docs importiert",
+      "Docs: README, Feature-Spezifikationen und Komponenten-Registry aktualisiert"
+    ]
+  },
+  "0.5.26.18.22-dev.1d": {
+    "display": "5.18.22-dev.1d",
+    "stage": "dev",
+    "status": "current",
+    "date": "2026-07-22",
+    "time": "10:30",
+    "description": "Kanban–Docs-Verknüpfung, Markdown-Codeblöcke und stabile Langzeitsitzungen",
+    "changes": [
+      "Feat: Kanban-Karten können ein sichtbares Doc live verknüpfen",
+      "Feat: Verknüpfte Docs lassen sich als gerenderte Kartenbeschreibung oder separater Anhang verwenden",
+      "Feat: Karten mit Doc-Anhang zeigen unten ein Büroklammer-Icon",
+      "UX: Kanban-Kacheln zeigen bei Doc-Beschreibungen den Doc-Titel mit eindeutigem Doc-Badge",
+      "Data: Card-Doc-Relation mit SetNull beim Löschen eines Dokuments ergänzt",
+      "Security: Nur für den Benutzer sichtbare Docs dürfen verknüpft werden",
+      "Docs: Feature-Plan card-doc-links.md ergänzt",
+      "Fix: Docs-Vorschau wird beim Wechsel zwischen Dokumenten zuverlässig neu geladen",
+      "Feat: Markdown-Toolbar unterstützt Discord-ähnliche Codeblöcke mit dreifachen Backticks",
+      "Feat: Codeblöcke erhalten sprachabhängiges Syntax-Highlighting via highlight.js",
+      "Fix: WYSIWYG-Vorschau synchronisiert beim Fokuswechsel immer den zuletzt bearbeiteten Inhalt",
+      "Fix: Docs verwenden getrennte Autosave-Timer, damit Wechsel zwischen Dokumenten keine Änderungen verwirft",
+      "Fix: Prisma erzeugt bei Dev-HMR keine ungenutzten Datenbankadapter mehr",
+      "Stability: Board und Docs brechen hängende Ladeanfragen ab und versuchen sie automatisch erneut"
+    ]
   }
 },
 
-"current": "0.5.24.16.15-dev.1f",
-"current_display": "5.16.15-dev.1f"
+"current": "0.5.26.18.22-dev.1d",
+"current_display": "5.18.22-dev.1d"
 }

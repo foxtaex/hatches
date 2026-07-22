@@ -1,7 +1,7 @@
 # Feature: KI — Kontextueller Assistent
 
 > **Modul:** `src/components/ai/`  
-> **Status:** 🔨 In Arbeit  
+> **Status:** ✅ Implementiert
 > **Version:** 0.5.24.15.15-dev  
 > **Datum:** 2026-05-15
 
@@ -9,7 +9,7 @@
 
 ## Was macht dieses Feature?
 
-Die KI ist kein eigenständiger Tab mehr, sondern lebt **in jedem Modul**. Ein kleiner KI-Button öffnet ein kontextbewusstes Panel direkt in Board, Docs und Notizen. Die KI kennt den aktuellen Inhalt und kann direkt handeln — Text einfügen, Board-Strukturen vorschlagen, Karten generieren.
+Die KI ist kein eigenständiger Tab mehr. Ein kleiner KI-Button öffnet ein kontextbewusstes Panel direkt in Board und Docs. Die KI kennt den aktuellen Inhalt und kann direkt handeln — Text einfügen, Board-Strukturen vorschlagen und Karten generieren.
 
 ## Warum brauchen wir es?
 
@@ -22,7 +22,7 @@ Die KI ist kein eigenständiger Tab mehr, sondern lebt **in jedem Modul**. Ein k
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  DocsEditor / KanbanBoard / NotesView           │
+│  DocsEditor / KanbanBoard                       │
 │                                                 │
 │  Normaler Content              [✨ KI]          │
 │                                    ↓            │
@@ -52,10 +52,10 @@ Die KI ist kein eigenständiger Tab mehr, sondern lebt **in jedem Modul**. Ein k
 #### `AiAssistant.tsx`
 
 ```typescript
-type AiContext = "board" | "docs" | "notes";
+type AiContext = "board" | "docs";
 
 interface AiContextData {
-  title?: string;      // Aktuelles Dok/Board/Notiz
+  title?: string;      // Aktuelles Dokument/Board
   content?: string;    // Aktueller Inhalt (auf 2000 Chars gekürzt)
 }
 
@@ -83,7 +83,6 @@ interface Props {
 // Quick Actions (kontext-spezifisch):
 // Board:  ["Sprint planen", "Karten generieren", "Aufgabe beschreiben"]
 // Docs:   ["Abschnitt schreiben", "Zusammenfassen", "Verbessern", "Gliederung"]
-// Notes:  ["Notiz strukturieren", "Zusammenfassen", "Aktionspunkte"]
 
 // API Calls
 // GET  /api/admin/ai      → Provider prüfen (beim Mount)
@@ -95,7 +94,6 @@ interface Props {
 | Komponente | Datei | Was ändert sich |
 |-----------|-------|----------------|
 | `DocsEditor` | `src/components/docs/DocsEditor.tsx` | KI-Button + AiAssistant einbinden |
-| `NotesView` | `src/components/notes/NotesView.tsx` | KI-Button + AiAssistant einbinden |
 | `KanbanBoard` | `src/components/kanban/KanbanBoard.tsx` | KI-Button + AiAssistant einbinden |
 | `AdminPanel` | `src/components/admin/AdminPanel.tsx` | KI-Tab von Module → Admin Gruppe |
 | `Layout.astro` | `src/layouts/Layout.astro` | KI aus Nav entfernen |
@@ -124,12 +122,6 @@ ${content ? `Aktueller Inhalt (Auszug):\n${content}` : ""}
 Hilf bei: Schreiben, Verbessern, Zusammenfassen, Übersetzen.
 Antworte in Markdown-Format.`
 
-// Notes
-`Du bist ein KI-Assistent für Notizen in Hatches.
-Der Nutzer bearbeitet die Notiz "${title}".
-${content ? `Aktueller Inhalt:\n${content}` : ""}
-Hilf bei: Strukturieren, Zusammenfassen, Aktionspunkte extrahieren.
-Antworte in Markdown-Format.`
 ```
 
 ---
@@ -177,11 +169,10 @@ Antworte in Markdown-Format.`
 1. **API** — `/api/ai/chat` erweitern um `context` + System-Prompt
 2. **`AiAssistant.tsx`** — neue Komponente bauen
 3. **`DocsEditor`** — KI-Button + Panel einbinden
-4. **`NotesView`** — KI-Button + Panel einbinden
-5. **`KanbanBoard`** — KI-Button + Panel einbinden
-6. **`AdminPanel`** — KI-Tab von Module → Admin verschieben
-7. **`Layout.astro`** — `/ai` aus Nav entfernen
-8. **Komponenten-Registry** updaten
+4. **`KanbanBoard`** — KI-Button + Panel einbinden
+5. **`AdminPanel`** — KI-Tab von Module → Admin verschieben
+6. **`Layout.astro`** — `/ai` aus Nav entfernen
+7. **Komponenten-Registry** updaten
 
 ---
 

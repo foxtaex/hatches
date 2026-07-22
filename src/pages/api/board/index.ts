@@ -27,17 +27,35 @@ export const GET: APIRoute = async ({ locals }) => {
 
 export const POST: APIRoute = async ({ locals, request }) => {
   const user = (locals as any).user;
-  const { name, teamId } = await request.json();
-  const board = await prisma.board.create({
-    data: {
-      name: name?.trim() || "Neues Board",
-      teamId: teamId ?? null,
-      ownerId: user.id,
-    },
-    include: {
-      _count: { select: { columns: true } },
-      team: { select: { id: true, name: true, color: true } },
-    },
-  });
-  return Response.json(board);
+  try {
+    const { name, teamId } = await request.json();
+    const selectedTeamId = teamId == null ? null : Number(teamId);
+    if (selectedTeamId !== null && !Number.isInteger(selectedTeamId)) {
+      return Response.json({ error: "Ungültiges Team" }, { status: 400 });
+    }
+
+    if (selectedTeamId !== null && !user.isAdmin) {
+      const isMember = await prisma.teamMembership.findUnique({
+        where: { userId_teamId: { userId: user.id, teamId: selectedTeamId } },
+        select: { id: true },
+      });
+      if (!isMember) return Response.json({ error: "Keine Berechtigung für dieses Team" }, { status: 403 });
+    }
+
+    const board = await prisma.board.create({
+      data: {
+        name: typeof name === "string" && name.trim() ? name.trim() : "Neues Board",
+        teamId: selectedTeamId,
+        ownerId: user.id,
+      },
+      include: {
+        _count: { select: { columns: true } },
+        team: { select: { id: true, name: true, color: true } },
+      },
+    });
+    return Response.json(board, { status: 201 });
+  } catch (error) {
+    console.error("Board creation failed", error);
+    return Response.json({ error: "Board konnte nicht erstellt werden" }, { status: 500 });
+  }
 };

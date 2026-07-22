@@ -1,14 +1,14 @@
 # Notes — Quick Notes Specification
 
 > **Component:** `src/components/notes/`
-> **Status:** Implemented (Basic)
+> **Status:** ❌ Entfernt in 0.5.25.17.22-dev.1d
 > **Files:** NotesView.tsx, NoteEditor.tsx
 
 ---
 
 ## Overview
 
-Schnelle Notizen ohne Block-Struktur — für Rapid Capture.
+Dieses eigenständige Modul wurde entfernt, weil es funktional vollständig mit Docs überlappte. Bestehende Datenbankeinträge bleiben aus Gründen der Datensicherheit erhalten; ältere Template-Notizen werden beim Anwenden als Docs importiert.
 
 **Ziel:** Schnell was reinschreiben, durchsuchen, finden.
 
@@ -182,4 +182,4 @@ fuse.js           → Fuzzy search
 
 ---
 
-*Letztes Update: 2026-05-14*
+*Letztes Update: 2026-07-22 — Modul aus UI, Navigation, APIs, Suche und Berechtigungen entfernt*

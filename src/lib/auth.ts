@@ -64,7 +64,7 @@ export async function createFirstAdmin(username: string, email: string, password
     data: { username, email, passwordHash, displayName: username, isAdmin: true, isOga: true },
   });
 
-  const sections = ["board", "docs", "notes", "websites", "integrations", "admin"];
+  const sections = ["board", "docs", "websites", "integrations", "admin"];
 
   // Admin-Rolle: volle Rechte
   const adminRole = await prisma.role.upsert({
@@ -98,7 +98,6 @@ export async function createFirstAdmin(username: string, email: string, password
         create: [
           { section: "board",        canView: true,  canCreate: true,  canEdit: true,  canDelete: false },
           { section: "docs",         canView: true,  canCreate: true,  canEdit: true,  canDelete: false },
-          { section: "notes",        canView: true,  canCreate: true,  canEdit: true,  canDelete: true  },
           { section: "websites",     canView: true,  canCreate: false, canEdit: false, canDelete: false },
           { section: "integrations", canView: true,  canCreate: false, canEdit: false, canDelete: false },
           { section: "admin",        canView: false, canCreate: false, canEdit: false, canDelete: false },

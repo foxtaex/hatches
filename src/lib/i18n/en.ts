@@ -39,12 +39,11 @@ export const en: Translations = {
   nav: {
     board: "Board",
     docs: "Docs",
-    notes: "Notes",
     planner: "Planner",
     ai: "AI",
     settings: "Settings",
     search: "Search",
-    searchPlaceholder: "Search in Board, Docs, Notes, Planner…",
+    searchPlaceholder: "Search in Board, Docs, and Planner…",
     myAccount: "My Account",
     logout: "Sign out",
   },
@@ -80,13 +79,6 @@ export const en: Translations = {
     viewEdit: "Editor",
     viewLive: "Split",
     viewPreview: "Preview",
-  },
-  notes: {
-    title: "Notes",
-    newNote: "New note",
-    noNote: "No note open",
-    searchPlaceholder: "Search notes…",
-    noTags: "No tags",
   },
   planner: {
     title: "Planner",

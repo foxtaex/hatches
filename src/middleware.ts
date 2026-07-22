@@ -6,7 +6,6 @@ const PUBLIC_PATHS = ["/login", "/setup", "/api/auth/login", "/api/auth/register
 const SECTION_MAP: Record<string, Section> = {
   "/board":     "board",
   "/docs":      "docs",
-  "/notes":     "notes",
   "/planner":   "planner",
   "/templates": "templates",
   "/admin":     "admin",

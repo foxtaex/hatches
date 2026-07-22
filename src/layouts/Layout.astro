@@ -1,12 +1,13 @@
 ---
 import "../styles/global.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import "highlight.js/styles/github-dark.css";
 import { HatchesLogo } from "../components/brand/HatchesLogo";
 import { prisma } from "../lib/db";
 
 export interface Props {
   title?: string;
-  active?: "board" | "docs" | "notes" | "planner" | "templates" | "ai" | "admin" | "settings";
+  active?: "board" | "docs" | "planner" | "templates" | "ai" | "admin" | "settings";
 }
 
 const { title = "Hatches", active } = Astro.props;
@@ -22,7 +23,6 @@ const nav = [
   { href: "/board",   label: "Board",   key: "board",   icon: "fa-solid fa-table-columns" },
   { href: "/planner", label: "Planner", key: "planner", icon: "fa-solid fa-calendar-days" },
   { href: "/docs",    label: "Docs",    key: "docs",    icon: "fa-solid fa-file-lines" },
-  { href: "/notes",   label: "Notizen", key: "notes",   icon: "fa-solid fa-note-sticky" },
 ];
 ---
 
@@ -38,7 +38,15 @@ const nav = [
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       :root { --mint: #3CC79A; --mint-dim: rgba(60,199,154,0.12); }
-      * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+      html, body, button, input, textarea, select {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .fa-solid, .fa-regular { font-family: "Font Awesome 7 Free" !important; }
+      .fa-brands { font-family: "Font Awesome 7 Brands" !important; }
+      .fa-solid { font-weight: 900; }
+      .fa-regular, .fa-brands { font-weight: 400; }
     </style>
   </head>
   <body class="min-h-screen flex flex-col" style="background:#000; color:rgba(255,255,255,0.95);">
@@ -161,7 +169,7 @@ const nav = [
           <input
             id="search-input"
             type="text"
-            placeholder="Suchen in Board, Docs, Notizen, Planner…"
+            placeholder="Suchen in Board, Docs und Planner…"
             style="flex:1; background:transparent; border:none; outline:none; color:rgba(255,255,255,0.9); font-size:15px; font-family:inherit;"
             autocomplete="off"
           />
@@ -235,7 +243,6 @@ const nav = [
       const ICONS: Record<string, string> = {
         cards:     "fa-solid fa-table-columns",
         docs:      "fa-solid fa-file-lines",
-        notes:     "fa-solid fa-note-sticky",
         boards:    "fa-solid fa-layer-group",
         events:    "fa-solid fa-calendar-days",
         templates: "fa-solid fa-clipboard",
@@ -243,7 +250,6 @@ const nav = [
       const LABELS: Record<string, string> = {
         cards:     "Board-Karte",
         docs:      "Dokument",
-        notes:     "Notiz",
         boards:    "Board",
         events:    "Termin",
         templates: "Template",
@@ -251,7 +257,6 @@ const nav = [
       const HREFS: Record<string, (r: Record<string, unknown>) => string> = {
         cards:     (r) => { const boardId = (r.column as any)?.board?.id; return boardId ? `/board?boardId=${boardId}` : `/board`; },
         docs:      (r) => `/docs?id=${r.id}`,
-        notes:     (r) => `/notes?id=${r.id}`,
         boards:    (r) => `/board?boardId=${r.id}`,
         events:    (_r) => `/planner`,
         templates: (_r) => `/templates`,

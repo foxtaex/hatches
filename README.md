@@ -31,7 +31,6 @@ Hatches is a lightweight self-hosted collaboration platform focused on developer
 It combines:
 - 📋 **Kanban boards** — Multi-board workflow with drag & drop
 - 📝 **Docs** — Markdown editor with live preview
-- 📒 **Notes** — Fast personal and team notes
 - 👥 **Teams & Roles** — Discord-style permission system
 - 🔗 **Integrations** — Internal URL & project registry - GitHub, GitLab, Jira, and more
 
@@ -45,10 +44,7 @@ into one modern workspace you fully control. No subscriptions, no vendor lock-in
 Multi-board workflow management with **drag & drop support**, card assignment, external issue badges, and team scoping.
 
 ### 📝 Docs
-Markdown-based documentation with **live split-view preview**. Scope to teams or keep private.
-
-### 📒 Notes
-Fast personal and team notes. Quick capture with Markdown support.
+Markdown documentation with an editable WYSIWYG preview, highlighted fenced code blocks, raw Markdown editing, normal and reversed split views, import/export, templates, and private or team scopes.
 
 ### 🌐 Websites
 Internal service and project registry — keep track of internal URLs and deployed services.
@@ -149,7 +145,6 @@ src/
 │   ├── docs/           # Markdown editor (DocsEditor)
 │   ├── integrations/   # Integration manager
 │   ├── kanban/         # Kanban board (Board, Column, Card)
-│   ├── notes/          # Notes
 │   └── websites/       # Website manager
 ├── lib/
 │   ├── auth.ts         # Session, password hashing

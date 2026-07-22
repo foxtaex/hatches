@@ -30,6 +30,9 @@ export interface Card {
   labels: string; // JSON: CardLabel[]
   coverColor: string | null;
   checklist: string; // JSON: ChecklistItem[]
+  linkedDocId: number | null;
+  linkedDocMode: "description" | "attachment" | null;
+  linkedDoc?: { id: number; title: string; content: string; updatedAt: string } | null;
 }
 
 export interface Column {

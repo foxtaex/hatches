@@ -19,7 +19,6 @@
 | `CardItem` | `src/components/kanban/CardItem.tsx` | ✅ Implementiert | Kanban |
 | `CardDetailModal` | `src/components/kanban/CardDetailModal.tsx` | ✅ Implementiert | Kanban |
 | `ArchivePanel` | `src/components/kanban/ArchivePanel.tsx` | ✅ Implementiert | Kanban |
-| `NotesView` | `src/components/notes/NotesView.tsx` | ✅ Implementiert | Notizen |
 | `Planner` | `src/components/planner/Planner.tsx` | ✅ Implementiert | Planner |
 | `SetupWizard` | `src/components/setup/SetupWizard.tsx` | ✅ Implementiert | Setup |
 | `TemplateLibrary` | `src/components/templates/TemplateLibrary.tsx` | ✅ Implementiert | Templates |
@@ -55,7 +54,6 @@
 | `org-groups` | Gruppen | Berechtigungen |
 | `board` | Kanban | Module |
 | `docs` | Docs | Module |
-| `notes` | Notizen | Module |
 | `planner` | Planner | Module |
 | `templates` | Templates | Module |
 | `ai` | KI | Module |
@@ -97,7 +95,7 @@ DELETE /api/admin/ai/:id         → AI-Provider löschen
 - `GlobalPermsTab` — Globale Berechtigungen
 - `OrgGroupsTab` — Platzhalter (Future)
 - `WorkspaceTab` — Workspace-Konfiguration
-- `AppInfoTab` — Runtime-Info + Version-History
+- `AppInfoTab` — Runtime-Info + Version-History (aktuelle Version immer oben)
 - `Toggle` — Wiederverwendbarer Toggle-Switch
 
 ---
@@ -169,7 +167,7 @@ interface Props {
 - `title: string` — aktueller Titel
 - `editingTitle: boolean` — Titel-Inline-Edit
 - `userTeams: TeamOption[]` — Teams für neues Dok
-- `viewMode: "edit" | "preview" | "live"` — Editor-Modus
+- `viewMode: "edit" | "preview" | "live" | "reverse"` — Editor-Modus
 - `creating: boolean` — Neu-Formular sichtbar
 - `importing: boolean` — Import-Dialog sichtbar
 
@@ -194,7 +192,7 @@ GET    /api/user/teams   → für Team-Selector
 
 > `src/components/docs/MarkdownEditor.tsx`  
 > **Status:** ✅ Implementiert  
-> **Genutzt in:** DocsEditor, NotesView, CardDetailModal
+> **Genutzt in:** DocsEditor
 
 **Props:**
 ```typescript
@@ -202,19 +200,20 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  minHeight?: number;  // px, default: 300
+  viewMode?: "edit" | "preview" | "split" | "split-reverse";
+  onViewModeChange?: (mode: ViewMode) => void;
 }
 ```
 
 **State (intern):**
-- `mode: "edit" | "preview" | "split"` — Ansichtsmodus
+- `mode: "edit" | "preview" | "split" | "split-reverse"` — Ansichtsmodus
 - `selectionStart/End: number` — für Toolbar-Aktionen
 
 **Was rendert sie?**
 - Toolbar (Bold, Italic, Heading, Listen, Link, Code, Quote, Tabelle)
 - Textarea (Edit-Modus)
-- Markdown-Preview via `marked`
-- Split-View (nebeneinander)
+- Bearbeitbare Markdown-Preview via `marked`, `contentEditable` und `turndown`
+- Normale und umgekehrte Split-View
 
 **API Calls:** keine (reiner Presenter)
 
@@ -398,6 +397,7 @@ interface Props {
 - Cover-Farbe Header
 - Titel-Inline-Edit
 - Beschreibung via `MarkdownEditor` (inline)
+- Live-Verknüpfung zu einem Doc als Beschreibung oder Anhang
 - Checklist (Add/Toggle/Delete Items)
 - Labels (Farb-Picker)
 - Priority-Selector
@@ -437,39 +437,6 @@ interface Props {
 ```
 GET    /api/board/archive?boardId=X   → beim Mount
 DELETE /api/board/archive/:id         → Card wiederherstellen
-```
-
----
-
-### `NotesView`
-
-> `src/components/notes/NotesView.tsx`  
-> **Status:** ✅ Implementiert  
-> **Seite:** `/notes`
-
-**Props:** keine
-
-**State (intern):**
-- `notes: Note[]` — alle Notes des Users
-- `activeId: number | null`
-- `content: string`, `title: string`
-- `editingTitle: boolean`
-- `userTeams: TeamOption[]`
-- `searchQuery: string` — Live-Suche in Titel + Content
-- `activeTag: string | null` — Hashtag-Filter
-
-**Was rendert sie?**
-- Sidebar: Note-Liste + Hashtag-Filter + Suche
-- Editor: Titel-Edit + `MarkdownEditor`
-- Hashtags werden aus Content extrahiert (`#tag`)
-
-**API Calls:**
-```
-GET    /api/notes         → beim Mount
-POST   /api/notes         → Note erstellen
-PATCH  /api/notes/:id     → Titel/Content speichern (debounced 600ms)
-DELETE /api/notes/:id     → Note löschen
-GET    /api/user/teams    → für Team-Selector
 ```
 
 ---
@@ -681,4 +648,4 @@ Wenn eine neue Komponente erstellt wird:
 ---
 
 *Erstellt: 2026-05-15*  
-*Zuletzt aktualisiert: 2026-05-15*
+*Zuletzt aktualisiert: 2026-07-22*

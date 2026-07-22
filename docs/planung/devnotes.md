@@ -103,6 +103,8 @@ No more app-hopping. Everything in one place, but still clean and simple.
 | 0.5.0 | feat: redefine vision — Vibecoding Collaboration Interface |
 | 0.5.1 | feat: add three-tier permission system with Oga super admin |
 | 0.5.2 | feat: add Org-Groups for area-based permissions (locked + normal rights) |
+| 0.5.25 | feat: editable Docs preview, reverse split view; remove overlapping Notes module |
+| 0.5.26 | feat: link Docs to Kanban cards; highlighted code blocks; reliable WYSIWYG sync and long-session loading |
 | 0.5.3 | fix: FA icons (Tailwind v4 @import broke content:var(--fa)), fix HatchesLogo hydration mismatch (useId), fix font-family override |
 | 0.5.4 | fix: TypeScript 0 errors — BoardItem missing, db.ts Prisma 7 API, prisma generate |
 | 0.5.5 | fix: archive card removes from board, restore reloads board; refactor: inline-styles → Tailwind |

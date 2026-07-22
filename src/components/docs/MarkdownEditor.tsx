@@ -1,11 +1,13 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { marked } from "marked";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { renderMarkdown } from "../../lib/markdown";
+import TurndownService from "turndown";
+import { gfm } from "turndown-plugin-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBold, faItalic, faStrikethrough, faHeading,
   faListOl, faListUl, faLink, faImage,
-  faCode, faQuoteRight, faMinus, faTable,
-  faEye, faCode as faCodeIcon, faColumns,
+  faCode, faQuoteRight, faMinus, faTable, faTerminal,
+  faEye, faCode as faCodeIcon, faColumns, faRightLeft,
 } from "@fortawesome/free-solid-svg-icons";
 
 interface ToolbarButton {
@@ -27,6 +29,7 @@ const TOOLBAR: ToolbarButton[] = [
   { icon: faLink, label: "Link (Ctrl+K)", action: "link", prefix: "[", suffix: "](url)" },
   { icon: faImage, label: "Image", action: "image", prefix: "![", suffix: "](url)" },
   { icon: faCode, label: "Inline Code", action: "code", prefix: "`", suffix: "`" },
+  { icon: faTerminal, label: "Codeblock (Ctrl+Shift+K)", action: "codeblock", prefix: "```\n", suffix: "\n```", block: true },
   { icon: faQuoteRight, label: "Quote", action: "quote", prefix: "> ", suffix: "", block: true },
   { icon: faMinus, label: "Divider", action: "divider", prefix: "\n---\n", suffix: "", block: true },
   { icon: faTable, label: "Table", action: "table", prefix: "", suffix: "" },
@@ -36,18 +39,32 @@ interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  viewMode?: ViewMode;
+  onViewModeChange?: (mode: ViewMode) => void;
 }
 
-type ViewMode = "edit" | "preview" | "split";
+export type ViewMode = "edit" | "preview" | "split" | "split-reverse";
 
-export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdown..." }: MarkdownEditorProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>("split");
+export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdown...", viewMode, onViewModeChange }: MarkdownEditorProps) {
+  const [internalViewMode, setInternalViewMode] = useState<ViewMode>("split");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Configure marked
-  useEffect(() => {
-    marked.setOptions({ breaks: true, gfm: true });
+  const previewRef = useRef<HTMLDivElement>(null);
+  const previewFocusedRef = useRef(false);
+  const turndown = useMemo(() => {
+    const service = new TurndownService({
+      bulletListMarker: "-",
+      codeBlockStyle: "fenced",
+      emDelimiter: "_",
+      headingStyle: "atx",
+    });
+    service.use(gfm);
+    return service;
   }, []);
+  const activeViewMode = viewMode ?? internalViewMode;
+  const setViewMode = (mode: ViewMode) => {
+    setInternalViewMode(mode);
+    onViewModeChange?.(mode);
+  };
 
   function insertFormat(action: string) {
     const textarea = textareaRef.current;
@@ -112,6 +129,16 @@ export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdo
         newCursorStart = start + 1;
         newCursorEnd = newCursorStart + (selected || "code").length;
         break;
+      case "codeblock": {
+        const code = selected || "code";
+        const leadingBreak = before && !before.endsWith("\n") ? "\n" : "";
+        const trailingBreak = after && !after.startsWith("\n") ? "\n" : "";
+        const prefix = `${leadingBreak}\`\`\`\n`;
+        newValue = `${before}${prefix}${code}\n\`\`\`${trailingBreak}${after}`;
+        newCursorStart = start + prefix.length;
+        newCursorEnd = newCursorStart + code.length;
+        break;
+      }
       case "quote":
         newValue = `${before}> ${selected || "quote"}${after}`;
         newCursorStart = start + 2;
@@ -146,7 +173,8 @@ export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdo
     if (ctrl && e.key === "b") { e.preventDefault(); insertFormat("bold"); return; }
     if (ctrl && e.key === "i") { e.preventDefault(); insertFormat("italic"); return; }
     if (ctrl && e.key === "k") { e.preventDefault(); insertFormat("link"); return; }
-    if (ctrl && e.shiftKey && e.key === "X") { e.preventDefault(); insertFormat("strike"); return; }
+    if (ctrl && e.shiftKey && e.key.toLowerCase() === "x") { e.preventDefault(); insertFormat("strike"); return; }
+    if (ctrl && e.shiftKey && e.key.toLowerCase() === "k") { e.preventDefault(); insertFormat("codeblock"); return; }
 
     // Tab key → insert 2 spaces
     if (e.key === "Tab") {
@@ -163,9 +191,28 @@ export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdo
   }
 
   const html = (() => {
-    try { return marked.parse(value) as string; }
+    try { return renderMarkdown(value); }
     catch { return ""; }
   })();
+
+  // Keep the WYSIWYG surface in sync with external Markdown changes without
+  // replacing its DOM while the user is typing (which would move the caret).
+  useEffect(() => {
+    if (previewRef.current && !previewFocusedRef.current && previewRef.current.innerHTML !== html) {
+      previewRef.current.innerHTML = html;
+    }
+  }, [html, activeViewMode]);
+
+  function markdownFromPreview(): string | null {
+    const element = previewRef.current;
+    if (!element) return null;
+    return turndown.turndown(element.innerHTML);
+  }
+
+  function handlePreviewInput() {
+    const markdown = markdownFromPreview();
+    if (markdown !== null) onChange(markdown);
+  }
 
   return (
     <div className="flex flex-col h-full" data-color-mode="dark">
@@ -182,12 +229,12 @@ export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdo
           </button>
         ))}
 
-        {/* View Mode Toggle */}
-        <div className="ml-auto flex items-center gap-0.5 bg-zinc-800 rounded-lg p-0.5">
+        {/* Standalone mode toggle. DocsEditor provides its own header controls. */}
+        {!onViewModeChange && <div className="ml-auto flex items-center gap-0.5 bg-zinc-800 rounded-lg p-0.5">
           <button
             onClick={() => setViewMode("edit")}
             className={`px-2 py-1 rounded text-xs flex items-center gap-1 transition-colors ${
-              viewMode === "edit" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+              activeViewMode === "edit" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
             }`}
             title="Nur Editor"
           >
@@ -196,29 +243,38 @@ export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdo
           <button
             onClick={() => setViewMode("split")}
             className={`px-2 py-1 rounded text-xs flex items-center gap-1 transition-colors ${
-              viewMode === "split" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+              activeViewMode === "split" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
             }`}
             title="Beides"
           >
             <FontAwesomeIcon icon={faColumns} className="w-3 h-3" />
           </button>
           <button
+            onClick={() => setViewMode("split-reverse")}
+            className={`px-2 py-1 rounded text-xs flex items-center gap-1 transition-colors ${
+              activeViewMode === "split-reverse" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+            }`}
+            title="Vorschau links, Markdown rechts"
+          >
+            <FontAwesomeIcon icon={faRightLeft} className="w-3 h-3" />
+          </button>
+          <button
             onClick={() => setViewMode("preview")}
             className={`px-2 py-1 rounded text-xs flex items-center gap-1 transition-colors ${
-              viewMode === "preview" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+              activeViewMode === "preview" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
             }`}
             title="Nur Vorschau"
           >
             <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
           </button>
-        </div>
+        </div>}
       </div>
 
       {/* Editor Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className={`flex-1 flex overflow-hidden ${activeViewMode === "split-reverse" ? "flex-row-reverse" : ""}`}>
         {/* Edit Area */}
-        {viewMode !== "preview" && (
-          <div className={`${viewMode === "split" ? "w-1/2 border-r border-[rgba(255,255,255,0.08)]" : "w-full"} flex flex-col`}>
+        {activeViewMode !== "preview" && (
+          <div className={`${activeViewMode === "split" ? "w-1/2 border-r border-[rgba(255,255,255,0.08)]" : activeViewMode === "split-reverse" ? "w-1/2 border-l border-[rgba(255,255,255,0.08)]" : "w-full"} flex flex-col`}>
             <textarea
               ref={textareaRef}
               value={value}
@@ -232,13 +288,30 @@ export function MarkdownEditor({ value, onChange, placeholder = "Schreibe Markdo
         )}
 
         {/* Preview Area */}
-        {viewMode !== "edit" && (
+        {activeViewMode !== "edit" && (
           <div
-            className={`${viewMode === "split" ? "w-1/2" : "w-full"} overflow-y-auto bg-zinc-900`}
+            className={`${activeViewMode === "split" || activeViewMode === "split-reverse" ? "w-1/2" : "w-full"} overflow-y-auto bg-zinc-900`}
           >
             <div
-              className="p-6 text-zinc-200 prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: html }}
+              ref={previewRef}
+              className="markdown-preview markdown-preview-editable min-h-full p-6 text-zinc-200 max-w-none outline-none"
+              contentEditable
+              suppressContentEditableWarning
+              role="textbox"
+              aria-label="Markdown-Vorschau bearbeiten"
+              aria-multiline="true"
+              data-placeholder="In der Vorschau schreiben…"
+              onFocus={() => { previewFocusedRef.current = true; }}
+              onInput={handlePreviewInput}
+              onBlur={() => {
+                const markdown = markdownFromPreview();
+                previewFocusedRef.current = false;
+                if (markdown === null) return;
+                onChange(markdown);
+                // Normalize exactly the DOM content that was just edited. This
+                // avoids restoring an older render while React updates value.
+                if (previewRef.current) previewRef.current.innerHTML = renderMarkdown(markdown);
+              }}
             />
           </div>
         )}

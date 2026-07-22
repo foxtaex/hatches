@@ -30,8 +30,8 @@ export const POST: APIRoute = async ({ locals, request, params }) => {
     return Response.json({ error: "Ungültiges Template-Format" }, { status: 400 });
   }
 
-  const created: { boards: number[]; docs: number[]; notes: number[] } = {
-    boards: [], docs: [], notes: [],
+  const created: { boards: number[]; docs: number[] } = {
+    boards: [], docs: [],
   };
 
   // Create boards
@@ -80,9 +80,10 @@ export const POST: APIRoute = async ({ locals, request, params }) => {
     created.docs.push(doc.id);
   }
 
-  // Create notes
+  // Legacy templates may still contain notes. Import them as docs so their
+  // content remains usable after removal of the Notes module.
   for (const tNote of content.notes ?? []) {
-    const note = await prisma.note.create({
+    const doc = await prisma.doc.create({
       data: {
         title: tNote.title,
         content: tNote.content ?? "",
@@ -90,7 +91,7 @@ export const POST: APIRoute = async ({ locals, request, params }) => {
         ownerId: user.id,
       },
     });
-    created.notes.push(note.id);
+    created.docs.push(doc.id);
   }
 
   return Response.json({
@@ -101,8 +102,6 @@ export const POST: APIRoute = async ({ locals, request, params }) => {
       ? `/board?boardId=${created.boards[0]}`
       : created.docs.length > 0
         ? `/docs?id=${created.docs[0]}`
-        : created.notes.length > 0
-          ? `/notes?id=${created.notes[0]}`
-          : null,
+        : null,
   });
 };

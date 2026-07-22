@@ -280,8 +280,10 @@ model Card {
 
 ---
 
-### 4. Quick Notes
-**Pfad:** `src/components/notes/`
+### 4. Quick Notes (entfernt)
+> Seit `0.5.25.17.22-dev.1d` entfernt. Docs übernimmt diesen Anwendungsfall; vorhandene Daten bleiben erhalten.
+
+**Historischer Pfad:** `src/components/notes/`
 **Dateien:** `NotesView.tsx`, `NoteEditor.tsx`
 
 **Features:**
@@ -573,7 +575,7 @@ Trigger + Action für wiederkehrende Workflows:
 - `DatabaseView` — id, databaseId, type, config (JSON)
 
 **Other:**
-- `Note` — id, title, content, tags[], userId, teamId
+- `Note` — Legacy-Modell; nur zur verlustfreien Aufbewahrung bestehender Daten
 - `Event` — id, title, start, end, recurring, reminders
 - `Integration` — id, type, config (JSON), teamId
 - `Template` — id, name, category, content (JSON), isPublic, teamId

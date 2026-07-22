@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGripVertical, faXmark, faArrowRightArrowLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faGripVertical, faXmark, faArrowRightArrowLeft, faChevronRight, faPaperclip, faFileLines } from "@fortawesome/free-solid-svg-icons";
 import type { Card } from "./types";
 import { parseLabels, parseChecklist, PRIORITY_CONFIG } from "./types";
 
@@ -38,8 +38,10 @@ export function CardItem({ card, allBoards, onOpenCard, onMoveToBoard }: Props) 
   const priorityCfg = card.priority
     ? PRIORITY_CONFIG[card.priority as keyof typeof PRIORITY_CONFIG]
     : null;
+  const usesDocDescription = card.linkedDocMode === "description" && Boolean(card.linkedDoc);
 
-  const hasMetaRow = priorityCfg || dueDateObj || checklist.length > 0 || card.assignee;
+  const hasDocAttachment = card.linkedDocMode === "attachment" && card.linkedDocId !== null;
+  const hasMetaRow = priorityCfg || dueDateObj || checklist.length > 0 || card.assignee || hasDocAttachment;
 
   return (
     <div ref={setNodeRef} style={dndStyle} className="group relative rounded-xl overflow-hidden border border-[rgba(255,255,255,0.1)] shadow-[0_2px_8px_rgba(0,0,0,0.2)] hover-lift">
@@ -96,7 +98,17 @@ export function CardItem({ card, allBoards, onOpenCard, onMoveToBoard }: Props) 
         </div>
 
         {/* Description preview */}
-        {card.description && (
+        {usesDocDescription && card.linkedDoc ? (
+          <div
+            className="mt-2 ml-5 flex cursor-pointer items-center gap-2 rounded-lg border border-[rgba(60,199,154,0.16)] bg-[rgba(60,199,154,0.06)] px-2.5 py-1.5"
+            onClick={() => onOpenCard(card.id)}
+            title={`Doc: ${card.linkedDoc.title}`}
+          >
+            <FontAwesomeIcon icon={faFileLines} className="h-3 w-3 flex-shrink-0 text-[#3CC79A]" />
+            <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-white/55">{card.linkedDoc.title}</span>
+            <span className="text-[9px] font-semibold uppercase tracking-wider text-[#3CC79A]/70">Doc</span>
+          </div>
+        ) : card.description && (
           <p
             className="text-[11px] text-white/35 mt-1.5 ml-5 line-clamp-2 leading-relaxed cursor-pointer"
             onClick={() => onOpenCard(card.id)}
@@ -130,6 +142,12 @@ export function CardItem({ card, allBoards, onOpenCard, onMoveToBoard }: Props) 
             {checklist.length > 0 && (
               <span className={`text-[10px] font-medium ${checkProgress === 100 ? "text-[#3CC79A]" : "text-white/40"}`}>
                 ☑ {doneCount}/{checklist.length}
+              </span>
+            )}
+
+            {hasDocAttachment && (
+              <span className="flex items-center text-[#3CC79A]" title={card.linkedDoc?.title ?? "Dokument angehängt"}>
+                <FontAwesomeIcon icon={faPaperclip} className="h-2.5 w-2.5" />
               </span>
             )}
 

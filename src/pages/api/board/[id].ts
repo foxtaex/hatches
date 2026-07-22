@@ -19,6 +19,7 @@ export const GET: APIRoute = async ({ params, request }) => {
             include: {
               assignee: { select: { id: true, displayName: true, username: true } },
               externalIssue: { include: { integration: { select: { type: true } } } },
+              linkedDoc: { select: { id: true, title: true, content: true, updatedAt: true } },
             },
           },
         },

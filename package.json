@@ -1,13 +1,14 @@
 {
   "name": "devtool",
   "type": "module",
-  "version": "0.5.24",
+  "version": "0.5.26",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postinstall": "prisma generate",
     "preview": "astro preview",
     "astro": "astro",
     "seed": "npx tsx prisma/seed.ts",
@@ -41,15 +42,20 @@
     "astro": "^6.3.1",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.10.0",
+    "highlight.js": "^11.11.1",
     "marked": "^18.0.3",
+    "marked-highlight": "^2.2.4",
     "pg": "^8.20.0",
     "prisma": "^7.8.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.0",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
+    "@types/turndown": "^5.0.6",
     "dotenv": "^17.4.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"

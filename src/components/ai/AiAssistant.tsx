@@ -8,7 +8,7 @@ import { marked } from "marked";
 
 // ── Types ─────────────────────────────────────────────────
 
-export type AiContext = "board" | "docs" | "notes";
+export type AiContext = "board" | "docs";
 
 export interface AiContextData {
   /** Titel des aktuellen Dokuments / Boards / der Notiz */
@@ -41,12 +41,6 @@ const QUICK_ACTIONS: Record<AiContext, { label: string; prompt: string }[]> = {
     { label: "Verbessern",           prompt: "Verbessere den Schreibstil des aktuellen Inhalts ohne den Sinn zu ändern." },
     { label: "Gliederung erstellen", prompt: "Erstelle eine strukturierte Gliederung (Markdown-Überschriften) für dieses Dokument." },
   ],
-  notes: [
-    { label: "Notiz strukturieren",       prompt: "Strukturiere diese Notiz mit sinnvollen Überschriften und Aufzählungen." },
-    { label: "Zusammenfassen",            prompt: "Fasse die wichtigsten Punkte dieser Notiz zusammen." },
-    { label: "Aktionspunkte extrahieren", prompt: "Extrahiere alle Aktionspunkte und To-dos aus dieser Notiz als Checkliste." },
-    { label: "Ideen ausarbeiten",         prompt: "Arbeite die Ideen in dieser Notiz weiter aus und ergänze relevante Details." },
-  ],
   board: [
     { label: "Sprint planen",         prompt: "Schlage eine Sprint-Board-Struktur vor (Spalten + typische Aufgaben-Karten)." },
     { label: "Karten generieren",     prompt: "Generiere 5 konkrete Aufgaben-Karten mit Titel und kurzer Beschreibung für dieses Board." },
@@ -57,7 +51,6 @@ const QUICK_ACTIONS: Record<AiContext, { label: string; prompt: string }[]> = {
 
 const CONTEXT_LABELS: Record<AiContext, string> = {
   docs:  "Docs",
-  notes: "Notizen",
   board: "Board",
 };
 

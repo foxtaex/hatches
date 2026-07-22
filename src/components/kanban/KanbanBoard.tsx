@@ -12,6 +12,7 @@ import {
 import { KanbanColumn } from "./KanbanColumn";
 import { ArchivePanel } from "./ArchivePanel";
 import { CardDetailModal } from "./CardDetailModal";
+import { fetchJson } from "../../lib/fetchJson";
 import { TemplateModal } from "../templates/TemplateModal";
 import { AiAssistant } from "../ai/AiAssistant";
 import type { Board, Card, Column } from "./types";
@@ -93,11 +94,13 @@ export function KanbanBoard() {
   const [allBoards, setAllBoards] = useState<BoardWithCols[]>([]);
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
   const [currentUser, setCurrentUser] = useState<{ id: number; username: string; displayName: string | null } | null>(null);
+  const [loadError, setLoadError] = useState("");
 
   // Sidebar state
   const [addingBoard, setAddingBoard] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
   const [newBoardTeamId, setNewBoardTeamId] = useState<string>("");
+  const [createBoardError, setCreateBoardError] = useState("");
   const [renamingBoardId, setRenamingBoardId] = useState<number | null>(null);
   const [renameBoardValue, setRenameBoardValue] = useState("");
 
@@ -189,21 +192,24 @@ export function KanbanBoard() {
   useEffect(() => { loadAllColumns(); }, [boards]);
 
   async function loadBoards() {
-    const res = await fetch("/api/board");
-    const data: BoardMeta[] = await res.json();
-    setBoards(data);
-    if (data.length === 0) return;
-    const urlId = Number(new URLSearchParams(window.location.search).get("boardId"));
-    if (urlId && data.some((b) => b.id === urlId)) {
-      setActiveBoardId(urlId);
-    } else {
-      setActiveBoardId((prev) => prev ?? data[0].id);
+    setLoadError("");
+    try {
+      const data = await fetchJson<BoardMeta[]>("/api/board");
+      setBoards(data);
+      if (data.length === 0) return;
+      const urlId = Number(new URLSearchParams(window.location.search).get("boardId"));
+      if (urlId && data.some((b) => b.id === urlId)) {
+        setActiveBoardId(urlId);
+      } else {
+        setActiveBoardId((prev) => prev ?? data[0].id);
+      }
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Boards konnten nicht geladen werden");
     }
   }
 
   async function loadBoard(id: number) {
-    const res = await fetch(`/api/board/${id}`);
-    setBoard(await res.json());
+    setBoard(await fetchJson<Board>(`/api/board/${id}`));
   }
 
   async function loadAllColumns() {
@@ -230,21 +236,38 @@ export function KanbanBoard() {
 
   // ── Board CRUD ───────────────────────────────────────────
 
+  function openCreateBoard() {
+    creatingBoardRef.current = false;
+    setCreateBoardError("");
+    setAddingBoard(true);
+  }
+
   async function createBoard() {
     if (creatingBoardRef.current) return;
     const name = newBoardName.trim() || "Neues Board";
     const teamId = newBoardTeamId ? Number(newBoardTeamId) : null;
     creatingBoardRef.current = true;
-    setNewBoardName(""); setNewBoardTeamId(""); setAddingBoard(false);
-    const res = await fetch("/api/board", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, teamId }),
-    });
-    const b: BoardMeta = await res.json();
-    setBoards((prev) => [...prev, b]);
-    setActiveBoardId(b.id);
-    creatingBoardRef.current = false;
+    setCreateBoardError("");
+    try {
+      const res = await fetch("/api/board", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, teamId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Board konnte nicht erstellt werden");
+
+      const b = data as BoardMeta;
+      setBoards((prev) => [...prev, b]);
+      setActiveBoardId(b.id);
+      setNewBoardName("");
+      setNewBoardTeamId("");
+      setAddingBoard(false);
+    } catch (error) {
+      setCreateBoardError(error instanceof Error ? error.message : "Board konnte nicht erstellt werden");
+    } finally {
+      creatingBoardRef.current = false;
+    }
   }
 
   async function renameBoard(id: number, name: string) {
@@ -360,15 +383,17 @@ export function KanbanBoard() {
   }
 
   async function updateCard(id: number, data: Partial<Card>) {
-    await fetch("/api/board/cards", {
+    const res = await fetch("/api/board/cards", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, ...data }),
     });
+    if (!res.ok) return false;
     setBoard((prev) => {
       if (!prev) return prev;
       return { ...prev, columns: prev.columns.map((col) => ({ ...col, cards: col.cards.map((c) => (c.id === id ? { ...c, ...data } : c)) })) };
     });
+    return true;
   }
 
   async function archiveCard(id: number) {
@@ -465,26 +490,31 @@ export function KanbanBoard() {
             <FontAwesomeIcon icon={faTableColumns} className="text-[15px] text-[rgba(255,255,255,0.5)]" />
             Boards
           </span>
-          <button
-            onClick={() => { creatingBoardRef.current = false; setAddingBoard(true); }}
-            className="text-zinc-600 hover:text-zinc-300 transition-colors"
-            title="Board erstellen"
-          >
-            <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
-          </button>
-          <button onClick={() => setShowArchive(true)} className="text-zinc-600 hover:text-yellow-500 transition-colors" title="Archiv">
-            <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
-          </button>
-          <button onClick={() => setShowTemplateModal(true)} className="text-zinc-600 hover:text-[#3CC79A] transition-colors" title="Templates">
-            <FontAwesomeIcon icon={faLayerGroup} className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={() => setShowAi(v => !v)}
-            className={showAi ? "text-[#3CC79A]" : "text-zinc-600 hover:text-[#3CC79A] transition-colors"}
-            title="KI-Assistent"
-          >
-            <FontAwesomeIcon icon={faRobot} className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={openCreateBoard}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-[rgba(60,199,154,0.12)] text-[#3CC79A] hover:bg-[rgba(60,199,154,0.22)] transition-colors"
+              title="Board erstellen"
+              aria-label="Board erstellen"
+            >
+              <FontAwesomeIcon icon={faPlus} className="w-3.5 h-3.5" />
+            </button>
+            <button type="button" onClick={() => setShowArchive(true)} className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-600 hover:text-yellow-500 hover:bg-zinc-800 transition-colors" title="Archiv">
+              <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
+            </button>
+            <button type="button" onClick={() => setShowTemplateModal(true)} className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-600 hover:text-[#3CC79A] hover:bg-zinc-800 transition-colors" title="Templates">
+              <FontAwesomeIcon icon={faLayerGroup} className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAi(v => !v)}
+              className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${showAi ? "text-[#3CC79A] bg-zinc-800" : "text-zinc-600 hover:text-[#3CC79A] hover:bg-zinc-800"}`}
+              title="KI-Assistent"
+            >
+              <FontAwesomeIcon icon={faRobot} className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {addingBoard && (
@@ -515,6 +545,7 @@ export function KanbanBoard() {
                 <FontAwesomeIcon icon={faXmark} className="w-3 h-3" />
               </button>
             </div>
+            {createBoardError && <p className="text-[11px] text-red-400">{createBoardError}</p>}
           </div>
         )}
 
@@ -553,8 +584,9 @@ export function KanbanBoard() {
 
       {/* Board Content */}
       {!board ? (
-        <div className="flex-1 flex items-center justify-center text-zinc-600">
-          {boards.length === 0 ? "Board erstellen →" : "Laden…"}
+        <div className="flex-1 flex flex-col gap-3 items-center justify-center text-zinc-600">
+          <span>{loadError || (boards.length === 0 ? "Noch keine Boards" : "Laden…")}</span>
+          {loadError && <button onClick={loadBoards} className="rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700">Erneut laden</button>}
         </div>
       ) : (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>

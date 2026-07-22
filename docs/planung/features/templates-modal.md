@@ -38,7 +38,7 @@ interface Props {
 
 interface ApplyResult {
   ok: boolean;
-  created: { boards: number[]; docs: number[]; notes: number[] };
+  created: { boards: number[]; docs: number[] };
   redirect: string | null;
 }
 

@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
+import { renderMarkdown } from "../../lib/markdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faXmark, faUser, faCalendar, faTag, faFlag,
   faPlus, faTrash, faBoxArchive, faCheck, faPen,
-  faCircleCheck, faDroplet, faMessage,
+  faCircleCheck, faDroplet, faMessage, faFileLines, faPaperclip, faArrowUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import type { Card, CardLabel, ChecklistItem } from "./types";
 import {
@@ -16,13 +17,20 @@ interface User {
   username: string;
 }
 
+interface DocOption {
+  id: number;
+  title: string;
+  content: string;
+  updatedAt: string;
+}
+
 interface Props {
   card: Card;
   users: User[];
   columnName: string;
   currentUserId: number | null;
   onClose: () => void;
-  onUpdate: (id: number, data: Partial<Card>) => void;
+  onUpdate: (id: number, data: Partial<Card>) => Promise<boolean>;
   onDelete: (id: number) => void;
   onArchive: (id: number) => void;
 }
@@ -47,6 +55,10 @@ export function CardDetailModal({ card, users, columnName, currentUserId, onClos
   const [newLabelColor, setNewLabelColor] = useState(LABEL_COLORS[0]);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [docs, setDocs] = useState<DocOption[]>([]);
+  const [docLinkError, setDocLinkError] = useState("");
+  const [linkedDocId, setLinkedDocId] = useState<number | null>(card.linkedDocId);
+  const [linkedDocMode, setLinkedDocMode] = useState<"description" | "attachment" | null>(card.linkedDocMode);
   const titleRef = useRef<HTMLTextAreaElement>(null);
 
   // Comments
@@ -73,6 +85,31 @@ export function CardDetailModal({ card, users, columnName, currentUserId, onClos
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data)) setComments(data); });
   }, [card.id]);
+
+  useEffect(() => {
+    fetch("/api/docs")
+      .then((response) => response.ok ? response.json() : [])
+      .then((data) => { if (Array.isArray(data)) setDocs(data); });
+  }, []);
+
+  const linkedDoc = docs.find((doc) => doc.id === linkedDocId) ??
+    (card.linkedDoc?.id === linkedDocId ? card.linkedDoc : null);
+  const linkedDocHtml = linkedDoc && linkedDocMode === "description"
+    ? renderMarkdown(linkedDoc.content)
+    : "";
+
+  async function updateDocLink(linkedDocId: number | null, linkedDocMode: "description" | "attachment" | null) {
+    setDocLinkError("");
+    const selectedDoc = docs.find((doc) => doc.id === linkedDocId) ?? null;
+    try {
+      const ok = await onUpdate(card.id, { linkedDocId, linkedDocMode, linkedDoc: selectedDoc } as Partial<Card>);
+      if (!ok) throw new Error("Dokument konnte nicht verknüpft werden");
+      setLinkedDocId(linkedDocId);
+      setLinkedDocMode(linkedDocMode);
+    } catch (error) {
+      setDocLinkError(error instanceof Error ? error.message : "Dokument konnte nicht verknüpft werden");
+    }
+  }
 
   async function submitComment() {
     const text = newComment.trim();
@@ -107,7 +144,7 @@ export function CardDetailModal({ card, users, columnName, currentUserId, onClos
   }
 
   function patch(data: Partial<Card>) {
-    onUpdate(card.id, data);
+    void onUpdate(card.id, data);
   }
 
   function saveTitle() {
@@ -244,7 +281,20 @@ export function CardDetailModal({ card, users, columnName, currentUserId, onClos
                 <FontAwesomeIcon icon={faPen} className="w-3 h-3 text-white/30" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-white/40">Beschreibung</span>
               </div>
-              {editingDesc ? (
+              {linkedDocMode === "description" && linkedDoc ? (
+                <div className="rounded-xl border border-[rgba(60,199,154,0.18)] bg-[rgba(60,199,154,0.04)] px-4 py-3">
+                  <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/5 pb-2">
+                    <span className="flex min-w-0 items-center gap-2 text-xs text-[#3CC79A]">
+                      <FontAwesomeIcon icon={faFileLines} className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate">{linkedDoc.title}</span>
+                    </span>
+                    <a href={`/docs?id=${linkedDoc.id}`} className="text-white/30 hover:text-white/70" title="Dokument öffnen">
+                      <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="h-3 w-3" />
+                    </a>
+                  </div>
+                  <div className="markdown-preview text-sm" dangerouslySetInnerHTML={{ __html: linkedDocHtml }} />
+                </div>
+              ) : editingDesc ? (
                 <div className="flex flex-col gap-2">
                   <textarea
                     autoFocus
@@ -275,6 +325,23 @@ export function CardDetailModal({ card, users, columnName, currentUserId, onClos
                 </div>
               )}
             </div>
+
+            {linkedDocMode === "attachment" && linkedDoc && (
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faPaperclip} className="h-3 w-3 text-white/30" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/40">Anhang</span>
+                </div>
+                <a
+                  href={`/docs?id=${linkedDoc.id}`}
+                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 hover:bg-white/[0.07]"
+                >
+                  <FontAwesomeIcon icon={faFileLines} className="h-4 w-4 text-[#3CC79A]" />
+                  <span className="flex-1 truncate text-sm text-white/75">{linkedDoc.title}</span>
+                  <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="h-3 w-3 text-white/30" />
+                </a>
+              </div>
+            )}
 
             {/* Checklist */}
             <div>
@@ -442,6 +509,38 @@ export function CardDetailModal({ card, users, columnName, currentUserId, onClos
                   <option key={u.id} value={u.id}>{u.displayName || u.username}</option>
                 ))}
               </select>
+            </div>
+
+            {/* Linked document */}
+            <div>
+              <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+                <FontAwesomeIcon icon={faFileLines} className="h-3 w-3" /> Dokument
+              </p>
+              <select
+                value={linkedDocId ?? ""}
+                onChange={(event) => updateDocLink(event.target.value ? Number(event.target.value) : null, event.target.value ? (linkedDocMode ?? "attachment") : null)}
+                className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-2.5 py-2 text-xs text-white/80 outline-none focus:border-[rgba(60,199,154,0.4)]"
+              >
+                <option value="">Kein Dokument</option>
+                {docs.map((doc) => <option key={doc.id} value={doc.id}>{doc.title}</option>)}
+              </select>
+              {linkedDocId && (
+                <div className="mt-1.5 grid grid-cols-2 gap-1">
+                  <button
+                    onClick={() => updateDocLink(linkedDocId, "description")}
+                    className={`rounded-md px-1.5 py-1 text-[10px] ${linkedDocMode === "description" ? "bg-[rgba(60,199,154,0.15)] text-[#3CC79A]" : "bg-white/[0.04] text-white/35 hover:text-white/60"}`}
+                  >
+                    Beschreibung
+                  </button>
+                  <button
+                    onClick={() => updateDocLink(linkedDocId, "attachment")}
+                    className={`rounded-md px-1.5 py-1 text-[10px] ${linkedDocMode === "attachment" ? "bg-[rgba(60,199,154,0.15)] text-[#3CC79A]" : "bg-white/[0.04] text-white/35 hover:text-white/60"}`}
+                  >
+                    Anhang
+                  </button>
+                </div>
+              )}
+              {docLinkError && <p className="mt-1 text-[10px] text-red-400">{docLinkError}</p>}
             </div>
 
             {/* Priority */}

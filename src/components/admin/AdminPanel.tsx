@@ -12,11 +12,10 @@ import { IntegrationManager } from "../integrations/IntegrationManager";
 import { TemplateLibrary } from "../templates/TemplateLibrary";
 
 // ── Types ────────────────────────────────────────────────
-type Section = "board" | "docs" | "notes" | "planner" | "templates" | "admin";
+type Section = "board" | "docs" | "planner" | "templates" | "admin";
 const SECTIONS: { key: Section; label: string; icon: string }[] = [
   { key: "board",     label: "Kanban Board", icon: "📌" },
   { key: "docs",      label: "Docs",         icon: "📄" },
-  { key: "notes",     label: "Notizen",      icon: "📝" },
   { key: "planner",   label: "Planner",      icon: "📅" },
   { key: "templates", label: "Templates",    icon: "📋" },
   { key: "admin",     label: "Admin",        icon: "⚙️" },
@@ -713,7 +712,7 @@ function AppInfoTab() {
             <FontAwesomeIcon icon={faClockRotateLeft} className="w-3 h-3" /> Version History
           </h3>
           <div className="flex flex-col gap-2">
-            {[...info.releases].reverse().map((r) => <ReleaseCard key={r.key} r={r} />)}
+            {info.releases.map((r) => <ReleaseCard key={r.key} r={r} />)}
           </div>
         </section>
       )}

@@ -86,7 +86,7 @@ interface Session {
 
 ```typescript
 // middleware.ts
-const PROTECTED_ROUTES = ['/board', '/docs', '/notes', '/planner', '/admin', '/settings'];
+const PROTECTED_ROUTES = ['/board', '/docs', '/planner', '/admin', '/settings'];
 const PUBLIC_ROUTES = ['/login', '/setup', '/api/auth/login', '/api/auth/setup'];
 
 // Check: Is logged in?

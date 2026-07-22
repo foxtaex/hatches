@@ -6,7 +6,7 @@
 
 > 🇬🇧 [English version → README.md](README.md)
 
-Ein schlanker, selbst gehosteter Team-Workspace — die eigene private Notion-Alternative für Entwickler-Teams. Kanban-Boards, Docs, Notizen und Integrationen in einer App.
+Ein schlanker, selbst gehosteter Team-Workspace — die eigene private Notion-Alternative für Entwickler-Teams. Kanban-Boards, Docs und Integrationen in einer App.
 
 > ⚠️ **Sicherheitshinweis:** Bitte [SECURITY.md](SECURITY.md) vor dem Deployment lesen. Dieses Projekt ist Vibe-Coded und nicht für den öffentlichen Internetzugang gehärtet. Nur lokal, hinter einem VPN oder über einen Tunnel betreiben.
 
@@ -15,8 +15,7 @@ Ein schlanker, selbst gehosteter Team-Workspace — die eigene private Notion-Al
 ## Features
 
 - **Kanban Board** — Multi-Board, Drag & Drop, Karten-Zuweisung, Beschreibungen, externe Issue-Badges. Boards können einem Team zugeordnet oder privat gehalten werden.
-- **Docs** — Markdown-Editor mit Live-Split-View-Vorschau. Dokumente können teamweit oder privat sein.
-- **Notizen** — Persönliche Schnellnotizen. Notizen können teamweit oder privat sein.
+- **Docs** — Markdown-Editor mit direkt bearbeitbarer WYSIWYG-Vorschau, farbigen Codeblöcken, normaler und umgekehrter Split-Ansicht, Import/Export und Team- oder Privat-Scope.
 - **Websites** — Interne URL- & Projektverwaltung.
 - **Integrationen** — Issues von GitHub, GitLab, Jira, Redmine, MantisBT, Confluence und Trello importieren.
 - **Teams & Rollen** — Discord-artiges Rechtesystem: Teams anlegen, Rollen mit granularen Berechtigungen pro Bereich konfigurieren (Lesen / Erstellen / Bearbeiten / Löschen).
@@ -84,7 +83,6 @@ src/
 │   ├── integrations/   # Integrations-Manager
 │   ├── kanban/         # Kanban Board (KanbanBoard, Column, CardItem)
 │   ├── docs/           # Markdown-Editor
-│   ├── notes/          # Notizen
 │   └── websites/       # Website-Manager
 ├── lib/
 │   ├── auth.ts         # Session, Passwort-Hashing

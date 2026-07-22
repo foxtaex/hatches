@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
-type AiContext = "board" | "docs" | "notes" | "general";
+type AiContext = "board" | "docs" | "general";
 
 interface ContextData {
   title?: string;
@@ -20,9 +20,6 @@ function buildSystemPrompt(context: AiContext, data?: ContextData): string {
 
     case "docs":
       return `Du bist ein KI-Schreibassistent für Hatches.\nDer Nutzer bearbeitet das Dokument ${title}.${contentHint}\nHilf beim Schreiben, Verbessern, Zusammenfassen und Übersetzen von Inhalten.\nAntworte in sauberem Markdown-Format ohne zusätzliche Erklärungen, wenn konkrete Textgenerierung gefragt ist.`;
-
-    case "notes":
-      return `Du bist ein KI-Assistent für Notizen in Hatches.\nDer Nutzer bearbeitet die Notiz ${title}.${contentHint}\nHilf beim Strukturieren, Zusammenfassen, Extrahieren von Aktionspunkten und Ausarbeiten von Ideen.\nAntworte in sauberem Markdown-Format.`;
 
     default:
       return `Du bist ein hilfreicher KI-Assistent für Hatches, einen selbst gehosteten Team-Workspace.\nAntworte hilfreich, präzise und auf Deutsch (oder der Sprache des Nutzers).`;

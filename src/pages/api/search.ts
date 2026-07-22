@@ -15,12 +15,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
   if (q.length < 2) {
     return new Response(
-      JSON.stringify({ cards: [], docs: [], notes: [], boards: [], events: [], templates: [] }),
+      JSON.stringify({ cards: [], docs: [], boards: [], events: [], templates: [] }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   }
 
-  const [cards, docs, notes, boards, events, templates] = await Promise.all([
+  const [cards, docs, boards, events, templates] = await Promise.all([
     prisma.card.findMany({
       where: {
         isArchived: false,
@@ -44,19 +44,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
       take: 5,
     }),
     prisma.doc.findMany({
-      where: {
-        OR: [
-          { title: { contains: q, mode: "insensitive" } },
-          { content: { contains: q, mode: "insensitive" } },
-        ],
-      },
-      select: {
-        id: true, title: true, teamId: true,
-        team: { select: { name: true, color: true } },
-      },
-      take: 5,
-    }),
-    prisma.note.findMany({
       where: {
         OR: [
           { title: { contains: q, mode: "insensitive" } },
@@ -100,7 +87,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     }),
   ]);
 
-  return new Response(JSON.stringify({ cards, docs, notes, boards, events, templates }), {
+  return new Response(JSON.stringify({ cards, docs, boards, events, templates }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });

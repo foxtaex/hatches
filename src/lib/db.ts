@@ -28,7 +28,7 @@ function createPrisma(adapter: any) {
   return new PrismaClient();
 }
 
-// Top-level await — module waits before exports become available
-const adapter = await createAdapter();
-export const prisma: PrismaClient = globalForPrisma.prisma ?? createPrisma(adapter);
+// The right-hand side of ?? is evaluated lazily. During dev HMR this prevents
+// creating and leaking another DB adapter when the global client already exists.
+export const prisma: PrismaClient = globalForPrisma.prisma ?? createPrisma(await createAdapter());
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

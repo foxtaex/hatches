@@ -1,9 +1,10 @@
 import { MarkdownEditor } from "./MarkdownEditor";
+import { fetchJson } from "../../lib/fetchJson";
 import { TemplateModal } from "../templates/TemplateModal";
 import { AiAssistant } from "../ai/AiAssistant";
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faXmark, faLock, faCheck, faFileImport, faFileExport, faEye, faPenToSquare, faCode, faLayerGroup, faRobot } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faXmark, faLock, faCheck, faFileImport, faFileExport, faEye, faPenToSquare, faCode, faLayerGroup, faRobot, faRightLeft } from "@fortawesome/free-solid-svg-icons";
 
 interface TeamOption { id: number; name: string; color: string }
 interface Doc {
@@ -22,7 +23,8 @@ export function DocsEditor() {
   const [title, setTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const [userTeams, setUserTeams] = useState<TeamOption[]>([]);
-  const [viewMode, setViewMode] = useState<"edit" | "preview" | "live">("preview");
+  const [viewMode, setViewMode] = useState<"edit" | "preview" | "live" | "reverse">("preview");
+  const [loadError, setLoadError] = useState("");
 
   // Create form state
   const [creating, setCreating] = useState(false);
@@ -35,23 +37,27 @@ export function DocsEditor() {
   const [importTeamId, setImportTeamId] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveTimers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 
   useEffect(() => { loadDocs(); loadUserTeams(); }, []);
 
   async function loadDocs() {
-    const res = await fetch("/api/docs");
-    const data: Doc[] = await res.json();
-    setDocs(data);
-    if (data.length === 0) return;
-    const urlId = Number(new URLSearchParams(window.location.search).get("id"));
-    const target = (urlId && data.find((d) => d.id === urlId)) || data[0];
-    openDoc(target);
+    setLoadError("");
+    try {
+      const data = await fetchJson<Doc[]>("/api/docs");
+      setDocs(data);
+      if (data.length === 0) return;
+      const urlId = Number(new URLSearchParams(window.location.search).get("id"));
+      const target = (urlId && data.find((d) => d.id === urlId)) || data[0];
+      openDoc(target);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Docs konnten nicht geladen werden");
+    }
   }
 
   async function loadUserTeams() {
-    const res = await fetch("/api/user/teams");
-    if (res.ok) setUserTeams(await res.json());
+    try { setUserTeams(await fetchJson<TeamOption[]>("/api/user/teams")); }
+    catch { setUserTeams([]); }
   }
 
   function openDoc(doc: Doc) {
@@ -61,8 +67,9 @@ export function DocsEditor() {
   }
 
   function scheduleSave(id: number, patch: Partial<Doc>) {
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
+    const existingTimer = saveTimers.current.get(id);
+    if (existingTimer) clearTimeout(existingTimer);
+    const timer = setTimeout(() => {
       fetch(`/api/docs/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -71,7 +78,9 @@ export function DocsEditor() {
       setDocs((prev) =>
         prev.map((d) => (d.id === id ? { ...d, ...patch, updatedAt: new Date().toISOString() } : d))
       );
+      saveTimers.current.delete(id);
     }, 600);
+    saveTimers.current.set(id, timer);
   }
 
   function handleContentChange(val: string | undefined) {
@@ -353,19 +362,32 @@ export function DocsEditor() {
               >
                 <FontAwesomeIcon icon={faEye} className="w-3 h-3" />
               </button>
+              <button
+                onClick={() => setViewMode("reverse")}
+                className={`px-2 py-1 rounded text-xs flex items-center gap-1 transition-colors ${
+                  viewMode === "reverse" ? "bg-zinc-700 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+                title="Vorschau links, Markdown rechts"
+              >
+                <FontAwesomeIcon icon={faRightLeft} className="w-3 h-3" />
+              </button>
             </div>
           </div>
           <div className="flex-1 overflow-hidden">
             <MarkdownEditor
+              key={activeId}
               value={content}
               onChange={handleContentChange}
               placeholder="Schreibe Markdown..."
+              viewMode={viewMode === "live" ? "split" : viewMode === "reverse" ? "split-reverse" : viewMode}
+              onViewModeChange={(mode) => setViewMode(mode === "split" ? "live" : mode === "split-reverse" ? "reverse" : mode)}
             />
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex items-center justify-center text-zinc-700">
-          Kein Dokument geöffnet
+        <div className="flex-1 flex flex-col gap-3 items-center justify-center text-zinc-700">
+          <span>{loadError || "Kein Dokument geöffnet"}</span>
+          {loadError && <button onClick={loadDocs} className="rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700">Erneut laden</button>}
         </div>
       )}
 

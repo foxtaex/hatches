@@ -20,7 +20,6 @@ hatches/
 │   │   ├── docs/       # Markdown Editor
 │   │   ├── integrations/ # Integration Manager
 │   │   ├── kanban/     # Kanban Board
-│   │   ├── notes/      # Notes
 │   │   └── websites/   # Website Manager
 │   ├── lib/            # Auth, DB, Permissions
 │   └── pages/          # Astro Routes + API
@@ -77,7 +76,7 @@ Lies **alle** diese Docs bevor du irgendwas anfängst:
 - Vision: Alles in Einem (Notion + Obsidian + Trello + AI)
 - Vibecoding Collaboration (Creator Mode + Vision Mode)
 - Design System: Apple-inspired, Inter, Frosted Glass
-- Module: Kanban, Docs, Notes, Websites, Teams, Integrations
+- Module: Kanban, Docs, Planner, Websites, Teams, Integrationen
 
 **Kurzübersicht SECURITY.md:**
 - ⚠️ **vibe-coded** — kein Security Audit
@@ -206,7 +205,7 @@ npm run build
 
 | Version | Feature | Beschreibung |
 |---------|---------|-------------|
-| **5.14-dev** | Jetzt | Kanban, Docs, Notes, Websites, Teams, Integrations |
+| **5.17.22-dev** | Jetzt | Kanban, Docs mit WYSIWYG, Planner, Websites, Teams, Integrationen |
 | **5.15-dev** | UX + Stability | Theme Toggle, Search, Keyboard Shortcuts |
 | **6.0-dev** | Import/Export | JSON/Zip Export, Import von Notion/Jira |
 | **6.1-dev** | Sync + E2E | Local-first (Dexie.js), E2E Encryption, Sync Gateway |

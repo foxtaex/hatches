@@ -1,7 +1,8 @@
 # MD-Editor — Markdown Editor Specification
 
 > **Component:** `src/components/docs/MarkdownEditor.tsx`
-> **Status:** In Progress
+> **Status:** ✅ Implementiert
+> **Version:** 0.5.26.18.22-dev.1d
 > **Replaces:** @uiw/react-md-editor
 
 ---
@@ -22,8 +23,8 @@ Eigener Markdown Editor mit Live Preview — inspiriert von iA Writer + Astro-ed
 |------|-------------|
 | **Edit** | Nur Text-Editor (Monaco-style) |
 | **Split** | Editor links, Preview rechts (50/50) |
- **Editor-Preview** | Nur gerenderte Vorschau |
-| **Preview** | Nur gerenderte Vorschau |
+| **Reverse Split** | Bearbeitbare Vorschau links, Markdown rechts (50/50) |
+| **Preview** | Direkt bearbeitbare WYSIWYG-Vorschau |
 
 ### Toolbar
 
@@ -37,7 +38,7 @@ Numbered    → 1. item
 Link        → [text](url)
 Image       → ![alt](url)
 Code        → `code`
-Code-block  → ```[Sprache]    <- like discord
+Code-block  → ```[Sprache]    <- wie Discord
               Code
               ```
 Quote       → > text
@@ -51,6 +52,7 @@ Table       → | Header | → Generate table
 |----------|--------|
 | `Ctrl+B` | Bold |
 | `Ctrl+I` | Italic |
+| `Ctrl+Shift+K` | Codeblock |
 | `Tab` | 2 Spaces indent |
 | `Enter` | New line |
 | `Backspace` | Delete |
@@ -61,6 +63,7 @@ Table       → | Header | → Generate table
 - **Tables** — Pipe tables
 - **Task Lists** — `- [x]` or `- [ ]`
 - **Code Blocks** — With language hint
+- **Syntax Highlighting** — `js`, `ts`, `python`, `css`, `html` und weitere Sprachen via highlight.js
 - **Line Breaks** — `br` tags via `breaks: true`
 
 ---
@@ -72,8 +75,8 @@ interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  minHeight?: string;
-  maxHeight?: string;
+  viewMode?: "edit" | "preview" | "split" | "split-reverse";
+  onViewModeChange?: (mode: ViewMode) => void;
 }
 ```
 
@@ -89,6 +92,19 @@ interface MarkdownEditorProps {
 ---
 
 ## Future Enhancements
+
+### Doc-Kommentare und PDF-Export
+- [ ] Kommentare an markierten Textstellen
+- [ ] Antworten und Erledigt-Status
+- [ ] Druckfreundlicher PDF-Export
+- [ ] Details: [`doc-comments-pdf-export.md`](./doc-comments-pdf-export.md)
+
+### Smart Tables
+- [ ] Visuelle Bearbeitung von Markdown-Tabellen als Zellenraster
+- [ ] Zeilen und Spalten verwalten, sortieren und filtern
+- [ ] Einfache Formeln und CSV-Import/-Export
+- [ ] Verlustfreier Wechsel zwischen Smart-Table- und Markdown-Ansicht
+- [ ] Details: [`smart-tables.md`](./smart-tables.md)
 
 ### Phase 2 (Block Editor)
 - [ ] TipTap Integration (Block-basiert)
@@ -113,6 +129,10 @@ interface MarkdownEditorProps {
 
 ```
 marked         → Markdown parsing
+highlight.js   → Syntax Highlighting für Codeblöcke
+marked-highlight → Verbindung zwischen Parser und Highlighter
+turndown       → WYSIWYG-HTML zurück zu Markdown
+turndown-plugin-gfm → Tabellen, Task Lists, Strikethrough erhalten
 shiki          → Syntax highlighting (future)
 @tiptap/core   → Block editor (future)
 react-split    → Split view resize
@@ -132,4 +152,4 @@ src/components/docs/
 
 ---
 
-*Letztes Update: 2026-05-14*
+*Letztes Update: 2026-07-22 — Codeblöcke, Syntax-Highlighting und WYSIWYG-Synchronisierung stabilisiert*

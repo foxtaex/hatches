@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
 // GET /api/user/teams — returns the teams the current user is a member of
-// (no admin required — used for scope picker in Board/Docs/Notes)
+// (no admin required — used for scope pickers in Board and Docs)
 export const GET: APIRoute = async ({ locals }) => {
   const user = (locals as any).user;
   if (!user) return Response.json([], { status: 401 });

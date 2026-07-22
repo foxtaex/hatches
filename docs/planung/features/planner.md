@@ -87,7 +87,6 @@ planner/
 | Integration | Status | Beschreibung |
 |-------------|--------|-------------|
 | Kanban Due Dates | ❌ | Card due date → Calendar |
-| Notes | ❌ | Notes mit Datum |
 | iCal Import | ❌ | External calendars |
 | iCal Export | ❌ | Share calendar |
 | Reminders | ❌ | AI notifications (future) |

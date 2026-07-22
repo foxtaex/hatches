@@ -37,12 +37,11 @@ export const de = {
   nav: {
     board: "Board",
     docs: "Docs",
-    notes: "Notizen",
     planner: "Planner",
     ai: "KI",
     settings: "Einstellungen",
     search: "Suchen",
-    searchPlaceholder: "Suchen in Board, Docs, Notizen, Planner…",
+    searchPlaceholder: "Suchen in Board, Docs und Planner…",
     myAccount: "Mein Account",
     logout: "Abmelden",
   },
@@ -78,13 +77,6 @@ export const de = {
     viewEdit: "Editor",
     viewLive: "Split",
     viewPreview: "Vorschau",
-  },
-  notes: {
-    title: "Notizen",
-    newNote: "Neue Notiz",
-    noNote: "Keine Notiz geöffnet",
-    searchPlaceholder: "Notizen suchen…",
-    noTags: "Keine Tags",
   },
   planner: {
     title: "Planner",

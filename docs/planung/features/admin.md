@@ -155,7 +155,6 @@ Section     │ View │ Create │ Edit │ Delete
 ────────────┼──────┼───────┼──────┼──────
 Board       │  ✓   │   ✓   │  ✓   │   ✓
 Docs        │  ✓   │   ✓   │  ✓   │   ✓
-Notes       │  ✓   │   ✓   │  ✓   │   ✓
 Planner     │  ✓   │   ✓   │  ✓   │   ✓
 Teams       │  ✓   │   ✗   │  ✗   │   ✗   (nur Oga)
 Settings    │  ✓   │   ✗   │  ✗   │   ✗   (nur Oga)

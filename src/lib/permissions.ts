@@ -1,4 +1,4 @@
-export type Section = "board" | "docs" | "notes" | "planner" | "templates" | "admin";
+export type Section = "board" | "docs" | "planner" | "templates" | "admin";
 export type Action = "view" | "create" | "edit" | "delete";
 
 interface MembershipWithRole {
@@ -28,7 +28,7 @@ export function can(user: UserWithMemberships | null, section: Section, action: 
 }
 
 export function getEffectivePermissions(user: UserWithMemberships | null) {
-  const sections: Section[] = ["board", "docs", "notes", "planner", "templates", "admin"];
+  const sections: Section[] = ["board", "docs", "planner", "templates", "admin"];
   return Object.fromEntries(
     sections.map((s) => [
       s,

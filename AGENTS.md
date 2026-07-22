@@ -1,0 +1,1 @@
+@docs/planung/AGENTS.md

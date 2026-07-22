@@ -29,7 +29,6 @@ src/
 │   ├── docs/
 │   ├── integrations/
 │   ├── kanban/
-│   ├── notes/
 │   ├── planner/
 │   ├── setup/
 │   ├── templates/
@@ -51,7 +50,6 @@ src/
     │   ├── docs/
     │   ├── events/
     │   ├── integrations/
-    │   ├── notes/
     │   ├── search.ts
     │   ├── setup/
     │   ├── templates/

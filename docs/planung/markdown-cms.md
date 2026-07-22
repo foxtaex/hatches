@@ -45,7 +45,6 @@ Hatches Markdown:
 ├── Docs        → Markdown Pages, Block Editor, Frontmatter
 ├── Kanban      → Cards = Doc Blocks, Columns = Status
 ├── Planner     → Calendar Events = Docs mit Date Frontmatter
-├── Notes       → Quick Notes (Mini Docs)
 ├── Websites    → CMS Pages Registry
 └── Database    → Notion-style DB als Block
 ```
@@ -421,7 +420,6 @@ docs/
 └── plan/
     ├── md-editor/      → Markdown Editor Spec
     ├── kanban/         → Kanban Board Spec
-    ├── notes/          → Quick Notes Spec
     ├── planner/        → Calendar + Timeline Spec
     ├── admin/          → Admin Panel Spec
     ├── settings/      → Settings Spec

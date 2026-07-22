@@ -35,9 +35,10 @@ export const POST: APIRoute = async ({ request }) => {
 };
 
 // PATCH /api/board/cards — update card fields
-export const PATCH: APIRoute = async ({ request }) => {
+export const PATCH: APIRoute = async ({ request, locals }) => {
   const body = await request.json();
   const { id } = body;
+  const user = (locals as any).user;
 
   const data: Record<string, unknown> = {};
   if (body.title !== undefined)       data.title = body.title;
@@ -47,6 +48,37 @@ export const PATCH: APIRoute = async ({ request }) => {
   if (body.labels !== undefined)      data.labels = body.labels;
   if (body.coverColor !== undefined)  data.coverColor = body.coverColor;
   if (body.checklist !== undefined)   data.checklist = body.checklist;
+  if (body.linkedDocId !== undefined) {
+    if (body.linkedDocId === null) {
+      data.linkedDocId = null;
+      data.linkedDocMode = null;
+    } else {
+      const linkedDocId = Number(body.linkedDocId);
+      const memberships = user.isAdmin ? [] : await prisma.teamMembership.findMany({
+        where: { userId: user.id }, select: { teamId: true },
+      });
+      const doc = await prisma.doc.findFirst({
+        where: user.isAdmin
+          ? { id: linkedDocId }
+          : {
+              id: linkedDocId,
+              OR: [
+                { ownerId: user.id, teamId: null },
+                { teamId: { in: memberships.map((membership) => membership.teamId) } },
+              ],
+            },
+        select: { id: true },
+      });
+      if (!doc) return Response.json({ error: "Dokument nicht gefunden oder nicht zugänglich" }, { status: 403 });
+      data.linkedDocId = linkedDocId;
+      data.linkedDocMode = body.linkedDocMode === "description" ? "description" : "attachment";
+    }
+  } else if (body.linkedDocMode !== undefined) {
+    if (body.linkedDocMode !== "description" && body.linkedDocMode !== "attachment") {
+      return Response.json({ error: "Ungültiger Dokument-Modus" }, { status: 400 });
+    }
+    data.linkedDocMode = body.linkedDocMode;
+  }
   // dueDate arrives as ISO string — convert to Date for Prisma
   if (body.dueDate !== undefined)     data.dueDate = body.dueDate ? new Date(body.dueDate) : null;
 

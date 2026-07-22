@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { prisma } from "../../../lib/db";
 
-const SECTIONS = ["board", "docs", "notes", "planner", "templates", "admin"];
+const SECTIONS = ["board", "docs", "planner", "templates", "admin"];
 
 function requireAdmin(locals: any) {
   if (!locals.user?.isAdmin) throw new Error("forbidden");
