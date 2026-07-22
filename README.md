@@ -196,7 +196,7 @@ Hatches is **vibe-coded and not audited** for security vulnerabilities. It is no
 ## 🤝 Thanks
 
 - Syntarex
-- HarryPropper — (Discord)
+- HarryPropper
 
 ---
 
