@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+/* ── Cross-platform form controls ───────────────────────── */
+:root {
+  color-scheme: dark;
+}
+
+select:not([multiple]):not([size]) {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%23a1a1aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-position: right 0.7rem center;
+  background-repeat: no-repeat;
+  background-size: 0.75rem;
+  cursor: pointer;
+  padding-right: 2.15rem !important;
+}
+
+select:not([multiple]):not([size]):hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+select:not([multiple]):not([size]):focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(60, 199, 154, 0.3);
+  outline-offset: 1px;
+}
+
+select:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+select option,
+select optgroup {
+  background: #18181b;
+  color: #e4e4e7;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: #3cc79a;
+}
+
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+/* ── Apple-style scrollbar ──────────────────────────────── */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+  background-clip: padding-box;
+}
+
+/* ── Glassmorphism utility classes ──────────────────────── */
+.glass-surface {
+  background: rgba(18, 18, 18, 0.6);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+
+.glass-card {
+  background: rgba(28, 28, 28, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.glass-item {
+  background: rgba(40, 40, 40, 0.9);
+}
+
+/* ── Smooth spring-like transitions ─────────────────────── */
+.transition-spring {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Card hover lift ────────────────────────────────────── */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-lift:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Markdown reader ────────────────────────────────────── */
+.markdown-preview {
+  color: #d4d4d8;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.markdown-preview > :first-child { margin-top: 0; }
+.markdown-preview > :last-child { margin-bottom: 0; }
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  color: #f4f4f5;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 1.6em 0 0.65em;
+}
+.markdown-preview h1 { font-size: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.35em; }
+.markdown-preview h2 { font-size: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.3em; }
+.markdown-preview h3 { font-size: 1.25rem; }
+.markdown-preview h4 { font-size: 1.1rem; }
+.markdown-preview p,
+.markdown-preview ul,
+.markdown-preview ol,
+.markdown-preview blockquote,
+.markdown-preview pre,
+.markdown-preview table { margin: 0 0 1.1em; }
+.markdown-preview ul { list-style: disc; padding-left: 1.6rem; }
+.markdown-preview ol { list-style: decimal; padding-left: 1.6rem; }
+.markdown-preview li { margin: 0.25em 0; }
+.markdown-preview li > ul,
+.markdown-preview li > ol { margin: 0.25em 0; }
+.markdown-preview a { color: #3cc79a; text-decoration: underline; text-underline-offset: 3px; }
+.markdown-preview a:hover { color: #6ee7bd; }
+.markdown-preview strong { color: #f4f4f5; font-weight: 700; }
+.markdown-preview blockquote {
+  border-left: 3px solid #3cc79a;
+  color: #a1a1aa;
+  padding: 0.25em 0 0.25em 1rem;
+}
+.markdown-preview code {
+  background: rgba(255,255,255,0.08);
+  border-radius: 0.3rem;
+  color: #a7f3d0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88em;
+  padding: 0.15em 0.35em;
+}
+.markdown-preview pre {
+  background: #09090b;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 0.65rem;
+  overflow-x: auto;
+  padding: 1rem;
+}
+.markdown-preview pre code { background: transparent; color: #e4e4e7; padding: 0; }
+.markdown-preview hr { border: 0; border-top: 1px solid rgba(255,255,255,0.12); margin: 1.75rem 0; }
+.markdown-preview table { border-collapse: collapse; display: block; max-width: 100%; overflow-x: auto; width: max-content; }
+.markdown-preview th,
+.markdown-preview td { border: 1px solid rgba(255,255,255,0.12); padding: 0.55rem 0.8rem; text-align: left; }
+.markdown-preview th { background: rgba(255,255,255,0.06); color: #f4f4f5; font-weight: 600; }
+.markdown-preview tr:nth-child(even) { background: rgba(255,255,255,0.025); }
+.markdown-preview img { border-radius: 0.6rem; height: auto; margin: 1rem 0; max-width: 100%; }
+.markdown-preview input[type="checkbox"] { accent-color: #3cc79a; margin-right: 0.45rem; }
+.markdown-preview-editable:focus { background: rgba(255,255,255,0.015); }
+.markdown-preview-editable:empty::before {
+  color: #71717a;
+  content: attr(data-placeholder);
+  pointer-events: none;
+}

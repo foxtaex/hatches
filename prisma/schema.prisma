@@ -1,0 +1,401 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ── Kanban ───────────────────────────────────────────────
+
+model Board {
+  id          Int          @id @default(autoincrement())
+  name        String       @default("Main Board")
+  teamId      Int?
+  team        Team?        @relation(fields: [teamId], references: [id])
+  ownerId     Int?
+  owner       User?        @relation("BoardOwner", fields: [ownerId], references: [id])
+  columns     Column[]
+  projectItem ProjectItem?
+  createdAt   DateTime     @default(now())
+}
+
+model Column {
+  id       Int    @id @default(autoincrement())
+  title    String
+  position Int
+  boardId  Int
+  board    Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards    Card[]
+}
+
+model Card {
+  id            Int            @id @default(autoincrement())
+  title         String
+  description   String?
+  position      Int
+  columnId      Int
+  column        Column         @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  assigneeId    Int?
+  assignee      User?          @relation("CardAssignee", fields: [assigneeId], references: [id])
+  externalIssue ExternalIssue?
+  isArchived    Boolean        @default(false)
+  archivedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  archive       Archive?
+  // Trello/Notion Features
+  dueDate       DateTime?
+  priority      String? // "low" | "medium" | "high" | "urgent"
+  labels        String         @default("[]") // JSON: {id,name,color}[]
+  coverColor    String?
+  checklist     String         @default("[]") // JSON: {id,text,done}[]
+  comments      CardComment[]
+  linkedDocId   Int?
+  linkedDocMode String? // "description" | "attachment"
+  linkedDoc     Doc?           @relation(fields: [linkedDocId], references: [id], onDelete: SetNull)
+}
+
+model CardComment {
+  id        Int      @id @default(autoincrement())
+  cardId    Int
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  authorId  Int
+  author    User     @relation("CommentAuthor", fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Archive {
+  id           Int      @id @default(autoincrement())
+  cardId       Int      @unique
+  card         Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  archivedById Int?
+  archivedBy   User?    @relation("ArchivedBy", fields: [archivedById], references: [id])
+  reason       String?
+  archivedAt   DateTime @default(now())
+}
+
+// ── Docs & Notes ─────────────────────────────────────────
+
+model Doc {
+  id          Int          @id @default(autoincrement())
+  title       String
+  content     String       @default("")
+  teamId      Int?
+  team        Team?        @relation(fields: [teamId], references: [id])
+  ownerId     Int?
+  owner       User?        @relation("DocOwner", fields: [ownerId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  linkedCards Card[]
+  projectItem ProjectItem?
+}
+
+// ── Projects ──────────────────────────────────────────────
+
+model Project {
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String?
+  dueDate     DateTime?
+  teamId      Int?
+  team        Team?           @relation(fields: [teamId], references: [id])
+  ownerId     Int?
+  owner       User?           @relation("ProjectOwner", fields: [ownerId], references: [id])
+  folders     ProjectFolder[]
+  items       ProjectItem[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([teamId])
+  @@index([ownerId])
+}
+
+model ProjectFolder {
+  id        Int           @id @default(autoincrement())
+  name      String
+  position  Int           @default(0)
+  projectId Int
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  items     ProjectItem[]
+  createdAt DateTime      @default(now())
+
+  @@unique([projectId, name])
+  @@index([projectId, position])
+}
+
+model ProjectItem {
+  id        Int            @id @default(autoincrement())
+  type      String // "board" | "doc" | later "whiteboard"
+  projectId Int
+  project   Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  folderId  Int?
+  folder    ProjectFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  boardId   Int?           @unique
+  board     Board?         @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  docId     Int?           @unique
+  doc       Doc?           @relation(fields: [docId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+
+  @@index([projectId])
+  @@index([folderId])
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @default("")
+  teamId    Int?
+  team      Team?    @relation(fields: [teamId], references: [id])
+  ownerId   Int?
+  owner     User?    @relation("NoteOwner", fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── Websites ─────────────────────────────────────────────
+
+model Website {
+  id          Int      @id @default(autoincrement())
+  name        String
+  url         String?
+  repoUrl     String?
+  deployCmd   String?
+  buildCmd    String?
+  description String?
+  status      String   @default("idle")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── Auth & Users ─────────────────────────────────────────
+
+model User {
+  id                  Int                @id @default(autoincrement())
+  username            String             @unique
+  email               String             @unique
+  passwordHash        String
+  displayName         String?
+  bio                 String?
+  avatar              String?
+  isAdmin             Boolean            @default(false)
+  isOga               Boolean            @default(false)
+  isActive            Boolean            @default(true)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  sessions            Session[]
+  memberships         TeamMembership[]
+  cards               Card[]             @relation("CardAssignee")
+  archives            Archive[]          @relation("ArchivedBy")
+  ownedBoards         Board[]            @relation("BoardOwner")
+  ownedDocs           Doc[]              @relation("DocOwner")
+  ownedProjects       Project[]          @relation("ProjectOwner")
+  ownedNotes          Note[]             @relation("NoteOwner")
+  globalPermissions   GlobalPermission[] @relation("UserGlobalPermissions")
+  grantedPermissions  GlobalPermission[] @relation("GrantedByUser")
+  orgGroupMemberships OrgGroupMember[]
+  createdEvents       Event[]            @relation("EventCreator")
+  createdTemplates    Template[]         @relation("TemplateCreator")
+  comments            CardComment[]      @relation("CommentAuthor")
+}
+
+model Session {
+  id        String   @id
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// ── Teams & Roles ─────────────────────────────────────────
+
+model Team {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  color       String           @default("#6b7280")
+  createdAt   DateTime         @default(now())
+  memberships TeamMembership[]
+  boards      Board[]
+  docs        Doc[]
+  notes       Note[]
+  events      Event[]
+  templates   Template[]
+  projects    Project[]
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  color       String           @default("#6b7280")
+  isDefault   Boolean          @default(false)
+  priority    Int              @default(0)
+  createdAt   DateTime         @default(now())
+  permissions Permission[]
+  memberships TeamMembership[]
+}
+
+model TeamMembership {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  teamId   Int
+  roleId   Int
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  role     Role     @relation(fields: [roleId], references: [id])
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, teamId])
+}
+
+model Permission {
+  id        Int     @id @default(autoincrement())
+  roleId    Int
+  role      Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  section   String
+  canView   Boolean @default(false)
+  canCreate Boolean @default(false)
+  canEdit   Boolean @default(false)
+  canDelete Boolean @default(false)
+
+  @@unique([roleId, section])
+}
+
+// ── Global Permissions (Oga-only, team-independent) ──────
+
+model GlobalPermission {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation("UserGlobalPermissions", fields: [userId], references: [id], onDelete: Cascade)
+  permission  String // "canCreateTeam" | "canManageUsers" | "canSeeApiKeys" | "canManageIntegrations"
+  grantedById Int?
+  grantedBy   User?    @relation("GrantedByUser", fields: [grantedById], references: [id])
+  grantedAt   DateTime @default(now())
+
+  @@unique([userId, permission])
+}
+
+// ── Org-Groups (area-based groups) ───────────────────────
+
+model OrgGroup {
+  id           Int              @id @default(autoincrement())
+  name         String           @unique
+  description  String?
+  color        String           @default("#6b7280")
+  lockedRights String           @default("[]") // JSON: string[]
+  normalRights String           @default("[]") // JSON: string[]
+  createdAt    DateTime         @default(now())
+  members      OrgGroupMember[]
+}
+
+model OrgGroupMember {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  orgGroupId Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orgGroup   OrgGroup @relation(fields: [orgGroupId], references: [id], onDelete: Cascade)
+  joinedAt   DateTime @default(now())
+
+  @@unique([userId, orgGroupId])
+}
+
+// ── Planner / Calendar ────────────────────────────────────
+
+model Event {
+  id           Int       @id @default(autoincrement())
+  title        String
+  description  String?
+  start        DateTime
+  end          DateTime?
+  allDay       Boolean   @default(false)
+  color        String    @default("#3CC79A")
+  recurring    String? // "daily" | "weekly" | "monthly" | null
+  recurringEnd DateTime?
+  teamId       Int?
+  team         Team?     @relation(fields: [teamId], references: [id])
+  createdById  Int?
+  createdBy    User?     @relation("EventCreator", fields: [createdById], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// ── Templates ─────────────────────────────────────────────
+
+model Template {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  category    String   @default("general") // "software"|"project"|"marketing"|"hr"|"general"
+  type        String   @default("general") // "doc"|"board"|"general"
+  icon        String   @default("📋")
+  content     String   @default("{}") // JSON: { boards?, docs?, notes? }
+  isPublic    Boolean  @default(true)
+  teamId      Int?
+  team        Team?    @relation(fields: [teamId], references: [id])
+  createdById Int?
+  createdBy   User?    @relation("TemplateCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── AI Provider Config ────────────────────────────────────
+
+model AiConfig {
+  id          Int      @id @default(autoincrement())
+  provider    String // "openai"|"anthropic"|"google"|"deepseek"|"minimax"|"ollama"|"custom"
+  name        String
+  apiKey      String?
+  baseUrl     String?
+  model       String?
+  temperature Float    @default(0.7)
+  maxTokens   Int      @default(2048)
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── Integrations ──────────────────────────────────────────
+
+model Integration {
+  id          Int             @id @default(autoincrement())
+  type        String
+  name        String
+  baseUrl     String?
+  token       String?
+  projectKey  String?
+  extraConfig String?
+  enabled     Boolean         @default(true)
+  lastSyncAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  issues      ExternalIssue[]
+}
+
+model ExternalIssue {
+  id            Int         @id @default(autoincrement())
+  integrationId Int
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  externalId    String
+  title         String
+  description   String?
+  status        String?
+  url           String?
+  assignee      String?
+  labels        String?
+  importedAt    DateTime    @default(now())
+  cardId        Int?        @unique
+  card          Card?       @relation(fields: [cardId], references: [id])
+
+  @@unique([integrationId, externalId])
+}
+
+// ── Workspace Config (singleton, id=1) ────────────────────
+
+model WorkspaceConfig {
+  id        Int      @id @default(1)
+  name      String   @default("Hatches")
+  updatedAt DateTime @updatedAt
+}
