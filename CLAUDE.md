@@ -1,1 +1,0 @@
-@docs/planung/CLAUDE.md

@@ -76,16 +76,25 @@ const emptyForm = (): EventFormData => ({
   allDay: false, color: "#3CC79A", recurring: "", teamId: "",
 });
 
+function ItemTypeBadge({ type }: { type: "project" | "card" }) {
+  return (
+    <span className={`flex-shrink-0 rounded px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide ${type === "project" ? "bg-[#3CC79A]/10 text-[#3CC79A]/75" : "bg-white/[0.06] text-white/35"}`}>
+      {type === "project" ? "Projekt" : "Board-Karte"}
+    </span>
+  );
+}
+
 // ── Event Chip ───────────────────────────────────────────
 function EventChip({ event, onClick }: { event: Event; onClick: () => void }) {
   return (
     <div
       onClick={(e) => { e.stopPropagation(); onClick(); }}
-      className="text-[10px] font-medium px-1.5 py-0.5 rounded truncate cursor-pointer hover:opacity-80 transition-opacity"
+      className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium cursor-pointer hover:opacity-80 transition-opacity"
       style={{ background: event.color + "33", color: event.color, border: `1px solid ${event.color}44` }}
     >
-      {!event.allDay && <span className="opacity-70 mr-1">{formatTime(event.start)}</span>}
-      {event.title}
+      {!event.allDay && <span className="flex-shrink-0 opacity-70">{formatTime(event.start)}</span>}
+      <span className="min-w-0 flex-1 truncate">{event.title}</span>
+      <ItemTypeBadge type="project" />
     </div>
   );
 }
@@ -96,12 +105,13 @@ function DueCardChip({ card }: { card: DueCard }) {
     <a
       href={`/board?boardId=${card.column.board.id}`}
       onClick={e => e.stopPropagation()}
-      className="text-[10px] font-medium px-1.5 py-0.5 rounded truncate flex items-center gap-1 hover:opacity-80 transition-opacity"
+      className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium hover:opacity-80 transition-opacity"
       style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.45)", border: "1px dashed rgba(255,255,255,0.15)" }}
       title={`${card.column.board.name} › ${card.column.title}`}
     >
       <span>📌</span>
-      {card.title}
+      <span className="min-w-0 flex-1 truncate">{card.title}</span>
+      <ItemTypeBadge type="card" />
     </a>
   );
 }
@@ -227,7 +237,10 @@ function WeekView({ weekStart, events, dueCards, today, onDayClick, onEventClick
                     className="p-1.5 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
                     style={{ background: e.color + "22", border: `1px solid ${e.color}33` }}
                   >
-                    <div className="text-[10px] font-medium truncate" style={{ color: e.color }}>{e.title}</div>
+                    <div className="flex items-center gap-1">
+                      <div className="min-w-0 flex-1 truncate text-[10px] font-medium" style={{ color: e.color }}>{e.title}</div>
+                      <ItemTypeBadge type="project" />
+                    </div>
                     {!e.allDay && (
                       <div className="text-[9px] text-white/40 mt-0.5">{formatTime(e.start)}</div>
                     )}
@@ -336,7 +349,10 @@ function AgendaView({ events, dueCards, today, onEventClick }: {
                   >
                     <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ background: e.color }} />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-white/90">{e.title}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="min-w-0 flex-1 truncate font-medium text-sm text-white/90">{e.title}</div>
+                        <ItemTypeBadge type="project" />
+                      </div>
                       {!e.allDay && (
                         <div className="text-xs text-white/50 mt-0.5">
                           {formatTime(e.start)}{e.end ? ` – ${formatTime(e.end)}` : ""}
@@ -362,7 +378,10 @@ function AgendaView({ events, dueCards, today, onEventClick }: {
                   >
                     <div className="w-1 self-stretch rounded-full flex-shrink-0 bg-white/20" />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-white/60">📌 {c.title}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="min-w-0 flex-1 truncate font-medium text-sm text-white/60">📌 {c.title}</div>
+                        <ItemTypeBadge type="card" />
+                      </div>
                       <div className="text-xs text-white/35 mt-0.5">
                         {c.column.board.name} › {c.column.title}
                         {c.priority && <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-medium ${c.priority === "urgent" ? "bg-red-900/40 text-red-400" : c.priority === "high" ? "bg-orange-900/40 text-orange-400" : "bg-zinc-800 text-zinc-500"}`}>{c.priority}</span>}
@@ -624,7 +643,10 @@ export function Planner() {
                       className="p-3 rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
                       style={{ background: e.color + "18", border: `1px solid ${e.color}33` }}
                     >
-                      <div className="font-medium text-sm text-white/90 mb-1">{e.title}</div>
+                      <div className="mb-1 flex items-center gap-2">
+                        <div className="min-w-0 flex-1 truncate font-medium text-sm text-white/90">{e.title}</div>
+                        <ItemTypeBadge type="project" />
+                      </div>
                       {!e.allDay && (
                         <div className="text-xs text-white/50">
                           {formatTime(e.start)}{e.end ? ` – ${formatTime(e.end)}` : ""}
@@ -646,7 +668,10 @@ export function Planner() {
                       className="p-3 rounded-xl hover:opacity-90 transition-opacity block"
                       style={{ background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(255,255,255,0.12)" }}
                     >
-                      <div className="text-sm text-white/60 mb-0.5">📌 {c.title}</div>
+                      <div className="mb-0.5 flex items-center gap-2">
+                        <div className="min-w-0 flex-1 truncate text-sm text-white/60">📌 {c.title}</div>
+                        <ItemTypeBadge type="card" />
+                      </div>
                       <div className="text-xs text-white/35">{c.column.board.name}</div>
                     </a>
                   ))}
